@@ -1,0 +1,63 @@
+@import url("/assets/reset.css");
+@import url("/assets/fonts.css");
+
+BODY {
+    margin: 0;
+    padding: 0;
+    font: normal 12pt/16pt Cabin, sans-serif;
+    color: #301403;
+    color: #614C3E;
+}
+#body {
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+#top {
+    height: 256px;
+}
+#middle {
+    border: 1px solid #CCBAAD;
+    border-style: solid none;
+    text-align: center;
+    overflow: auto;
+}
+#bottom {
+    height: 64px;
+}
+TABLE {
+    margin: 0 auto;
+    text-align: left;
+    font: normal 12px/14px Monaco, "Lucida Mono";
+    color: #CCBAAD;
+}
+TH, TD {
+    padding: 0 14px 0 0;
+}
+TH {
+    font-weight: bold;
+}
+TR.focus {
+    color: #614C3E;
+}
+TR.focus I {
+    color: red;
+}
+.tag {
+    border-style: none solid;
+}
+.col-a { border-left: 1px solid #CCBAAD; }
+.col-s { order-left: 1px solid #E6DFD9; }
+.col-d { order-left: 1px solid #E6DFD9; }
+.col-f { order-left: 1px solid #E6DFD9; }
+.amount, .date {
+    text-align: right;
+    padding-right: 5px;
+}
+.amount I {
+    font-style: normal;
+    color: #FFBFBF;
+}
+.description {
+    padding-left: 5px;
+}

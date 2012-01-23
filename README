@@ -1,0 +1,13 @@
+Download transactions from Mint to a file named transactions.csv in this
+directory. The link on Mint is at the very bottom of the "Transactions" screen
+and says something like "Expert all NNN transactions".
+
+Next create a local.env file in this directory that contains the following:
+
+    CANONICAL_HOST=
+    CANONICAL_SCHEME=http
+    GAUGES=false
+
+Then run `make run` in this directory and hit http://localhost/
+
+Voila!

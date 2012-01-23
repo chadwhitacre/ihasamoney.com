@@ -1,0 +1,107 @@
+import csv
+import decimal
+
+
+months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+        "Oct", "Nov", "Dec"]
+
+def commaize(amount):
+    """Given a 2-decimal number as a string, return it with commas.
+    """
+    if len(amount) <= 6:
+        return amount
+    whole, fraction = amount.split('.')
+    whole = list(whole)
+    out = '.' + fraction
+    i = 1 
+    while whole:
+        out = whole.pop() + out
+        if i % 3 == 0:
+            out = ',' + out
+        i += 1
+    return out.lstrip(',')
+
+# ========================================================================== ^L
+fp = open('../transactions.csv')
+txns = csv.reader(fp)
+headers = txns.next()
+headers = ["amount", "description", "date"]
+tags = [ "government", "charity", "utilities", "insurance", "housing", "chad"
+       , "kids", "family fun", ""]
+
+def gentxn(txns):
+    curdate = (0000, 00, 00)
+    for row in txns:
+
+        month, day, year = [int(x) for x in row[0].split('/')]
+        if (year, month, day) == curdate:
+            date = "&nbsp;"
+        elif (year, month) == curdate[:2]:
+            date = "%02d" % day
+        elif (year,) == curdate[:1]:
+            date = "%s %02d" % (months[month], day)
+        else:
+            date = "%04d %s %02d" % (year, months[month], day)
+        curdate = (year, month, day)
+
+        amount = commaize(row[3])
+        assert row[4] in ['credit', 'debit']
+        if row[4] == 'debit':
+            amount = "<i>%s</i>" % amount
+
+        yield amount, row[2], date
+
+
+# ========================================================================== ^L
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fsck Mammon</title>
+        <script src="/assets/jquery-1.7.1.min.js"></script>
+        <style>@import url("/assets/ihazmoney.css");</style>
+        <script src="/assets/ihazmoney.js"></script>
+        <script>
+            $(document).ready(IHazMoney.main);
+        </script>
+        <style>
+        </style>
+        {% block head %}{% end %}
+    </head>
+    <body>
+        <div id="body">
+
+            <div id="top"></div>
+
+            <div id="middle">
+                <table>
+                    {% for amount, description, date in gentxn(txns) %}
+                    <tr>
+                        <td class="date">{{ date }}</td>
+                        <td class="amount">{{ amount }}</td>
+                        {% for i, tag in enumerate(tags) %}
+                        <td class="{{ tag }} tag col-{{ ['a', 's', 'd', 'f'][i % 4] }}"></td>
+                        {% end %}
+                        <td class="description">{{ description }}</td>
+                    </tr>
+                    {% end %}
+                </table>
+            </div>
+            
+            <div id="bottom"></div>
+
+        </div>{% if website.gauges %}
+        <script type="text/javascript">
+          var _gauges = _gauges || [];
+          (function() {
+            var t   = document.createElement('script');
+            t.type  = 'text/javascript';
+            t.async = true;
+            t.id    = 'gauges-tracker';
+            t.setAttribute('data-site-id', '4ee664fe613f5d7f24000001');
+            t.src = '//secure.gaug.es/track.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(t, s);
+          })();
+        </script>{% end %}
+    </body>
+</html>

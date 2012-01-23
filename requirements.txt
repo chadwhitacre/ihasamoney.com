@@ -1,0 +1,2 @@
+./vendor/aspen-0.12.8.tar.gz
+./vendor/psycopg2-2.4.2.tar.gz
