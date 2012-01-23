@@ -98,8 +98,7 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    var foo = WIN.height() - 256 - 64 - 2;
-    $('#middle').height(foo);
+    $('#middle').height(WIN.height() - 256 - 64 - 2);
 };
 
 IHazMoney.main = function()
