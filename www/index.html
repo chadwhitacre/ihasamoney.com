@@ -58,6 +58,7 @@ def gentxn(txns):
     <head>
         <title>I Haz Money!</title>
         <script src="/assets/jquery-1.7.1.min.js"></script>
+        <script src="/assets/jquery.mousewheel.js"></script>
         <style>@import url("/assets/ihazmoney.css");</style>
         <script src="/assets/ihazmoney.js"></script>
         <script>
@@ -73,7 +74,7 @@ def gentxn(txns):
             <div id="middle">
                 <table>
                     {% for amount, description, date in gentxn(txns) %}
-                    <tr>
+                    <tr class="focus">
                         <td class="date">{{ date }}</td>
                         <td class="amount">{{ amount }}</td>
                         {% for i, tag in enumerate(tags) %}

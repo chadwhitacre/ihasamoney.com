@@ -98,7 +98,9 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    $('#middle').height(WIN.height() - 256 - 64 - 2);
+    var foo = WIN.height() - 256 - 64 - 2;
+    foo -= (foo % 14); // fit for 14px-height rows
+    $('#middle').height(foo)
 };
 
 IHazMoney.main = function()
@@ -106,5 +108,20 @@ IHazMoney.main = function()
     $(window).resize(IHazMoney.resize);
     IHazMoney.resize();
 
-    $('TR').first().addClass('focus');
+    IHazMoney.handle = null;
+    $('#middle').mousewheel(function(e, delta)
+    {
+        e.stopPropagation();
+        e.preventDefault();
+
+        var shift = delta * 14;
+        if (Math.abs(shift) < 14)
+            shift = (shift < 0) ? -14 : 14;
+        else
+            shift = Math.round(delta) * 14
+        
+        var mid = $('#middle');
+        mid.scrollTop(mid.scrollTop() - shift);
+        return false;
+    });
 };

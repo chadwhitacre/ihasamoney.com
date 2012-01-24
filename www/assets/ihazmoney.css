@@ -21,6 +21,7 @@ BODY {
     border-style: solid none;
     text-align: center;
     overflow: auto;
+    position: relative;
 }
 #bottom {
     height: 64px;
