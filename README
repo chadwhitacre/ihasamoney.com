@@ -14,10 +14,16 @@ Next create a local.env file in this directory that contains the following
     CANONICAL_HOST=
     CANONICAL_SCHEME=http
     GAUGES=false
+    SALT=password some unguessable salt
 
 Now `make run` in this directory, and hit http://localhost:8080/. Voila! You
 haz money. Sign in using admin@ihazmoney.com, password 'so secret'.
 
 Download transactions from Mint to a file named transactions.csv in this
 directory. The link on Mint is at the very bottom of the "Transactions" screen
-and says something like "Export all NNN transactions".
+and says something like "Export all NNN transactions". Then import them into
+admin@ihazmoney.com using the "import" tool in this directory (the swaddle tool
+runs a command using environment variables from a file):
+
+    $ . env/bin/activate
+    [ihazmoney]$ ./swaddle local.env ./import
