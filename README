@@ -1,18 +1,23 @@
 This is the ihazmoney.com website.
 
-(Note: You need PostgreSQL installed locally even though we're not really using
-it yet. The build will fail without it.)
+The first step is to install and prepare Postgres. There's a little script at
+sql/reset.sh which will run the *.sql files in that directory. NB: 0000.sql
+TRIES TO KILL YOUR IHAZMONEY DATABASE! It will fail if there are open
+connections to the db from a running instance of the app, psql, pgAdmin, etc.
+Also, these *.sql files don't do anything with roles. Take care of that
+yourself by tweaking the reset.sh file as needed, etc.
 
-Download transactions from Mint to a file named transactions.csv in this
-directory. The link on Mint is at the very bottom of the "Transactions" screen
-and says something like "Export all NNN transactions".
+Next create a local.env file in this directory that contains the following
+(tweak for your environment):
 
-Next create a local.env file in this directory that contains the following:
-
+    DATABASE_URL=postgres://{user}:{password}@localhost:5432/ihazmoney
     CANONICAL_HOST=
     CANONICAL_SCHEME=http
     GAUGES=false
 
-Then run `make run` in this directory and hit http://localhost:8080/
+Now `make run` in this directory, and hit http://localhost:8080/. Voila! You
+haz money. Sign in using admin@ihazmoney.com, password 'so secret'.
 
-Voila!
+Download transactions from Mint to a file named transactions.csv in this
+directory. The link on Mint is at the very bottom of the "Transactions" screen
+and says something like "Export all NNN transactions".
