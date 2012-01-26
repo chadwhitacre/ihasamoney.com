@@ -32,7 +32,7 @@ TABLE {
     font: normal 12px/14px Monaco, "Lucida Mono";
     color: #CCBAAD;
 }
-TH, TD {
+TD {
     padding: 0 14px 0 0;
 }
 TH {
@@ -43,6 +43,12 @@ TR.focus {
 }
 TR.focus I {
     color: red;
+}
+TD.tag:hover {
+    background: #CCBAAD;
+}
+TD.tagged, TD.tagged:hover {
+    background: #2A8F79;
 }
 .tag {
     border-style: none solid;

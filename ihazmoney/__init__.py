@@ -11,6 +11,13 @@ from psycopg2.pool import ThreadedConnectionPool as ConnectionPool
 log = logging.getLogger('ihazmoney')
 
 
+def get_tags(email):
+    """Given an email, return a list of tags.
+    """
+    TAGS = "SELECT tag FROM tags WHERE email = %s ORDER BY tag ASC"
+    return [x['tag'] for x in db.fetchall(TAGS, (email,))]
+
+
 # canonizer
 # =========
 

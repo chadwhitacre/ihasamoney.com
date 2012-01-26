@@ -103,6 +103,45 @@ IHazMoney.resize = function()
     $('#middle').height(foo)
 };
 
+
+// Tags
+// ====
+
+IHazMoney.renderTags = function(tags)
+{
+    console.log('rendering tags', tags);
+    $('#tags').empty();
+    for (var i=0, tag; tag = tags[i]; i++)
+    {
+        $('#tags').append('<tr><td>'+tag+'</td></tr>');
+    }
+};
+
+IHazMoney.createTag = function(e)
+{
+    var button = $(e.target);
+    var tag = $('INPUT').val();
+    console.log("creating", tag);
+    jQuery.ajax({ type: "POST"
+                , url: "/tags/" + tag + "/"
+                , success: IHazMoney.renderTags // returns a list of all tags
+                , dataType: 'json'
+                 })
+};
+
+IHazMoney.toggleTag = function(e)
+{
+    var cell = $(e.target);
+    var tag = cell.attr('tag');
+    var tid = $(cell).parent().attr('tid');
+    cell.toggleClass('tagged');
+    console.log("toggle", tag, "for", tid);
+};
+
+
+// main 
+// ====
+
 IHazMoney.main = function()
 {
     $(window).resize(IHazMoney.resize);
@@ -124,4 +163,8 @@ IHazMoney.main = function()
         mid.scrollTop(mid.scrollTop() - shift);
         return false;
     });
+
+    jQuery.getJSON('/tags/', IHazMoney.renderTags);
+    $('TD.tag').click(IHazMoney.toggleTag);
+    $('BUTTON').click(IHazMoney.createTag);
 };

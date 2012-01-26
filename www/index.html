@@ -26,11 +26,8 @@ def commaize(amount):
 if request.user.ANON:
     raise Response(401)
 
-headers = ["amount", "description", "date"]
-tags = [ "government", "charity", "utilities", "insurance", "housing", "chad"
-       , "kids", "family fun", ""]
- 
 email = request.user.session['email']
+
 txns = db.fetchall("""
 
     SELECT * 
@@ -60,7 +57,7 @@ def gentxn(txns):
         if row['amount'] < 0:
             amount = "<i>%s</i>" % amount
 
-        yield amount, row['description'], date
+        yield row['id'], amount, row['description'], date
 
 
 # ========================================================================== ^L
@@ -89,16 +86,21 @@ def gentxn(txns):
                 Signed in as <b>{{ request.user.session['email'] }}</b>. 
                 <a href="/sign/out.html">Sign out</a>.
                 {% end %}
+
+                <table id="tags">
+                </table>
+                <input id="new-tag" /><button>Add Tag</button>
             </div>
 
             <div id="middle">
                 <table>
-                    {% for amount, description, date in gentxn(txns) %}
-                    <tr class="focus">
+                    {% for tid, amount, description, date in gentxn(txns) %}
+                    <tr class="focus" tid="{{ tid }}">
                         <td class="date">{{ date }}</td>
                         <td class="amount">{{ amount }}</td>
-                        {% for i, tag in enumerate(tags) %}
-                        <td class="{{ tag }} tag col-{{ ['a', 's', 'd', 'f'][i % 4] }}"></td>
+                        {% for i, tag in enumerate([]) %}
+                        <td class="tag col-{{ ['a', 's', 'd', 'f'][i % 4] }}" 
+                            tag="{{ tag }}"></td>
                         {% end %}
                         <td class="description">{{ description }}</td>
                     </tr>
