@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import csv
+import datetime
+import decimal
+
+from ihazmoney import wire_db
+
+
+db = wire_db()
+
+
+transactions = csv.reader(open('transactions.csv'))
+headers = transactions.next()
+for row in transactions:
+    email = "admin@ihazmoney.com"
+    month, day, year = [int(x) for x in row[0].split('/')]
+    date = datetime.date(year, month, day)
+    amount = decimal.Decimal(row[3])
+    assert row[4] in ['credit', 'debit']
+    if row[4] == 'debit':
+        amount *= -1
+    description = row[2]
+
+    db.execute("""
+    
+        INSERT INTO transactions (email, date, amount, description)
+             VALUES (%s, %s, %s, %s)
+
+    """, (email, date, amount, description))

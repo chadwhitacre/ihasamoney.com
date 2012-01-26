@@ -1,0 +1,180 @@
+#body {
+}
+FORM {
+    margin: 0 auto;
+    padding: 0 0 0;
+    width: 316px;
+    text-align: left;
+}
+
+#already, #already H3, #already A { color: #CCBAAD; }
+#already .line { border-bottom-color: #CCBAAD; }
+#already A:hover { color: #614C3E; }
+
+H1 { padding : 0; }
+H3 {
+    font: normal 16px/16px Cabin;
+    padding: 2em 0 0;
+    color: #614C3E;
+    text-align: center;
+}
+H3 SPAN {
+    padding: 0 10px;
+    background: white;
+}
+H3 B {
+    text-transform: uppercase;
+}
+H3 B I {
+    font-weight: normal;
+    font-size: 9pt;
+    text-transform: none;
+}
+#problem {
+    color: red;
+    margin: 2em 0 0;
+    font: italic 16px/20px Cabin;
+}
+DIV.field {
+    float: left;
+}
+DIV.unpegged {
+    margin-bottom: 1em;
+}
+DIV.line {
+    border-bottom: 1px solid #614C3E;
+    margin-top: -10px;
+    height: 0px;
+}
+DIV.header {
+    width: 376px;
+    margin-left: -10px;
+    background: white;
+    border-bottom: 1px solid #614C3E;
+}
+DIV.header.shadow {
+    -moz-box-shadow: 0 3px 5px #614C3E;
+    -o-box-shadow: 0 3px 3px #614C3E;
+    -webkit-box-shadow: 0 3px 3px #614C3E;
+    box-shadow: 0 0px 4px #614C3E;
+}
+
+LABEL {
+    font: normal 9pt/12pt Cabin;
+    display: block;
+    margin: 1em 0 0;
+}
+LABEL I {
+    font: normal italic 9px/12pt Cabin;
+    float: right;
+}
+INPUT {
+    color: #301403;
+    border: 1px solid #614C3E;
+    width: 304px;
+    padding: 5px;
+    font: 16pt/20pt Cabin;
+}
+TEXTAREA {
+    color: #301403;
+    border: 1px solid #614C3E;
+    width: 304px;
+    height: 200px;
+    padding: 5px;
+    font: 12pt/16pt Cabin;
+}
+
+.submit {
+    padding-top: 1em;
+    text-align: right;
+}
+.dollar LABEL {
+    padding-left: 7px;
+}
+.password INPUT {
+    letter-spacing: 0.25em;
+}
+BUTTON {
+    font: normal 18px/1.2em Cabin, sans-serif;
+    text-shadow: #001b38 0px 1px 1px;
+    text-decoration: none;
+
+    background: #2A8F79 url("/assets/button-bg.png") repeat-x bottom left;
+    width: auto;
+    overflow: visible;
+    display: inline-block;
+    cursor: pointer;
+
+    border: 1px solid #0A382E;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -khtml-border-radius: 4px;
+    border-radius: 4px;
+
+    padding: 0.3em 1em;
+    margin: 0 2px;
+    vertical-align: middle;
+
+    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
+                                      , from(#2A8F79)
+                                      , to(#0D4035)
+                                       );
+    background-image: -moz-linear-gradient(top, #2A8F79, #0D4035);
+    background-image: linear-gradient(top, #2A8F79, #0D4035);
+
+    -moz-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    -webkit-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    -o-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding;
+    -o-background-clip: padding-box;
+    -ms-background-clip: padding-box;
+    -khtml-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+BUTTON::-moz-focus-inner {
+    border: none;
+    padding: 0;
+}
+
+BUTTON:focus {
+    outline: none;
+}
+
+BUTTON, BUTTON:visited,
+BUTTON:hover, BUTTON:hover:visited,
+BUTTON:focus, BUTTON:focus:visited,
+BUTTON:active, BUTTON:active:visited {
+    color: white;
+}
+
+BUTTON:hover, BUTTON:focus {
+    background-image: url("/assets/button-bg.over.png");
+    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
+                                      , from(#2A8F79)
+                                      , to(#04221B)
+                                       );
+    background-image: -moz-linear-gradient(top, #2A8F79, #04221B);
+    background-image: linear-gradient(top, #2A8F79, #04221B));
+}
+
+BUTTON:active {
+    /* http://somadesign.ca/demos/buttons-redux.html */
+    -moz-box-shadow
+        :0 .33em 1em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+    -webkit-box-shadow:
+        0 .33em 2em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+    box-shadow:
+        0 .33em 2em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+}

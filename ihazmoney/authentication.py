@@ -1,4 +1,5 @@
 import logging
+import os
 import rfc822
 import time
 import uuid
@@ -12,11 +13,7 @@ sessions = {}
 BEGINNING_OF_EPOCH = rfc822.formatdate(0)
 TIMEOUT = 60 * 60 * 24 * 7 # one week
 
-# XXX We have users using this salt, but really it should be stronger, and
-# not stored in code. Idea: add a second salt, and mark in the db whether to
-# use both salts for a given user. Or ask existing users to change their 
-# password.
-salt = "cheese and crackers" 
+salt = os.environ['SALT']
 
 def hash(password):
     return sha1(password + salt).hexdigest()

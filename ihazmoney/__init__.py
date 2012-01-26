@@ -144,13 +144,15 @@ def url_to_dsn(url):
     dsn %= (dbname, user, password, host, port)
     return dsn
 
+def wire_db():
+    url = os.environ['DATABASE_URL']
+    dsn = url_to_dsn(url)
+    return PostgresManager(dsn)
+
 db = None 
 def startup(website):
-    """Set up db and cc.
+    """Set up db and gauges.
     """
     global db
-    #url = os.environ['SHARED_DATABASE_URL']
-    #dsn = url_to_dsn(url)
-    #db = PostgresManager(dsn)
-
+    db = wire_db()
     website.gauges = os.environ['GAUGES'] != 'false'

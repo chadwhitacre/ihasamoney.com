@@ -8,6 +8,7 @@ env:
 				--distribute \
 				./env/
 	./env/bin/pip install -r requirements.txt
+	./env/bin/pip install -e ./
 
 clean:
 	rm -rf env
