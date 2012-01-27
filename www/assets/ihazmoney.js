@@ -124,7 +124,7 @@ IHazMoney.createTag = function(e)
     console.log("creating", tag);
     jQuery.ajax({ type: "POST"
                 , url: "/tags/" + tag + "/"
-                , success: IHazMoney.renderTags // returns a list of all tags
+                , success: function() { window.location.reload() }
                 , dataType: 'json'
                  })
 };
@@ -134,8 +134,13 @@ IHazMoney.toggleTag = function(e)
     var cell = $(e.target);
     var tag = cell.attr('tag');
     var tid = $(cell).parent().attr('tid');
+    var tagged = cell.hasClass('tagged');
     cell.toggleClass('tagged');
-    console.log("toggle", tag, "for", tid);
+    console.log("toggling", tag, "for", tid);
+    if (tagged)
+        jQuery.getJSON('/untag.json', {tid: tid, tag: tag});
+    else 
+        jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
 };
 
 
@@ -164,7 +169,6 @@ IHazMoney.main = function()
         return false;
     });
 
-    jQuery.getJSON('/tags/', IHazMoney.renderTags);
     $('TD.tag').click(IHazMoney.toggleTag);
     $('BUTTON').click(IHazMoney.createTag);
 };

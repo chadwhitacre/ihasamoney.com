@@ -25,9 +25,9 @@ CREATE TABLE tags
  );
 
 CREATE TABLE taggings
-( id            bigserial   PRIMARY KEY
-, tag           bigint      REFERENCES tags ON DELETE CASCADE
-, transaction   bigint      REFERENCES transactions ON DELETE CASCADE
+( id                bigserial   PRIMARY KEY
+, transaction_id    bigint      REFERENCES transactions ON DELETE CASCADE
+, tag_id            bigint      REFERENCES tags ON DELETE CASCADE
  );
 
 

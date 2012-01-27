@@ -1,0 +1,16 @@
+from ihazmoney import db
+
+TAG = """
+
+INSERT INTO taggings (transaction_id, tag_id)
+     VALUES (%s, (SELECT id FROM tags WHERE email = %s AND tag = %s))
+
+"""
+
+^L
+
+email = request.user.session['email']
+tid = request.qs.one('tid')
+tag = request.qs.one('tag')
+db.execute(TAG, (tid, email, tag))
+response.body = {}
