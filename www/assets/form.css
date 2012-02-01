@@ -73,7 +73,7 @@ INPUT {
     border: 1px solid #614C3E;
     width: 304px;
     padding: 5px;
-    font: 16pt/20pt Cabin;
+    font: 10px/10px Monaco, "Lucida Mono", monospace;
 }
 TEXTAREA {
     color: #301403;
@@ -81,7 +81,7 @@ TEXTAREA {
     width: 304px;
     height: 200px;
     padding: 5px;
-    font: 12pt/16pt Cabin;
+    font: 10px/10px Monaco, "Lucida Mono", monospace;
 }
 
 .submit {

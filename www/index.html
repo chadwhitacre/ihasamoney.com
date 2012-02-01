@@ -1,3 +1,5 @@
+import decimal
+
 from aspen import Response
 from ihazmoney import db, get_tags
 
@@ -8,6 +10,12 @@ months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
 def commaize(amount):
     """Given a 2-decimal number as a string, return it with commas.
     """
+    if isinstance(amount, decimal.Decimal):
+        amount = "%.02f" % amount
+    if decimal.Decimal(amount) == 0:
+        return "0" + ("&nbsp;" * 3)
+    if amount.startswith('-'):
+        amount = amount[1:] # abs
     if len(amount) <= 6:
         return amount
     whole, fraction = amount.split('.')
@@ -64,6 +72,9 @@ if request.user.ANON:
 
 email = request.user.session['email']
 
+balance = commaize(request.user.session['balance'])
+
+
 tags = get_tags(email)
 txns = db.fetchall("""
 
@@ -85,6 +96,25 @@ txns = db.fetchall("""
     """, (email,))
 
 
+sums = db.fetchall("""
+    
+    SELECT tags.tag                 AS tag
+         , sum(transactions.amount) AS sum
+      FROM transactions 
+      JOIN taggings 
+        ON taggings.transaction_id = transactions.id 
+      JOIN tags 
+        ON tags.id = taggings.tag_id 
+     WHERE transactions.email = %s
+  GROUP BY tag
+  ORDER BY tag
+
+        """, (email,))
+
+summary = dict([(tag, decimal.Decimal(0)) for tag in tags])
+for row in sums:
+    summary[row['tag']] = row['sum']
+
 # ========================================================================== ^L
 <!DOCTYPE html>
 <html>
@@ -103,24 +133,34 @@ txns = db.fetchall("""
         <div id="body">
 
             <div id="top">
-                {% if "signing_in" in globals() %}
-                You are signing in.
-                {% elif request.user.ANON %}       
-                You are not signed in. <a href="/sign/in.html">Sign in</a>.
-                {% else %}
-                Signed in as <b>{{ request.user.session['email'] }}</b>. 
-                <a href="/sign/out.html">Sign out</a>.
-                {% end %}
-
-                <table id="tags">
-                    <tr><td><input id="new-tag" /><button>Add Tag</button></td></tr>
-                    {% for tag in tags %}
-                    <tr><td>{{ tag }}</td></tr>
+                <div id="sign">
+                    {% if "signing_in" in globals() %}
+                    You are signing in.
+                    {% elif request.user.ANON %}       
+                    You are not signed in. <a href="/sign/in.html">Sign in</a>.
+                    {% else %}
+                    {{ request.user.session['email'] }} -
+                    <a href="/sign/out.html">sign out</a>
                     {% end %}
+                </div>
+                <div id="balance">${{ balance }}</div>
+                <table id="tags">
+                    {% for tag in tags %}
+                    <tr>
+                        <td>{{ tag }}</td>
+                        <td class="sum">{{ commaize(summary[tag]) }}</td>
+                    </tr>
+                    {% end %}
+                    <tr>
+                        <td>
+                            <span class="widget"><input /><button>create</button></span><span 
+                            class="knob">create a tag</span>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
-            <div id="middle">
+            <div id="transactions">
                 <table>
                     {% for tid, amount, description, date, ttags in gentxns(txns) %}
                     <tr class="focus" tid="{{ tid }}">
@@ -135,8 +175,6 @@ txns = db.fetchall("""
                     {% end %}
                 </table>
             </div>
-            
-            <div id="bottom"></div>
 
         </div>{% if website.gauges %}
         <script type="text/javascript">

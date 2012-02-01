@@ -7,6 +7,7 @@ CREATE TABLE users
 , session_expires       timestamp       DEFAULT 'now'
 , created               timestamp       NOT NULL DEFAULT 'now'
 , is_admin              boolean         NOT NULL DEFAULT FALSE
+, balance               numeric(15,2)   DEFAULT 0.0
  );
 
 -- Max amount is $999,999,999,999,999.99.
@@ -29,5 +30,3 @@ CREATE TABLE taggings
 , transaction_id    bigint      REFERENCES transactions ON DELETE CASCADE
 , tag_id            bigint      REFERENCES tags ON DELETE CASCADE
  );
-
-

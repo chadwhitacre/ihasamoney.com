@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+cd "`dirname $0`"
 echo "sudo password, then postgres password ..."
 sudo -u postgres psql < 0000.sql 
 echo "postgres password again ..."

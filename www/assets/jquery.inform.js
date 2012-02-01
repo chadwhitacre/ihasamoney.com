@@ -1,5 +1,5 @@
 (function($) {
-  
+
     // set in the plugin itself, at the bottom
     var $form = null;
     var form = null;

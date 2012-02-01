@@ -1,70 +1,211 @@
 @import url("/assets/reset.css");
 @import url("/assets/fonts.css");
 
+
+
 BODY {
     margin: 0;
     padding: 0;
-    font: normal 12pt/16pt Cabin, sans-serif;
+    font: normal 12px/14px Monaco, "Lucida Sans", monospace;
     color: #301403;
     color: #614C3E;
 }
+::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+::-webkit-scrollbar-corner { 
+    background: #CCBAAD; 
+}
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px #CCBAAD;
+}
+::-webkit-scrollbar-thumb {
+    background: #CCBAAD;
+}
+
 #body {
     position: relative;
     margin: 0;
     padding: 0;
 }
 #top {
-    height: 256px;
+    border-bottom: 1px solid #CCBAAD;
+    overflow: auto;
+    position: relative;
 }
-#middle {
-    border: 1px solid #CCBAAD;
-    border-style: solid none;
+#top #sign {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+#top TABLE {
+    position: absolute;
+    bottom: 2px; /* Grrr ... will need to revisit for IE anyway, I bet. */
+}
+#top .knob {
+    color: #CCBAAD;
+    cursor: pointer;
+    font-size: 10px;
+    line-height: 14px;
+}
+#top .knob:hover {
+    color: #2A8F79;
+}
+#top .widget {
+    display: none;
+}
+#top #balance {
+    position: absolute;
+    bottom: 5px;
+    font: normal 18px/18px Monaco;
+    color: black;
+    text-align: right;
+}
+#top .sum {
+    text-align: right;
+    padding-left: 5px;
+}
+
+#transactions {
     text-align: center;
     overflow: auto;
     position: relative;
 }
-#bottom {
-    height: 64px;
-}
-TABLE {
+#transactions TABLE {
     margin: 0 auto;
     text-align: left;
     font: normal 12px/14px Monaco, "Lucida Mono";
     color: #CCBAAD;
 }
-TD {
+#transactions TD {
     padding: 0 14px 0 0;
 }
-TH {
-    font-weight: bold;
-}
-TR.focus {
+#transactions TR.focus {
     color: #614C3E;
 }
-TR.focus I {
+#transactions TR.focus I {
     color: red;
 }
-TD.tag:hover {
-    background: #CCBAAD;
-}
-TD.tagged, TD.tagged:hover {
+#transactions TD.tag:hover {
     background: #2A8F79;
 }
-.tag {
+#transactions TD.tagged, #transactions TD.tagged:hover {
+    background: #CCBAAD;
+}
+#transactions .tag {
     border-style: none solid;
 }
-.col-a { border-left: 1px solid #CCBAAD; }
-.col-s { order-left: 1px solid #E6DFD9; }
-.col-d { order-left: 1px solid #E6DFD9; }
-.col-f { order-left: 1px solid #E6DFD9; }
-.amount, .date {
+#transactions .col-a { border-left: 1px solid #CCBAAD; }
+#transactions .col-s { order-left: 1px solid #E6DFD9; }
+#transactions .col-d { order-left: 1px solid #E6DFD9; }
+#transactions .col-f { order-left: 1px solid #E6DFD9; }
+#transactions .amount, #transactions .date {
     text-align: right;
     padding-right: 5px;
 }
-.amount I {
+#transactions .amount I {
     font-style: normal;
     color: #FFBFBF;
 }
-.description {
+#transactions .description {
     padding-left: 5px;
+}
+INPUT {
+    font-size: 10px;
+    line-height: 10px;
+    width: 64px;
+    height: 10px;
+    padding: 1px;
+    margin: 0;
+    border: 1px solid #CCBAAD;
+    outline: none;
+    color: #614C3E;
+}
+INPUT:focus {
+    border-color: #2A8F79;
+}
+BUTTON {
+    font: normal 10px/10px Monaco, "Lucida Sans", monospace;
+    text-shadow: #001b38 0px 1px 1px;
+    text-decoration: none;
+
+    background: #2A8F79 url("/assets/button-bg.png") repeat-x bottom left;
+    width: auto;
+    overflow: visible;
+    display: inline-block;
+    cursor: pointer;
+
+    border: 1px solid #0A382E;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+
+    padding: 1px 2px;
+    margin: 0 5px;
+    vertical-align: middle;
+
+    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
+                                      , from(#2A8F79)
+                                      , to(#0D4035)
+                                       );
+    background-image: -moz-linear-gradient(top, #2A8F79, #0D4035);
+    background-image: linear-gradient(top, #2A8F79, #0D4035);
+
+    -moz-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    -webkit-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    -o-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding;
+    -o-background-clip: padding-box;
+    -ms-background-clip: padding-box;
+    -khtml-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+BUTTON::-moz-focus-inner {
+    border: none;
+    padding: 0;
+}
+
+BUTTON:focus {
+    outline: none;
+}
+
+BUTTON, BUTTON:visited,
+BUTTON:hover, BUTTON:hover:visited,
+BUTTON:focus, BUTTON:focus:visited,
+BUTTON:active, BUTTON:active:visited {
+    color: white;
+}
+
+BUTTON:hover, BUTTON:focus {
+    background-image: url("/assets/button-bg.over.png");
+    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
+                                      , from(#2A8F79)
+                                      , to(#04221B)
+                                       );
+    background-image: -moz-linear-gradient(top, #2A8F79, #04221B);
+    background-image: linear-gradient(top, #2A8F79, #04221B));
+}
+
+BUTTON:active {
+    /* http://somadesign.ca/demos/buttons-redux.html */
+    -moz-box-shadow
+        :0 .33em 1em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+    -webkit-box-shadow:
+        0 .33em 2em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+    box-shadow:
+        0 .33em 2em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
 }

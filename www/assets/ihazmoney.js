@@ -98,9 +98,17 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    var foo = WIN.height() - 256 - 64 - 2;
-    foo -= (foo % 14); // fit for 14px-height rows
-    $('#middle').height(foo)
+    var bar = Math.floor(WIN.height() / 2); // Why 2?
+    bar -= (bar % 14); // fit for 14px-height rows
+    var foo = WIN.height() - bar - 1;
+    $('#top').height(foo);
+    $('#transactions').height(bar);
+    var foo = $('#top TABLE');
+    if (foo.length > 0)
+    {
+        foo.css('left', $('.description').offset().left + 5);
+        $('#balance').css('right', WIN.width() - $('.tag').offset().left + 5);
+    }
 };
 
 
@@ -109,7 +117,6 @@ IHazMoney.resize = function()
 
 IHazMoney.renderTags = function(tags)
 {
-    console.log('rendering tags', tags);
     $('#tags').empty();
     for (var i=0, tag; tag = tags[i]; i++)
     {
@@ -120,8 +127,7 @@ IHazMoney.renderTags = function(tags)
 IHazMoney.createTag = function(e)
 {
     var button = $(e.target);
-    var tag = $('INPUT').val();
-    console.log("creating", tag);
+    var tag = $('#top INPUT').val();
     jQuery.ajax({ type: "POST"
                 , url: "/tags/" + tag + "/"
                 , success: function() { window.location.reload() }
@@ -136,11 +142,34 @@ IHazMoney.toggleTag = function(e)
     var tid = $(cell).parent().attr('tid');
     var tagged = cell.hasClass('tagged');
     cell.toggleClass('tagged');
-    console.log("toggling", tag, "for", tid);
     if (tagged)
         jQuery.getJSON('/untag.json', {tid: tid, tag: tag});
     else 
         jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
+};
+
+IHazMoney.toggleTagCreator = function()
+{
+    $('#top .widget').toggle()
+    var cur = $('#top .knob').text();
+    var next = 'create a tag';
+    if (cur == next)
+    {
+        $('#top INPUT').val('').focus();
+        next = 'cancel';
+    }
+    $('#top .knob').text(next);
+};
+
+IHazMoney.tagCreatorKeyup = function(e)
+{
+    switch (e.which)
+    {
+        case 27:
+            IHazMoney.toggleTagCreator();
+        case 13:
+            IHazMoney.createTag({"target": $('#top BUTTON').get(0)});
+    }
 };
 
 
@@ -152,8 +181,7 @@ IHazMoney.main = function()
     $(window).resize(IHazMoney.resize);
     IHazMoney.resize();
 
-    IHazMoney.handle = null;
-    $('#middle').mousewheel(function(e, delta)
+    $('#transactions').mousewheel(function(e, delta)
     {
         e.stopPropagation();
         e.preventDefault();
@@ -164,11 +192,13 @@ IHazMoney.main = function()
         else
             shift = Math.round(delta) * 14
         
-        var mid = $('#middle');
-        mid.scrollTop(mid.scrollTop() - shift);
+        var transactions = $('#transactions');
+        transactions.scrollTop(transactions.scrollTop() - shift);
         return false;
     });
 
     $('TD.tag').click(IHazMoney.toggleTag);
     $('BUTTON').click(IHazMoney.createTag);
+    $('#top .knob').click(IHazMoney.toggleTagCreator);
+    $('#top INPUT').keyup(IHazMoney.tagCreatorKeyup);
 };

@@ -3,6 +3,7 @@ import csv
 import datetime
 import decimal
 
+import psycopg2
 from ihazmoney import wire_db
 
 
@@ -11,6 +12,7 @@ db = wire_db()
 
 transactions = csv.reader(open('transactions.csv'))
 headers = transactions.next()
+balance = 0
 for row in transactions:
     email = "admin@ihazmoney.com"
     month, day, year = [int(x) for x in row[0].split('/')]
@@ -21,9 +23,20 @@ for row in transactions:
         amount *= -1
     description = row[2]
 
-    db.execute("""
+    balance += amount
+    print balance
     
-        INSERT INTO transactions (email, date, amount, description)
-             VALUES (%s, %s, %s, %s)
+    try:
+        db.execute("""
+        
+            INSERT INTO transactions (email, date, amount, description)
+                 VALUES (%s, %s, %s, %s);
+            UPDATE users SET balance = ((
+                SELECT balance FROM users WHERE email = %s
+            ) + %s) WHERE email = %s
 
-    """, (email, date, amount, description))
+        """, ( email, date, amount, description
+             , email, amount, email
+              ))
+    except psycopg2.IntegrityError:
+        print "dupe:", email, date, amount, description

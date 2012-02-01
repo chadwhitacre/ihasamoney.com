@@ -45,6 +45,7 @@ def load_session(token):
              , session_expires
              , created
              , is_admin
+             , balance 
           FROM users
          WHERE session_token=%s
     """

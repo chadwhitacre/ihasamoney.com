@@ -1,7 +1,7 @@
 """Given a email and password, return a boolean.
 """
-from logstown import db, validate
-from logstown.authentication import sign_in, hash, sessions, User
+from ihazmoney import db, validate
+from ihazmoney.authentication import sign_in, hash, sessions, User
 from psycopg2 import IntegrityError
 
 
