@@ -1,4 +1,4 @@
 env
-transactions.csv
+transactions.csv*
 local.env
 *.egg-info

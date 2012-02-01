@@ -145,18 +145,21 @@ for row in sums:
                 </div>
                 <div id="balance">${{ balance }}</div>
                 <table id="tags">
-                    {% for tag in tags %}
                     <tr>
-                        <td>{{ tag }}</td>
-                        <td class="sum">{{ commaize(summary[tag]) }}</td>
-                    </tr>
-                    {% end %}
-                    <tr>
-                        <td>
+                        <td></td>
+                        <td class="tag">
                             <span class="widget"><input /><button>create</button></span><span 
                             class="knob">create a tag</span>
                         </td>
+                        <td></td>
                     </tr>
+                    {% for tag in tags %}
+                    <tr tag="{{ tag }}">
+                        <td class="highlight"></td>
+                        <td class="tag">{{ tag }}</td>
+                        <td class="sum">{{ commaize(summary[tag]) }}</td>
+                    </tr>
+                    {% end %}
                 </table>
             </div>
 

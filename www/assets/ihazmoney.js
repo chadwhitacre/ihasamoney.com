@@ -106,8 +106,9 @@ IHazMoney.resize = function()
     var foo = $('#top TABLE');
     if (foo.length > 0)
     {
-        foo.css('left', $('.description').offset().left + 5);
-        $('#balance').css('right', WIN.width() - $('.tag').offset().left + 5);
+        foo.css('left', $('.description').offset().left - 14);
+        var bar = WIN.width() - $('#transactions .tag').offset().left + 5;
+        $('#balance').css('right', bar);
     }
 };
 
@@ -172,6 +173,18 @@ IHazMoney.tagCreatorKeyup = function(e)
     }
 };
 
+IHazMoney.tagIn = function()
+{
+    var tag = $(this).attr('tag');
+    $('TR[tag="' + tag + '"]').addClass('hover');
+};
+
+IHazMoney.tagOut = function()
+{
+    var tag = $(this).attr('tag');
+    $('TR[tag="' + tag + '"]').removeClass('hover');
+};
+
 
 // main 
 // ====
@@ -201,4 +214,5 @@ IHazMoney.main = function()
     $('BUTTON').click(IHazMoney.createTag);
     $('#top .knob').click(IHazMoney.toggleTagCreator);
     $('#top INPUT').keyup(IHazMoney.tagCreatorKeyup);
+    $('.tag').hover(IHazMoney.tagIn, IHazMoney.tagOut);
 };
