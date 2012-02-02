@@ -82,7 +82,7 @@ BODY {
     position: relative;
 }
 #transactions TABLE {
-    margin: 2px auto 0;
+    margin: 0 auto;
     text-align: left;
     font: normal 12px/14px Monaco, "Lucida Mono";
     color: #CCBAAD;
@@ -90,10 +90,10 @@ BODY {
 #transactions TD {
     padding: 0 14px 0 0;
 }
-#transactions TR:hover {
+#transactions TR.focus {
     color: #614C3E;
 }
-#transactions TR:hover I {
+#transactions TR.focus I {
     color: red;
 }
 #transactions TD.tag {
