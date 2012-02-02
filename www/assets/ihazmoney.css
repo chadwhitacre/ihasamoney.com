@@ -96,13 +96,7 @@ BODY {
 #transactions TR.focus I {
     color: red;
 }
-#transactions TD.tag {
-    cursor: pointer;
-}
-#transactions TD.tag:hover {
-    background: #2A8F79;
-}
-#transactions TD.tagged, #transactions TD.tagged:hover {
+#transactions TD.tagged {
     background: #CCBAAD;
 }
 #transactions .tag {

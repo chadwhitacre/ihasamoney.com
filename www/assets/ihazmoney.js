@@ -98,17 +98,19 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    var bar = Math.floor(WIN.height() / 2); // Why 2?
-    bar -= (bar % 14); // fit for 14px-height rows
-    var foo = WIN.height() - bar - 1;
-    $('#top').height(foo);
-    $('#transactions').height(bar);
-    var foo = $('#top TABLE');
-    if (foo.length > 0)
+    var transactionHeight = Math.floor(WIN.height() / 2); // Why 2?
+    transactionHeight -= (transactionHeight % 14); // fit for 14px-height rows
+    var topHeight = WIN.height() - transactionHeight - 1;
+    $('#top').height(topHeight);
+    $('#transactions').height(transactionHeight);
+    $('#transactions TABLE').css('margin-bottom', transactionHeight - 14);
+    
+    var summary = $('#top TABLE');
+    if (summary.length > 0)
     {
-        foo.css('left', $('.description').offset().left - 14);
-        var bar = WIN.width() - $('#transactions .tag').offset().left + 5;
-        $('#balance').css('right', bar);
+        summary.css('left', $('.description').offset().left - 14);
+        var balanceRight = WIN.width() - $('#transactions .tag').offset().left + 5;
+        $('#balance').css('right', balanceRight);
     }
 };
 
@@ -200,25 +202,40 @@ IHazMoney.rowOut = function()
 IHazMoney.scrollBy = function(num)
 {
     var $t = $('#transactions');
-    var newTop = $t.scrollTop() + (num * 14)
-    $t.scrollTop(newTop);
-    $('#transactions TR.focus').removeClass('focus');
-    $('#transactions TR').eq(newTop / 14).addClass('focus');
+    var newTop = $t.scrollTop() + (num * 14);
+    var max = $('#transactions TABLE').height() - 14;
+    if (Math.abs(num) > 1)
+    {
+        if (newTop < 0)
+            newTop = 0;
+        if (newTop > max)
+            newTop = max;
+    }
+    if (newTop >= 0 && newTop <= max)
+    {
+        $t.scrollTop(newTop);
+        $('#transactions TR.focus').removeClass('focus');
+        $('#transactions TR').eq(newTop / 14).addClass('focus');
+    }
 };
 
 IHazMoney.navigate = function(e)
 {
     var nrows = 1;
+    if (e.ctrlKey)
+        nrows = $('#transactions').height() / 14; // page at a time
     if (e.shiftKey)
-        nrows = $('#transactions').height() / 14;
+        nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
     switch (e.which)
     {
-        case 106: // j
+        case 10:  // <ctrl>-j
         case 74:  // J
+        case 106: // j
             IHazMoney.scrollBy(nrows);
             break;
-        case 107: // k
+        case 11:  // <ctrl>-k
         case 75:  // K
+        case 107: // k
             IHazMoney.scrollBy(-nrows);
             break;
     }
@@ -242,6 +259,7 @@ IHazMoney.main = function()
         e.stopPropagation();
         e.preventDefault();
 
+        /*
         var shift = delta * 14;
         if (Math.abs(shift) < 14)
             shift = (shift < 0) ? -14 : 14;
@@ -250,6 +268,8 @@ IHazMoney.main = function()
         
         var transactions = $('#transactions');
         transactions.scrollTop(transactions.scrollTop() - shift);
+        */
+
         return false;
     });
 
@@ -257,8 +277,9 @@ IHazMoney.main = function()
     $('BUTTON').click(IHazMoney.createTag);
     $('#top .knob').click(IHazMoney.toggleTagCreator);
     $('#top INPUT').keyup(IHazMoney.tagCreatorKeyup);
-    $('.tag').hover(IHazMoney.tagIn, IHazMoney.tagOut);
-    $('#transactions TR').hover(IHazMoney.rowIn, IHazMoney.rowOut);
+    //$('.tag').hover(IHazMoney.tagIn, IHazMoney.tagOut);
+    //$('#transactions TR').hover(IHazMoney.rowIn, IHazMoney.rowOut);
+    $('#transactions TR').eq(0).addClass('focus');
     $(document).keypress(IHazMoney.navigate);
     $('INPUT').keypress(IHazMoney.stopPropagation);
 };
