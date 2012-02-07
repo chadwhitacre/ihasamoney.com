@@ -219,12 +219,33 @@ IHazMoney.scrollBy = function(num)
     }
 };
 
+IHazMoney.resetTagCursor = function()
+{
+    $('#top .marker.current').removeClass('current');
+    $('#top .marker').eq(0).addClass('current');
+};
+
+IHazMoney.advanceTagCursor = function(inc)
+{   // Given current position, drop to the base /4 and add to. If <= cur, += 4
+    var markers = $('#top .marker');
+    var current = $('#top .marker.current');
+    var from = markers.index(current);
+    var base = from - (from % 4);
+    to = base + inc;
+    if (to <= from)
+        to += 4;
+    if (to >= markers.length)
+        to = inc;
+    markers.eq(from).removeClass('current');
+    markers.eq(to).addClass('current');
+};
+
 IHazMoney.navigate = function(e)
 {
-    var nrows = 1;
-    if (e.ctrlKey)
-        nrows = $('#transactions').height() / 14; // page at a time
+    var nrows = 1, to, asdf = {97:1, 115:2, 100:3, 102:4};
     if (e.shiftKey)
+        nrows = $('#transactions').height() / 14;       // page at a time
+    if (e.ctrlKey)
         nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
     switch (e.which)
     {
@@ -237,6 +258,16 @@ IHazMoney.navigate = function(e)
         case 75:  // K
         case 107: // k
             IHazMoney.scrollBy(-nrows);
+            break;
+        case 113: // q
+            IHazMoney.resetTagCursor();
+            break;
+        case 97:  // a
+        case 115: // s
+        case 100: // d 
+        case 102: // f
+            to = asdf[e.which];
+            IHazMoney.advanceTagCursor(to);
             break;
     }
 };
@@ -254,22 +285,11 @@ IHazMoney.main = function()
     $(window).resize(IHazMoney.resize);
     IHazMoney.resize();
 
-    $('#transactions').mousewheel(function(e, delta)
+    $(document).mousewheel(function(e, delta)
     {
+        // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
         e.stopPropagation();
         e.preventDefault();
-
-        /*
-        var shift = delta * 14;
-        if (Math.abs(shift) < 14)
-            shift = (shift < 0) ? -14 : 14;
-        else
-            shift = Math.round(delta) * 14
-        
-        var transactions = $('#transactions');
-        transactions.scrollTop(transactions.scrollTop() - shift);
-        */
-
         return false;
     });
 
@@ -277,8 +297,7 @@ IHazMoney.main = function()
     $('BUTTON').click(IHazMoney.createTag);
     $('#top .knob').click(IHazMoney.toggleTagCreator);
     $('#top INPUT').keyup(IHazMoney.tagCreatorKeyup);
-    //$('.tag').hover(IHazMoney.tagIn, IHazMoney.tagOut);
-    //$('#transactions TR').hover(IHazMoney.rowIn, IHazMoney.rowOut);
+    $('#top .marker').eq(1).addClass('current');
     $('#transactions TR').eq(0).addClass('focus');
     $(document).keypress(IHazMoney.navigate);
     $('INPUT').keypress(IHazMoney.stopPropagation);

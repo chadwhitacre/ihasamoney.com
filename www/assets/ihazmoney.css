@@ -62,10 +62,11 @@ BODY {
     color: black;
     text-align: right;
 }
-#top TR.hover TD.highlight {
+#top .marker.current {
     background: #2A8F79;
+    background: #CCBAAD;
 }
-#top .highlight {
+#top .marker{
     width: 14px;
 }
 #top .tag {
@@ -95,6 +96,12 @@ BODY {
 }
 #transactions TR.focus I {
     color: red;
+}
+#transactions .hide {
+    display: none;
+}
+#transactions TR.focus .hide {
+    display: inline;
 }
 #transactions TD.tagged {
     background: #CCBAAD;

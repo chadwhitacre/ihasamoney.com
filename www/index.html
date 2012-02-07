@@ -36,13 +36,16 @@ def gentxns(txns):
         d = row['date']
         year, month, day = d.year, d.month, d.day
         if (year, month, day) == curdate:
-            date = "&nbsp;"
+            date = '<span class="hide">%04d %s %02d</span>' 
         elif (year, month) == curdate[:2]:
-            date = "%02d" % day
+            date = '<span class="hide">%04d %s </span>%02d' 
         elif (year,) == curdate[:1]:
-            date = "%s %02d" % (months[month], day)
+            date = '<span class="hide">%04d </span>%s %02d' 
         else:
-            date = "%04d %s %02d" % (year, months[month], day)
+            date = "%04d %s %02d"
+        date %= (year, months[month], day)
+        date = date.replace('>0', '>&nbsp;')
+        date = date.replace(' 0', '&nbsp;&nbsp;')
         curdate = (year, month, day)
 
         amount = commaize(str(abs(row['amount'])))
@@ -146,7 +149,7 @@ for row in sums:
                 <div id="balance">${{ balance }}</div>
                 <table id="tags">
                     <tr>
-                        <td></td>
+                        <td class="marker"></td>
                         <td class="tag">
                             <span class="widget"><input /><button>create</button></span><span 
                             class="knob">create a tag</span>
@@ -155,7 +158,7 @@ for row in sums:
                     </tr>
                     {% for tag in tags %}
                     <tr tag="{{ tag }}">
-                        <td class="highlight"></td>
+                        <td class="marker"></td>
                         <td class="tag">{{ tag }}</td>
                         <td class="sum">{{ commaize(summary[tag]) }}</td>
                     </tr>
