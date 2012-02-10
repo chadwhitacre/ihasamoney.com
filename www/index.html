@@ -171,11 +171,8 @@ for row in sums:
                     {% for tid, amount, description, date, ttags in gentxns(txns) %}
                     <tr tid="{{ tid }}">
                         <td class="date">{{ date }}</td>
-                        <td class="amount">{{ amount }}</td>
-                        {% for tag, is_a, is_first, is_last in gentags(tags) %}
-                        <td class="tag{% if is_a %} a{% end %}{% if is_first %} first{% end %}{% if is_last %} last{% end %}{% if tag in ttags %} tagged{% end %}" 
-                            tag="{{ tag }}"></td>
-                        {% end %}
+                        <td class="amount">&nbsp;{{ amount }}</td>
+                        <td class="tag"></td>
                         <td class="description">{{ description }}</td>
                     </tr>
                     {% end %}

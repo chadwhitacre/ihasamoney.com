@@ -109,10 +109,6 @@ BODY {
 #transactions .tag {
     border-style: none solid;
 }
-#transactions .col-a { border-left: 1px solid #CCBAAD; }
-#transactions .col-s { order-left: 1px solid #E6DFD9; }
-#transactions .col-d { order-left: 1px solid #E6DFD9; }
-#transactions .col-f { order-left: 1px solid #E6DFD9; }
 #transactions .amount, #transactions .date {
     text-align: right;
     padding-right: 5px;

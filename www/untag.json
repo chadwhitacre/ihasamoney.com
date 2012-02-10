@@ -4,7 +4,7 @@ UNTAG = """
 
 DELETE FROM taggings 
       WHERE transaction_id = %s 
-        AND tag_id = (SELECT id FROM tags WHERE email = %s AND tag = %s)
+        AND (SELECT email FROM transactions WHERE id = %s) = %s
 
 """
 
@@ -12,6 +12,5 @@ DELETE FROM taggings
 
 email = request.user.session['email']
 tid = request.qs.one('tid')
-tag = request.qs.one('tag')
-db.execute(UNTAG, (tid, email, tag))
+db.execute(UNTAG, (tid, tid, email))
 response.body = {}
