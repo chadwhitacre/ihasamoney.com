@@ -63,15 +63,12 @@ BODY {
     color: black;
     text-align: right;
 }
-#top .marker.cursor {
-    background: #CCBAAD;
-}
-#top .marker.current {
-    background: #2A8F79;
-}
 #top .marker {
     width: 14px;
 }
+#top .marker.also { background: #CFE6E1; }
+#top .marker.current { background: #2A8F79; }
+#top .marker.cursor { background: #CCBAAD; }
 #top .tag {
     padding-left: 5px;
 }

@@ -141,7 +141,7 @@ IHazMoney.createTag = function(e)
                  })
 };
 
-IHazMoney.setTag = function()
+IHazMoney.toggleTag = function()
 {
     var transaction = $('#transactions .focus');
     var tid = transaction.attr('tid');
@@ -156,6 +156,7 @@ IHazMoney.setTag = function()
     {
         jQuery.getJSON('/untag.json', {tid: tid});
         $('TD.tag', transaction).removeClass('tagged');
+        transaction.attr('tag', '');
         cursor.removeClass('current');
     }
     else
@@ -166,6 +167,7 @@ IHazMoney.setTag = function()
         current.removeClass('current');
         cursor.addClass('current');
     }
+    IHazMoney.updateAlso();
 };
 
 IHazMoney.toggleTagCreator = function()
@@ -217,12 +219,34 @@ IHazMoney.scrollBy = function(num)
 
 IHazMoney.resetTagCursor = function()
 {
-    $('#top .marker.cursor').removeClass('cursor');
-    $('#top .marker').eq(0).addClass('cursor');
+    var markers = $('#top .marker');
 
+    // cursor
+    $('#top .marker.cursor').removeClass('cursor');
+    markers.eq(0).addClass('cursor');
+
+    // current
     var tag = $('#transactions TR.focus').attr('tag');
     $('#top .marker.current').removeClass('current');
-    $('#top TR[tag="' + tag + '"] TD.marker').addClass('current');
+    if (tag !== "")
+    { 
+        current = $('#top TR[tag="' + tag + '"] TD.marker')
+        current.addClass('current');
+    }
+    IHazMoney.updateAlso();
+};
+
+IHazMoney.updateAlso = function()
+{
+    var tag = $('#transactions .focus').attr('tag');
+    if (tag !== "")
+    {
+        $('#top .marker.also').removeClass('also');
+        current = $('#top TR[tag="' + tag + '"] TD.marker')
+        var markers = $('#top .marker');
+        var idx = markers.index(current);
+        $('#top .marker:gt('+ idx +')').addClass('also');
+    }
 };
 
 IHazMoney.advanceTagCursor = function(inc)
@@ -236,6 +260,12 @@ IHazMoney.advanceTagCursor = function(inc)
     rows.eq(from).removeClass('cursor');
     rows.eq(to).addClass('cursor');
 };
+
+IHazMoney.getTagCursorIndex = function()
+{
+    var cursor = $('#top .cursor');
+    return $('#top .marker').index(cursor);
+}
 
 IHazMoney.navigate = function(e)
 {
@@ -272,11 +302,13 @@ IHazMoney.navigate = function(e)
             IHazMoney.advanceTagCursor(to);
             break;
         case 32:  // <spacebar>
-            if ($('#top .cursor').index() === 0)
+            if (IHazMoney.getTagCursorIndex() === 0)
                 IHazMoney.toggleTagCreator();
             else
-                IHazMoney.setTag();
+                IHazMoney.toggleTag();
             break;
+        case 113: // q
+            IHazMoney.advanceTagCursor(-1);
     }
 };
 
@@ -308,4 +340,5 @@ IHazMoney.main = function()
     $('#top TR[tag="' + firstTag + '"] TD.marker').addClass('current');
     $(document).keypress(IHazMoney.navigate);
     $('INPUT').keypress(IHazMoney.stopPropagation);
+    IHazMoney.updateAlso();
 };
