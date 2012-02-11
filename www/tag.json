@@ -2,6 +2,10 @@ from ihazmoney import db
 
 TAG = """
 
+DELETE FROM taggings 
+      WHERE transaction_id = %s 
+        AND (SELECT email FROM transactions WHERE id = %s) = %s;
+
 INSERT INTO taggings (transaction_id, tag_id)
      VALUES (%s, (SELECT id FROM tags WHERE email = %s AND tag = %s))
 
@@ -12,5 +16,5 @@ INSERT INTO taggings (transaction_id, tag_id)
 email = request.user.session['email']
 tid = request.qs.one('tid')
 tag = request.qs.one('tag')
-db.execute(TAG, (tid, email, tag))
+db.execute(TAG, (tid, tid, email, tid, email, tag))
 response.body = {}

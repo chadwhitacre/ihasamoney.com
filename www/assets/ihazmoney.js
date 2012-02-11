@@ -98,19 +98,22 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    var transactionHeight = Math.floor(WIN.height() / 2); // Why 2?
-    transactionHeight -= (transactionHeight % 14); // fit for 14px-height rows
+    var transactionHeight = Math.floor(WIN.height() / 2);
+    transactionHeight -= (transactionHeight % 14);
+    // fit for 14px-height rows
     var topHeight = WIN.height() - transactionHeight - 1;
     $('#top').height(topHeight);
     $('#transactions').height(transactionHeight);
-    $('#transactions TABLE').css('margin-bottom', transactionHeight - 14);
+    var margin = Math.floor(transactionHeight / 2);
+    $('#transactions TABLE').css('margin-bottom', margin);
     
     var summary = $('#top TABLE');
+    var half = WIN.width() / 2;
     if (summary.length > 0)
     {
-        summary.css('left', $('.description').offset().left - 14);
-        var balanceRight = WIN.width() - $('#transactions .tag').offset().left + 5;
-        $('#balance').css('right', balanceRight);
+        summary.css('left', half - 14 - 5 - 5 - 1)
+        $('#balance').css('right', half + 14 + 5 + 5 + 1 + 5);
+        $('.description').width(half);
     }
 };
 
@@ -138,24 +141,31 @@ IHazMoney.createTag = function(e)
                  })
 };
 
-IHazMoney.toggleTag = function()
+IHazMoney.setTag = function()
 {
-    var tag = $('#top .marker.current').parent().attr('tag');
     var transaction = $('#transactions .focus');
-    var cell = $('TD[tag="' + tag + '"]', transaction);
     var tid = transaction.attr('tid');
-    var tagged = cell.hasClass('tagged');
 
-    if (tagged)
-        jQuery.getJSON('/untag.json', {tid: tid});
-    else 
+    var current = $('#top .marker.current');
+    var cursor = $('#top .marker.cursor');
+
+    var currentTag = current.parent().attr('tag');
+    var cursorTag = cursor.parent().attr('tag');
+
+    if (currentTag === cursorTag)
     {
-        $('.tagged', transaction).removeClass('tagged');
         jQuery.getJSON('/untag.json', {tid: tid});
-        jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
+        $('TD.tag', transaction).removeClass('tagged');
+        cursor.removeClass('current');
     }
-
-    cell.toggleClass('tagged');
+    else
+    {
+        jQuery.getJSON('/tag.json', {tid: tid, tag: cursorTag});
+        $('TD.tag', transaction).addClass('tagged');
+        transaction.attr('tag', cursorTag);
+        current.removeClass('current');
+        cursor.addClass('current');
+    }
 };
 
 IHazMoney.toggleTagCreator = function()
@@ -202,24 +212,29 @@ IHazMoney.scrollBy = function(num)
         $('#transactions TR.focus').removeClass('focus');
         $('#transactions TR').eq(newTop / 14).addClass('focus');
     }
+    IHazMoney.resetTagCursor();
 };
 
 IHazMoney.resetTagCursor = function()
 {
+    $('#top .marker.cursor').removeClass('cursor');
+    $('#top .marker').eq(0).addClass('cursor');
+
+    var tag = $('#transactions TR.focus').attr('tag');
     $('#top .marker.current').removeClass('current');
-    $('#top .marker').eq(0).addClass('current');
+    $('#top TR[tag="' + tag + '"] TD.marker').addClass('current');
 };
 
 IHazMoney.advanceTagCursor = function(inc)
-{   // Given current position, drop to the base /4 and add to. If <= cur, += 4
+{   // Given cursor position, drop to the base /4 and add to. If <= cur, += 4
     var rows = $('#top .marker');
-    var current = $('#top .marker.current');
-    var from = rows.index(current);
+    var cursor = $('#top .marker.cursor');
+    var from = rows.index(cursor);
     to = from + inc;
     if (to >= rows.length)
         to = to - rows.length;
-    rows.eq(from).removeClass('current');
-    rows.eq(to).addClass('current');
+    rows.eq(from).removeClass('cursor');
+    rows.eq(to).addClass('cursor');
 };
 
 IHazMoney.navigate = function(e)
@@ -231,7 +246,6 @@ IHazMoney.navigate = function(e)
         nrows = $('#transactions').height() / 14;       // page at a time
     if (e.ctrlKey)
         nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
-    console.log(e.which);
     switch (e.which)
     {
         case 10:  // <ctrl>-j
@@ -243,9 +257,6 @@ IHazMoney.navigate = function(e)
         case 75:  // K
         case 107: // k
             IHazMoney.scrollBy(-nrows);
-            break;
-        case 113: // q
-            IHazMoney.resetTagCursor();
             break;
         case 65:  // A
         case 83:  // S 
@@ -261,7 +272,10 @@ IHazMoney.navigate = function(e)
             IHazMoney.advanceTagCursor(to);
             break;
         case 32:  // <spacebar>
-            IHazMoney.toggleTag();
+            if ($('#top .cursor').index() === 0)
+                IHazMoney.toggleTagCreator();
+            else
+                IHazMoney.setTag();
             break;
     }
 };
@@ -288,9 +302,10 @@ IHazMoney.main = function()
     });
 
     $('#top INPUT').keyup(IHazMoney.tagCreatorKeyup);
-    $('#top .marker').eq(1).addClass('current');
-    $('#transactions .tag').eq(0).addClass('current');
+    $('#top .marker').eq(0).addClass('cursor');
     $('#transactions TR').eq(0).addClass('focus');
+    var firstTag = $('#transactions .focus').attr('tag');
+    $('#top TR[tag="' + firstTag + '"] TD.marker').addClass('current');
     $(document).keypress(IHazMoney.navigate);
     $('INPUT').keypress(IHazMoney.stopPropagation);
 };

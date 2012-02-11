@@ -31,7 +31,7 @@ BODY {
 }
 #top {
     border-bottom: 1px solid #CCBAAD;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
 }
 #top #sign {
@@ -41,7 +41,8 @@ BODY {
 }
 #top TABLE {
     position: absolute;
-    bottom: 2px; /* Grrr ... will need to revisit for IE anyway, I bet. */
+    bottom: 0;
+    right: 0;
 }
 #top .knob {
     color: #CCBAAD;
@@ -58,15 +59,17 @@ BODY {
 #top #balance {
     position: absolute;
     bottom: 5px;
-    font: normal 18px/18px Monaco;
+    font: normal 18px/21px Monaco;
     color: black;
     text-align: right;
 }
-#top .marker.current {
-    background: #2A8F79;
+#top .marker.cursor {
     background: #CCBAAD;
 }
-#top .marker{
+#top .marker.current {
+    background: #2A8F79;
+}
+#top .marker {
     width: 14px;
 }
 #top .tag {
@@ -78,15 +81,17 @@ BODY {
 }
 
 #transactions {
-    text-align: center;
+    text-align: right;
     overflow: auto;
     position: relative;
 }
 #transactions TABLE {
-    margin: 0 auto;
+    margin: 0;
     text-align: left;
     font: normal 12px/14px Monaco, "Lucida Mono";
     color: #CCBAAD;
+    position: absolute;
+    right: 0;
 }
 #transactions TD {
     padding: 0 14px 0 0;
@@ -106,6 +111,9 @@ BODY {
 #transactions TD.tagged {
     background: #CCBAAD;
 }
+#transactions TR.focus TD.tagged {
+    background: #2A8F79;
+}
 #transactions .tag {
     border-style: none solid;
 }
@@ -118,7 +126,7 @@ BODY {
     color: #FFBFBF;
 }
 #transactions .description {
-    padding-left: 5px;
+    padding: 0 0 0 5px;
 }
 INPUT {
     font-size: 10px;

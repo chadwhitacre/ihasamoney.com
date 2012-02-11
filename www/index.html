@@ -57,17 +57,6 @@ def gentxns(txns):
             tags = []
         yield row['id'], amount, row['description'], date, tags
 
-def gentags(tags):
-    i = 0
-    N = len(tags)
-    for tag in tags:
-        i += 1
-        yield ( tag
-              , i % 4 == 0  # is_a (as in asdf)
-              , i == 0      # is_first
-              , i == N-1    # is_last
-               )
-
 # ========================================================================== ^L
 
 if request.user.ANON:
@@ -98,6 +87,14 @@ txns = db.fetchall("""
   
     """, (email,))
 
+row = db.fetchone("""
+    
+    SELECT max(amount) AS max_amount
+      FROM transactions
+     WHERE email = %s
+
+        """, (email,))
+max_amount = commaize(row['max_amount'])
 
 sums = db.fetchall("""
     
@@ -150,11 +147,10 @@ for row in sums:
                 <table id="tags">
                     <tr>
                         <td class="marker"></td>
-                        <td class="tag">
+                        <td class="tag" colspan="2">
                             <span class="widget"><input /><button>create</button></span><span 
                             class="knob">create a tag</span>
                         </td>
-                        <td></td>
                     </tr>
                     {% for tag in tags %}
                     <tr tag="{{ tag }}">
@@ -169,10 +165,10 @@ for row in sums:
             <div id="transactions">
                 <table>
                     {% for tid, amount, description, date, ttags in gentxns(txns) %}
-                    <tr tid="{{ tid }}">
+                    <tr tid="{{ tid }}" tag="{{ ttags }}">
                         <td class="date">{{ date }}</td>
                         <td class="amount">&nbsp;{{ amount }}</td>
-                        <td class="tag"></td>
+                        <td class="tag{% if ttags %} tagged{% end %}"></td>
                         <td class="description">{{ description }}</td>
                     </tr>
                     {% end %}
