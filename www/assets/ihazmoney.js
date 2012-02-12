@@ -143,30 +143,6 @@ IHazMoney.createTag = function(e)
 
 IHazMoney.toggleTag = function()
 {
-    var transaction = $('#transactions .focus');
-    var tid = transaction.attr('tid');
-
-    var current = $('#top .marker.current');
-    var cursor = $('#top .marker.cursor');
-
-    var currentTag = current.parent().attr('tag');
-    var cursorTag = cursor.parent().attr('tag');
-
-    if (currentTag === cursorTag)
-    {
-        jQuery.getJSON('/untag.json', {tid: tid});
-        $('TD.tag', transaction).removeClass('tagged');
-        transaction.attr('tag', '');
-        cursor.removeClass('current');
-    }
-    else
-    {
-        jQuery.getJSON('/tag.json', {tid: tid, tag: cursorTag});
-        $('TD.tag', transaction).addClass('tagged');
-        transaction.attr('tag', cursorTag);
-        current.removeClass('current');
-        cursor.addClass('current');
-    }
     IHazMoney.updateAlso();
 };
 
@@ -214,68 +190,74 @@ IHazMoney.scrollBy = function(num)
         $('#transactions TR.focus').removeClass('focus');
         $('#transactions TR').eq(newTop / 14).addClass('focus');
     }
-    IHazMoney.resetTagCursor();
+    IHazMoney.renderTag();
 };
 
-IHazMoney.resetTagCursor = function()
+IHazMoney.changeTag = function(inc)
 {
-    var markers = $('#top .marker');
+    var tid = $('#transactions .focus').attr('tid');
+    var rows = $('#top .marker');
+    var from = rows.index($('#top .marker.current'));
+    var to = from + inc;
+    var tag = undefined;
 
-    // cursor
-    $('#top .marker.cursor').removeClass('cursor');
-    markers.eq(0).addClass('cursor');
+    if (to < 0)
+        to = 0;
+    if (to >= rows.length)
+        to = rows.length - 1;
+   
+    tag = rows.eq(to).parent().attr('tag');
+    jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
+    $('#transactions .focus TD.tag').addClass('tagged');
 
-    // current
-    var tag = $('#transactions TR.focus').attr('tag');
-    $('#top .marker.current').removeClass('current');
+    IHazMoney.renderTag(tag);
+};
+
+IHazMoney.renderTag = function(tag)
+{   // If given a tag, use that. Otherwise take from current focus row.
+
+    if (tag === undefined)
+        tag = $('#transactions TR.focus').attr('tag');
+    else
+        $('#transactions TR.focus').attr('tag', tag);
+
     if (tag !== "")
     { 
-        current = $('#top TR[tag="' + tag + '"] TD.marker')
-        current.addClass('current');
-    }
-    IHazMoney.updateAlso();
-};
+        var rows = $('#top .marker');
+        var oldTag = $('#top TD.marker.current');
+        var newTag = $('#top TR[tag="' + tag + '"] TD.marker')
 
-IHazMoney.updateAlso = function()
-{
-    var tag = $('#transactions .focus').attr('tag');
-    if (tag !== "")
-    {
+        // dark green background on tagged cell
+        oldTag.removeClass('current');
+        newTag.addClass('current');
+
+        // light green background on intermediate cells
         $('#top .marker.also').removeClass('also');
-        current = $('#top TR[tag="' + tag + '"] TD.marker')
-        var markers = $('#top .marker');
-        var idx = markers.index(current);
-        $('#top .marker:gt('+ idx +')').addClass('also');
+        $('#top .marker:gt('+ rows.index(newTag) +')').addClass('also');
     }
 };
 
-IHazMoney.advanceTagCursor = function(inc)
-{   // Given cursor position, drop to the base /4 and add to. If <= cur, += 4
-    var rows = $('#top .marker');
-    var cursor = $('#top .marker.cursor');
-    var from = rows.index(cursor);
-    to = from + inc;
-    if (to >= rows.length)
-        to = to - rows.length;
-    rows.eq(from).removeClass('cursor');
-    rows.eq(to).addClass('cursor');
-};
-
-IHazMoney.getTagCursorIndex = function()
+IHazMoney.jumpNextUntagged = function()
 {
-    var cursor = $('#top .cursor');
-    return $('#top .marker').index(cursor);
+    var from = $('#transactions .focus');
+    console.log('tbd ...');
+}
+
+IHazMoney.jumpPreviousUntagged = function()
+{
+    console.log('tbd ...');
 }
 
 IHazMoney.navigate = function(e)
 {
     e.preventDefault();
 
-    var nrows = 1, to = 1, asdf = {97:1, 115:2, 100:3, 102:4};
+    var nrows = 1, to = 1, asdf = {97:3, 115:-3, 100:1, 102:-1};
     if (e.shiftKey)
         nrows = $('#transactions').height() / 14;       // page at a time
     if (e.ctrlKey)
         nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
+    //console.log(e.which);
     switch (e.which)
     {
         case 10:  // <ctrl>-j
@@ -299,16 +281,14 @@ IHazMoney.navigate = function(e)
         case 100: // d 
         case 102: // f
             to *= asdf[e.which];
-            IHazMoney.advanceTagCursor(to);
+            IHazMoney.changeTag(to);
             break;
-        case 32:  // <spacebar>
-            if (IHazMoney.getTagCursorIndex() === 0)
-                IHazMoney.toggleTagCreator();
-            else
-                IHazMoney.toggleTag();
+        case 110: // n
+            IHazMoney.jumpNextUntagged();
             break;
-        case 113: // q
-            IHazMoney.advanceTagCursor(-1);
+        case 112: // p
+            IHazMoney.jumpPreviousUntagged();
+            break;
     }
 };
 
@@ -333,12 +313,10 @@ IHazMoney.main = function()
         return false;
     });
 
-    $('#top INPUT').keyup(IHazMoney.tagCreatorKeyup);
-    $('#top .marker').eq(0).addClass('cursor');
-    $('#transactions TR').eq(0).addClass('focus');
-    var firstTag = $('#transactions .focus').attr('tag');
-    $('#top TR[tag="' + firstTag + '"] TD.marker').addClass('current');
     $(document).keypress(IHazMoney.navigate);
     $('INPUT').keypress(IHazMoney.stopPropagation);
-    IHazMoney.updateAlso();
+    $('INPUT').keyup(IHazMoney.tagCreatorKeyup);
+
+    $('#transactions TR').eq(0).addClass('focus');
+    IHazMoney.renderTag();
 };

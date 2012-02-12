@@ -108,7 +108,7 @@ BODY {
 #transactions TD.tagged {
     background: #CCBAAD;
 }
-#transactions TR.focus TD.tagged {
+#transactions TR.focus TD.tag {
     background: #2A8F79;
 }
 #transactions .tag {
