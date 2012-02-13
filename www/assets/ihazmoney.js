@@ -201,15 +201,25 @@ IHazMoney.changeTag = function(inc)
     var to = from + inc;
     var tag = undefined;
 
-    if (to < 0)
-        to = 0;
-    if (to >= rows.length)
+    if (from === -1 && inc === -1)
+        // This is a special case for getting on the board.
         to = rows.length - 1;
-   
-    tag = rows.eq(to).parent().attr('tag');
-    jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
-    $('#transactions .focus TD.tag').addClass('tagged');
 
+    if (to === 0)
+        return;
+
+    if (to === rows.length)
+    {
+        tag = null;
+        jQuery.getJSON('/untag.json', {tid: tid});
+        $('#transactions .focus TD.tag').removeClass('tagged');
+    }
+    else
+    {
+        tag = rows.eq(to).parent().attr('tag');
+        jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
+        $('#transactions .focus TD.tag').addClass('tagged');
+    }
     IHazMoney.renderTag(tag);
 };
 
@@ -252,7 +262,7 @@ IHazMoney.navigate = function(e)
 {
     e.preventDefault();
 
-    var nrows = 1, to = 1, asdf = {97:3, 115:-3, 100:1, 102:-1};
+    var nrows = 1, to = 1, df = {100:1, 102:-1};
     if (e.shiftKey)
         nrows = $('#transactions').height() / 14;       // page at a time
     if (e.ctrlKey)
@@ -270,17 +280,9 @@ IHazMoney.navigate = function(e)
         case 107: // k
             IHazMoney.scrollBy(-nrows);
             break;
-        case 65:  // A
-        case 83:  // S 
-        case 68:  // D 
-        case 70:  // F 
-            to = -1;
-            e.which += 32; // convert to lowercase
-        case 97:  // a
-        case 115: // s
         case 100: // d 
         case 102: // f
-            to *= asdf[e.which];
+            to *= df[e.which];
             IHazMoney.changeTag(to);
             break;
         case 110: // n
