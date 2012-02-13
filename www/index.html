@@ -33,16 +33,25 @@ def gentxns(txns):
     curdate = 0000, 00, 00
     for row in txns:
 
+        # red hot, baby!
         d = row['date']
         year, month, day = d.year, d.month, d.day
         if (year, month, day) == curdate:
-            date = '<span class="hide">%04d %s %02d</span>' 
+            date = ('<td class="year"><span class="hide">%04d</span></td>'
+                    '<td class="month"><span class="hide">%s</span></td>'
+                    '<td class="day"><span class="hide">%02d</span></td>')
         elif (year, month) == curdate[:2]:
-            date = '<span class="hide">%04d %s </span>%02d' 
+            date = ('<td class="year"><span class="hide">%04d</span></td>'
+                    '<td class="month"><span class="hide">%s</span></td>'
+                    '<td class="day">%02d</td>')
         elif (year,) == curdate[:1]:
-            date = '<span class="hide">%04d </span>%s %02d' 
+            date = ('<td class="year"><span class="hide">%04d</span></td>'
+                    '<td class="month">%s</td>'
+                    '<td class="day">%02d</td>')
         else:
-            date = "%04d %s %02d"
+            date = ('<td class="year">%04d</td>'
+                    '<td class="month">%s</td>'
+                    '<td class="day">%02d</td>')
         date %= (year, months[month], day)
         date = date.replace('>0', '>&nbsp;')
         date = date.replace(' 0', '&nbsp;&nbsp;')
@@ -52,10 +61,13 @@ def gentxns(txns):
         if row['amount'] < 0:
             amount = "<i>%s</i>" % amount
 
-        tags = row['tags']
-        if tags is None:
-            tags = []
-        yield row['id'], amount, row['description'], date, tags
+        tag = row['tag'] # This comes out as a single string, not a list of 
+                         # strings, if there is only one tag. And our UI 
+                         # assures that there is only one tag.
+        if tag is None:
+            tag = ""
+
+        yield row['id'], amount, row['description'], date, tag
 
 # ========================================================================== ^L
 
@@ -80,7 +92,7 @@ txns = db.fetchall("""
                 JOIN taggings
                   ON taggings.tag_id = tags.id
                WHERE taggings.transaction_id = transactions.id
-            ) as tags
+            ) as tag -- a single tag, it turns out
       FROM transactions 
      WHERE email=%s 
   ORDER BY date DESC
@@ -144,36 +156,39 @@ for row in sums:
                     {% end %}
                 </div>
                 <div id="balance">${{ balance }}</div>
-                <table id="tags">
-                    <tr>
-                        <td class="marker"></td>
-                        <td class="tag" colspan="2">
-                            <span class="widget"><input /><button>create</button></span><span 
-                            class="knob">create a tag</span>
-                        </td>
-                    </tr>
-                    {% for tag in tags %}
-                    <tr tag="{{ tag }}">
-                        <td class="marker"></td>
-                        <td class="tag">{{ tag }}</td>
-                        <td class="sum">{{ commaize(summary[tag]) }}</td>
-                    </tr>
-                    {% end %}
-                </table>
             </div>
 
-            <div id="transactions">
-                <table>
-                    {% for tid, amount, description, date, ttags in gentxns(txns) %}
-                    <tr tid="{{ tid }}" tag="{{ ttags }}">
-                        <td class="date">{{ date }}</td>
-                        <td class="amount">&nbsp;{{ amount }}</td>
-                        <td class="tag{% if ttags %} tagged{% end %}"></td>
-                        <td class="description">{{ description }}</td>
+            <!--
+                <span class="widget"><input 
+                /><button>create</button></span><span 
+                class="knob">create a tag</span>
+            -->
+
+            <table>
+                <thead class="pegged">
+                    <tr>
+                        <th colspan="4" class="corner"></th>
+                        {% for tag in tags %}<th>{{ tag  }}</th>{% end %}
+                    </tr>
+                </thead>
+                <thead class="unpegged">
+                    <tr>
+                        <th colspan="4" class="corner"></th>
+                        {% for tag in tags %}<th>{{ tag  }}</th>{% end %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tid, amount, desc, date, tag in gentxns(txns) %}
+                    <tr tid="{{ tid }}" tag="{{ tag }}">
+                        {{ date }}
+                        <td class="description">{{ desc }}</td>
+                        {% for _tag in tags %}<td class="amount">
+                            {% if _tag == tag %}{{ amount }}{% end %}</td>
+                        {% end %}
                     </tr>
                     {% end %}
-                </table>
-            </div>
+                </tbody>
+            </table>
 
         </div>{% if website.gauges %}
         <script type="text/javascript">

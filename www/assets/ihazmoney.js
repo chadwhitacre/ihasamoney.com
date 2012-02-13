@@ -98,37 +98,25 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    var transactionHeight = Math.floor(WIN.height() / 2);
-    transactionHeight -= (transactionHeight % 14);
+    var transactionHeight = WIN.height() - 24 - (WIN.height() % 14) ;
     // fit for 14px-height rows
     var topHeight = WIN.height() - transactionHeight - 1;
     $('#top').height(topHeight);
-    $('#transactions').height(transactionHeight);
-    var margin = Math.floor(transactionHeight / 2);
-    $('#transactions TABLE').css('margin-bottom', margin);
-    
-    var summary = $('#top TABLE');
-    var half = WIN.width() / 2;
-    if (summary.length > 0)
+    $('.corner').width( $('.year').eq(0).width()
+                      + $('.month').width()
+                      + $('.day').width()
+                      + $('.description').width()
+                       );
+    $('THEAD.unpegged TH').each(function(i)
     {
-        summary.css('left', half - 14 - 5 - 5 - 1)
-        $('#balance').css('right', half + 14 + 5 + 5 + 1 + 5);
-        $('.description').width(half);
-    }
+        $('THEAD.pegged TH').eq(i).width($(this).width());
+    });
+    $('TBODY').height(transactionHeight);
 };
 
 
 // Tags
 // ====
-
-IHazMoney.renderTags = function(tags)
-{
-    $('#tags').empty();
-    for (var i=0, tag; tag = tags[i]; i++)
-    {
-        $('#tags').append('<tr><td>'+tag+'</td></tr>');
-    }
-};
 
 IHazMoney.createTag = function(e)
 {
@@ -174,9 +162,9 @@ IHazMoney.tagCreatorKeyup = function(e)
 
 IHazMoney.scrollBy = function(num)
 {
-    var $t = $('#transactions');
+    var $t = $('$body');
     var newTop = $t.scrollTop() + (num * 14);
-    var max = $('#transactions TABLE').height() - 14;
+    var max = $('TBODY').height() - 14;
     if (Math.abs(num) > 1)
     {
         if (newTop < 0)
@@ -187,10 +175,9 @@ IHazMoney.scrollBy = function(num)
     if (newTop >= 0 && newTop <= max)
     {
         $t.scrollTop(newTop);
-        $('#transactions TR.focus').removeClass('focus');
-        $('#transactions TR').eq(newTop / 14).addClass('focus');
+        $('TBODY TR.focus').removeClass('focus');
+        $('TBODY TR').eq(newTop / 14).addClass('focus');
     }
-    IHazMoney.renderTag();
 };
 
 IHazMoney.changeTag = function(inc)
@@ -205,7 +192,7 @@ IHazMoney.changeTag = function(inc)
         // This is a special case for getting on the board.
         to = rows.length - 1;
 
-    if (to === 0)
+    if (to === e)
         return;
 
     if (to === rows.length)
@@ -219,31 +206,6 @@ IHazMoney.changeTag = function(inc)
         tag = rows.eq(to).parent().attr('tag');
         jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
         $('#transactions .focus TD.tag').addClass('tagged');
-    }
-    IHazMoney.renderTag(tag);
-};
-
-IHazMoney.renderTag = function(tag)
-{   // If given a tag, use that. Otherwise take from current focus row.
-
-    if (tag === undefined)
-        tag = $('#transactions TR.focus').attr('tag');
-    else
-        $('#transactions TR.focus').attr('tag', tag);
-
-    if (tag !== "")
-    { 
-        var rows = $('#top .marker');
-        var oldTag = $('#top TD.marker.current');
-        var newTag = $('#top TR[tag="' + tag + '"] TD.marker')
-
-        // dark green background on tagged cell
-        oldTag.removeClass('current');
-        newTag.addClass('current');
-
-        // light green background on intermediate cells
-        $('#top .marker.also').removeClass('also');
-        $('#top .marker:gt('+ rows.index(newTag) +')').addClass('also');
     }
 };
 
@@ -307,18 +269,9 @@ IHazMoney.main = function()
     $(window).resize(IHazMoney.resize);
     IHazMoney.resize();
 
-    $(document).mousewheel(function(e, delta)
-    {
-        // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
-        e.stopPropagation();
-        e.preventDefault();
-        return false;
-    });
-
     $(document).keypress(IHazMoney.navigate);
     $('INPUT').keypress(IHazMoney.stopPropagation);
     $('INPUT').keyup(IHazMoney.tagCreatorKeyup);
 
-    $('#transactions TR').eq(0).addClass('focus');
-    IHazMoney.renderTag();
+    $('TBODY TR').eq(0).addClass('focus');
 };

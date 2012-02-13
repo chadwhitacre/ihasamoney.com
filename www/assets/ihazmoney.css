@@ -5,8 +5,8 @@
 
 BODY {
     margin: 0;
-    padding: 0;
-    font: normal 12px/14px Monaco, "Lucida Sans", monospace;
+    padding: 0 0 0 5px;
+    font: normal 12px/14px Arial, sans-serif;
     color: #301403;
     color: #614C3E;
 }
@@ -30,99 +30,82 @@ BODY {
     padding: 0;
 }
 #top {
-    border-bottom: 1px solid #CCBAAD;
-    overflow: hidden;
-    position: relative;
+    display: none;
 }
-#top #sign {
+#sign {
     position: absolute;
     top: 5px;
     right: 5px;
 }
-#top TABLE {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-}
-#top .knob {
+TABLE {
+    font: normal 12px/14px Monaco, "Lucida Console", monospace;
     color: #CCBAAD;
-    cursor: pointer;
-    font-size: 10px;
-    line-height: 14px;
 }
-#top .knob:hover {
-    color: #2A8F79;
+THEAD.pegged {
+    position: fixed;
+    top: 0;
+    background: white;
+    z-index: 2;
 }
-#top .widget {
-    display: none;
+TBODY {
 }
-#top #balance {
-    position: absolute;
-    bottom: 5px;
-    font: normal 18px/21px Monaco;
-    color: black;
-    text-align: right;
-}
-#top .marker {
-    width: 14px;
-}
-#top .marker.lso { background: #CFE6E1; }
-#top .marker.current { background: #2A8F79; }
-#top .marker.cursor { background: #CCBAAD; }
-#top .tag {
-    padding-left: 5px;
-}
-#top .sum {
-    text-align: right;
-    padding-left: 5px;
-}
-
-#transactions {
-    text-align: right;
-    overflow: auto;
-    position: relative;
-}
-#transactions TABLE {
-    margin: 0;
-    text-align: left;
-    font: normal 12px/14px Monaco, "Lucida Mono";
-    color: #CCBAAD;
-    position: absolute;
-    right: 0;
-}
-#transactions TD {
+TD {
     padding: 0 14px 0 0;
 }
-#transactions TR.focus {
+TD.amount {
+    text-align: right;
+}
+TH {
+    font: bold 12px/14px Arial, sans-serif;
+    padding: 0 1em;
+    text-align: center;
+    border-bottom: 1px solid #CCBAAD;
+    color: #CCBAAD;
+}
+TH.corner {
+}
+TR.focus {
     color: #614C3E;
 }
-#transactions TR.focus I {
+TR.focus I {
     color: red;
 }
-#transactions .hide {
+.hide {
     display: none;
 }
-#transactions TR.focus .hide {
+TR.focus .hide {
     display: inline;
 }
-#transactions TD.tagged {
+TD.tagged {
     background: #CCBAAD;
 }
-#transactions TR.focus TD.tag {
+TR.focus TD.tag {
     background: #2A8F79;
 }
-#transactions .tag {
+.tag {
     border-style: none solid;
 }
-#transactions .amount, #transactions .date {
+.amount,
+.year,
+.month,
+.day {
     text-align: right;
     padding-right: 5px;
 }
-#transactions .amount I {
+.year {
+    padding-left: 5px;
+}
+.year,
+.month,
+.day {
+    font: normal 12px/14px Arial, sans-serif;
+}
+.amount I {
     font-style: normal;
     color: #FFBFBF;
 }
-#transactions .description {
+.description {
+    font: bold 12px/14px Arial, sans-serif;
     padding: 0 0 0 5px;
 }
 INPUT {
@@ -140,7 +123,7 @@ INPUT:focus {
     border-color: #2A8F79;
 }
 BUTTON {
-    font: normal 10px/10px Monaco, "Lucida Sans", monospace;
+    font: normal 10px/10px Monaco, "Lucida Console", monospace;
     text-shadow: #001b38 0px 1px 1px;
     text-decoration: none;
 
