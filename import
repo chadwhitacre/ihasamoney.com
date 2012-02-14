@@ -5,11 +5,48 @@ import decimal
 
 import psycopg2
 from ihazmoney import wire_db
+from ofx_parse import OfxParser
 
 
 db = wire_db()
 
 
+# OFX VERSION
+
+ofx = OfxParser.parse(open('transactions-clean.ofx'))
+balance = 0
+for t in ofx.bank_account.statement.transactions:
+    email = "admin@ihazmoney.com"
+
+    year, month, day = [int(x) for x in (t.date[0:4], t.date[4:6], t.date[6:8])]
+    date = datetime.date(year, month, day)
+    amount = decimal.Decimal(t.amount)
+    if t.type == 'check':
+        description = "Check %s" % t.checknum
+    else:
+        description = " ".join([t.payee, t.memo, t.name])
+
+    balance += amount
+    print balance
+   
+    try:
+        db.execute("""
+        
+            INSERT INTO transactions (email, date, amount, description)
+                 VALUES (%s, %s, %s, %s);
+            UPDATE users SET balance = ((
+                SELECT balance FROM users WHERE email = %s
+            ) + %s) WHERE email = %s
+
+        """, ( email, date, amount, description
+             , email, amount, email
+              ))
+    except psycopg2.IntegrityError:
+        print "dupe:", email, date, amount, description
+
+
+# MINT VERSION
+'''
 transactions = csv.reader(open('transactions.csv'))
 headers = transactions.next()
 balance = 0
@@ -40,3 +77,4 @@ for row in transactions:
               ))
     except psycopg2.IntegrityError:
         print "dupe:", email, date, amount, description
+'''

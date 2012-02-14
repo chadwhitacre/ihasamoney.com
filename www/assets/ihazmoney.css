@@ -38,7 +38,6 @@ BODY {
     right: 5px;
 }
 TABLE {
-    font: normal 10px/14px Monaco, "Lucida Console", monospace;
     color: #614C3E;
     width: 100%;
 }
@@ -54,7 +53,8 @@ TBODY {
 TD {
     padding: 0 14px 0 0;
 }
-TD.amount {
+.amount {
+    font: normal 10px/14px Monaco, "Lucida Console", monospace;
     text-align: center;
 }
 TH {
@@ -68,10 +68,14 @@ TH.corner {
     border-right: 1px #CCAABD solid;
     padding: 0 5px;
 }
+TH.amount {
+    padding: 5px 6px 5px 0;
+}
 TR.focus {
 }
 TR.focus TD.tagged {
     background: #E6F2F0;
+    order: 1px solid #2A8F79;
 }
 TR.focus I {
 }
@@ -91,7 +95,6 @@ TR.focus TD.tag {
 .year,
 .month,
 .day {
-    text-align: right;
     padding-right: 5px;
 }
 .year {
@@ -100,6 +103,7 @@ TR.focus TD.tag {
 .year,
 .month,
 .day {
+    text-align: right;
     font: normal 12px/14px Arial, sans-serif;
 }
 .amount I {

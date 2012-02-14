@@ -1,7 +1,6 @@
 import decimal
 
 from aspen import Response
-from ihazmoney import db, get_tags
 
 
 months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
@@ -28,6 +27,10 @@ def commaize(amount):
             out = ',' + out
         i += 1
     return out.lstrip(',')
+
+def pad(s, width):
+    print "padding %s to %d" % (s, width)
+    return ((width - len(s)) * "&nbsp;") + s
 
 def gentxns(txns, max_amount):
     curdate = 0000, 00, 00
@@ -58,7 +61,7 @@ def gentxns(txns, max_amount):
         curdate = (year, month, day)
 
         amount = commaize(str(abs(row['amount'])))
-        amount = ((len(max_amount) - len(amount)) * "&nbsp;") + amount
+        amount = pad(amount, max_amount)
         if row['amount'] < 0:
             amount = "<i>%s</i>" % amount
 
@@ -72,62 +75,6 @@ def gentxns(txns, max_amount):
         yield row['id'], amount, row['description'], date, tag
 
 # ========================================================================== ^L
-
-if request.user.ANON:
-    raise Response(401)
-
-email = request.user.session['email']
-
-balance = commaize(request.user.session['balance'])
-
-
-tags = get_tags(email)
-txns = db.fetchall("""
-
-    SELECT id
-         , email
-         , date
-         , amount
-         , description
-         , (  SELECT tags.tag
-                FROM tags
-                JOIN taggings
-                  ON taggings.tag_id = tags.id
-               WHERE taggings.transaction_id = transactions.id
-            ) as tag -- a single tag, it turns out
-      FROM transactions 
-     WHERE email=%s 
-  ORDER BY date DESC
-  
-    """, (email,))
-
-row = db.fetchone("""
-    
-    SELECT max(amount) AS max_amount
-      FROM transactions
-     WHERE email = %s
-
-        """, (email,))
-max_amount = commaize(row['max_amount'])
-
-sums = db.fetchall("""
-    
-    SELECT tags.tag                 AS tag
-         , sum(transactions.amount) AS sum
-      FROM transactions 
-      JOIN taggings 
-        ON taggings.transaction_id = transactions.id 
-      JOIN tags 
-        ON tags.id = taggings.tag_id 
-     WHERE transactions.email = %s
-  GROUP BY tag
-  ORDER BY tag
-
-        """, (email,))
-
-summary = dict([(tag, decimal.Decimal(0)) for tag in tags])
-for row in sums:
-    summary[row['tag']] = row['sum']
 
 # ========================================================================== ^L
 <!DOCTYPE html>
@@ -172,15 +119,23 @@ for row in sums:
                         <th colspan="4" class="corner"></th>
                         {% for tag in tags %}<th>{{ tag  }}</th>{% end %}
                     </tr>
+                    <tr>
+                        <th colspan="4" class="corner"></th>
+                        {% for tag in tags %}<th class="amount">{{ summary[tag] }}</th>{% end %}
+                    </tr>
                 </thead>
                 <thead class="unpegged">
                     <tr>
                         <th colspan="4" class="corner"></th>
                         {% for tag in tags %}<th>{{ tag  }}</th>{% end %}
                     </tr>
+                    <tr>
+                        <th colspan="4" class="corner"></th>
+                        {% for tag in tags %}<th class="amount">{{ summary[tag] }}</th>{% end %}
+                    </tr>
                 </thead>
                 <tbody>
-                    {% for tid, amount, desc, date, tag in gentxns(txns, max_amount) %}
+                    {% for tid, amount, desc, date, tag in gentxns(txns, amount_width) %}
                     <tr tid="{{ tid }}" tag="{{ tag }}">
                         {{ date }}
                         <td class="description">{{ desc }}</td>

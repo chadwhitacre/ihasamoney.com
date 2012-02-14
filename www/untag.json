@@ -8,7 +8,7 @@ DELETE FROM taggings
 
 """
 
-^L
+# ========================================================================== ^L
 
 email = request.user.session['email']
 tid = request.qs.one('tid')

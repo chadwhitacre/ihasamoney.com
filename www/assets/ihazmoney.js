@@ -286,6 +286,13 @@ IHazMoney.main = function()
 
     $(document).keypress(IHazMoney.navigate);
     $(document).keydown(IHazMoney.arrows);
+    $(document).mousewheel(function(e, delta)
+    {
+        // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+    });
     $('INPUT').keypress(IHazMoney.stopPropagation);
     $('INPUT').keyup(IHazMoney.tagCreatorKeyup);
 
@@ -294,6 +301,7 @@ IHazMoney.main = function()
         function () {$(this).addClass('ocus'); },
         function () {$(this).removeClass('ocus'); }
     );
+
 
     /*
     jQuery.mousemove(function(e) {
