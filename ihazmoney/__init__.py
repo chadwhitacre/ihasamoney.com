@@ -15,7 +15,7 @@ def get_tags(email):
     """Given an email, return a list of tags.
     """
     TAGS = "SELECT tag FROM tags WHERE email = %s ORDER BY tag ASC"
-    return [x['tag'] for x in db.fetchall(TAGS, (email,))]
+    return ['uncategorized'] + [x['tag'] for x in db.fetchall(TAGS, (email,))]
 
 
 # canonizer

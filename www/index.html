@@ -29,7 +29,7 @@ def commaize(amount):
         i += 1
     return out.lstrip(',')
 
-def gentxns(txns):
+def gentxns(txns, max_amount):
     curdate = 0000, 00, 00
     for row in txns:
 
@@ -58,14 +58,16 @@ def gentxns(txns):
         curdate = (year, month, day)
 
         amount = commaize(str(abs(row['amount'])))
+        amount = ((len(max_amount) - len(amount)) * "&nbsp;") + amount
         if row['amount'] < 0:
             amount = "<i>%s</i>" % amount
 
-        tag = row['tag'] # This comes out as a single string, not a list of 
-                         # strings, if there is only one tag. And our UI 
-                         # assures that there is only one tag.
+        tag = row['tag'] # This comes out as a single string or None, not
+                         # (e.g.) list of strings, if there is only one tag. 
+                         # And our UI assures that there is only one tag.
+
         if tag is None:
-            tag = ""
+            tag = "uncategorized"
 
         yield row['id'], amount, row['description'], date, tag
 
@@ -178,11 +180,13 @@ for row in sums:
                     </tr>
                 </thead>
                 <tbody>
-                    {% for tid, amount, desc, date, tag in gentxns(txns) %}
+                    {% for tid, amount, desc, date, tag in gentxns(txns, max_amount) %}
                     <tr tid="{{ tid }}" tag="{{ tag }}">
                         {{ date }}
                         <td class="description">{{ desc }}</td>
-                        {% for _tag in tags %}<td class="amount">
+                        {% for _tag in tags %}<td 
+                            class="amount{% if _tag == tag %} tagged{% end %}"
+                            tag="{{ _tag }}">
                             {% if _tag == tag %}{{ amount }}{% end %}</td>
                         {% end %}
                     </tr>

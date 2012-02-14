@@ -5,7 +5,7 @@
 
 BODY {
     margin: 0;
-    padding: 0 0 0 5px;
+    padding: 0;
     font: normal 12px/14px Arial, sans-serif;
     color: #301403;
     color: #614C3E;
@@ -38,12 +38,14 @@ BODY {
     right: 5px;
 }
 TABLE {
-    font: normal 12px/14px Monaco, "Lucida Console", monospace;
-    color: #CCBAAD;
+    font: normal 10px/14px Monaco, "Lucida Console", monospace;
+    color: #614C3E;
+    width: 100%;
 }
 THEAD.pegged {
     position: fixed;
     top: 0;
+    left: 1px; /* ?! */
     background: white;
     z-index: 2;
 }
@@ -53,31 +55,31 @@ TD {
     padding: 0 14px 0 0;
 }
 TD.amount {
-    text-align: right;
+    text-align: center;
 }
 TH {
-    font: bold 12px/14px Arial, sans-serif;
-    padding: 0 1em;
+    font: normal 12px/14px Arial, sans-serif;
+    padding: 5px 1em;
     text-align: center;
     border-bottom: 1px solid #CCBAAD;
-    color: #CCBAAD;
+    white-space: nowrap;
 }
 TH.corner {
+    border-right: 1px #CCAABD solid;
+    padding: 0 5px;
 }
 TR.focus {
-    color: #614C3E;
+}
+TR.focus TD.tagged {
+    background: #E6F2F0;
 }
 TR.focus I {
-    color: red;
 }
 .hide {
     display: none;
 }
 TR.focus .hide {
     display: inline;
-}
-TD.tagged {
-    background: #CCBAAD;
 }
 TR.focus TD.tag {
     background: #2A8F79;
@@ -102,11 +104,12 @@ TR.focus TD.tag {
 }
 .amount I {
     font-style: normal;
-    color: #FFBFBF;
 }
 .description {
-    font: bold 12px/14px Arial, sans-serif;
-    padding: 0 0 0 5px;
+    font: normal 12px/14px Arial, sans-serif;
+    padding: 0 5px;
+    white-space: nowrap;
+    border-right: 1px #CCAABD solid;
 }
 INPUT {
     font-size: 10px;

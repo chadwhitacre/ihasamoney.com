@@ -107,6 +107,7 @@ IHazMoney.resize = function()
                       + $('.day').width()
                       + $('.description').width()
                        );
+    $('THEAD.pegged').width($('THEAD.unpegged').width());
     $('THEAD.unpegged TH').each(function(i)
     {
         $('THEAD.pegged TH').eq(i).width($(this).width());
@@ -162,8 +163,8 @@ IHazMoney.tagCreatorKeyup = function(e)
 
 IHazMoney.scrollBy = function(num)
 {
-    var $t = $('$body');
-    var newTop = $t.scrollTop() + (num * 14);
+    var container = $('BODY');
+    var newTop = container.scrollTop() + (num * 14);
     var max = $('TBODY').height() - 14;
     if (Math.abs(num) > 1)
     {
@@ -174,7 +175,7 @@ IHazMoney.scrollBy = function(num)
     }
     if (newTop >= 0 && newTop <= max)
     {
-        $t.scrollTop(newTop);
+        container.scrollTop(newTop);
         $('TBODY TR.focus').removeClass('focus');
         $('TBODY TR').eq(newTop / 14).addClass('focus');
     }
@@ -182,31 +183,29 @@ IHazMoney.scrollBy = function(num)
 
 IHazMoney.changeTag = function(inc)
 {
-    var tid = $('#transactions .focus').attr('tid');
-    var rows = $('#top .marker');
-    var from = rows.index($('#top .marker.current'));
+    var tid = $('TR.focus').attr('tid');
+    var cols = $('TR.focus TD.amount');
+    var from = cols.index($('TR.focus TD.amount.tagged'));
     var to = from + inc;
-    var tag = undefined;
+    var tag;
 
-    if (from === -1 && inc === -1)
-        // This is a special case for getting on the board.
-        to = rows.length - 1;
+    console.log(from, to);
 
-    if (to === e)
-        return;
+    if (to === -1)
+        to = cols.length - 1;
+    if (to === cols.length)
+        to = 0;
 
-    if (to === rows.length)
-    {
-        tag = null;
+    from = cols.eq(from);
+    to = cols.eq(to);
+    tag = to.attr('tag');
+    if (tag == "uncategorized")
         jQuery.getJSON('/untag.json', {tid: tid});
-        $('#transactions .focus TD.tag').removeClass('tagged');
-    }
     else
-    {
-        tag = rows.eq(to).parent().attr('tag');
         jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
-        $('#transactions .focus TD.tag').addClass('tagged');
-    }
+    from.removeClass('tagged');
+    to.html(from.html()).addClass('tagged');
+    from.empty();
 };
 
 IHazMoney.jumpNextUntagged = function()
@@ -220,31 +219,47 @@ IHazMoney.jumpPreviousUntagged = function()
     console.log('tbd ...');
 }
 
+IHazMoney.arrows = function(e)
+{
+    var nrows = 1, to = 1, hl = {37:-1, 39: 1};
+    console.log(e.which);
+    switch (e.which)
+    {
+        case 38: // k
+            nrows = -1
+        case 40: // j
+            IHazMoney.scrollBy(nrows);
+            e.preventDefault();
+            break;
+        case 37: // h 
+        case 39: // l
+            to *= hl[e.which];
+            IHazMoney.changeTag(to);
+            e.preventDefault();
+            break;
+    }
+};
+
 IHazMoney.navigate = function(e)
 {
     e.preventDefault();
 
-    var nrows = 1, to = 1, df = {100:1, 102:-1};
+    var nrows = 1, to = 1, hl = {104:-1, 108: 1};
     if (e.shiftKey)
         nrows = $('#transactions').height() / 14;       // page at a time
     if (e.ctrlKey)
         nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
-    //console.log(e.which);
+    console.log(e.which);
     switch (e.which)
     {
-        case 10:  // <ctrl>-j
-        case 74:  // J
+        case 107: // k
+            nrows = -1
         case 106: // j
             IHazMoney.scrollBy(nrows);
             break;
-        case 11:  // <ctrl>-k
-        case 75:  // K
-        case 107: // k
-            IHazMoney.scrollBy(-nrows);
-            break;
-        case 100: // d 
-        case 102: // f
-            to *= df[e.which];
+        case 104: // h 
+        case 108: // l
+            to *= hl[e.which];
             IHazMoney.changeTag(to);
             break;
         case 110: // n
@@ -270,8 +285,21 @@ IHazMoney.main = function()
     IHazMoney.resize();
 
     $(document).keypress(IHazMoney.navigate);
+    $(document).keydown(IHazMoney.arrows);
     $('INPUT').keypress(IHazMoney.stopPropagation);
     $('INPUT').keyup(IHazMoney.tagCreatorKeyup);
 
     $('TBODY TR').eq(0).addClass('focus');
+    $('TBODY TR').hover(
+        function () {$(this).addClass('ocus'); },
+        function () {$(this).removeClass('ocus'); }
+    );
+
+    /*
+    jQuery.mousemove(function(e) {
+        // http://stackoverflow.com/questions/1133807/
+        window.mouseXPos = e.pageX;
+        window.mouseYPos = e.pageY;
+    });
+    */
 };
