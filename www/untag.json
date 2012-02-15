@@ -10,7 +10,8 @@ DELETE FROM taggings
 
 # ========================================================================== ^L
 
-email = request.user.session['email']
-tid = request.qs.one('tid')
-db.execute(UNTAG, (tid, tid, email))
-response.body = {}
+if not request.user.ANON:
+    email = request.user.session['email']
+    tid = request.qs.one('tid')
+    db.execute(UNTAG, (tid, tid, email))
+response.code = 204

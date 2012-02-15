@@ -103,9 +103,9 @@ IHazMoney.resize = function()
     var topHeight = WIN.height() - transactionHeight - 1;
     $('#top').height(topHeight);
     $('.corner').width( $('.year').eq(0).width()
-                      + $('.month').width()
-                      + $('.day').width()
-                      + $('.description').width()
+                      + $('.month').eq(0).width()
+                      + $('.day').eq(0).width()
+                      + $('.description').eq(0).width()
                        );
     $('THEAD.pegged').width($('THEAD.unpegged').width());
     $('THEAD.unpegged TH').each(function(i)
@@ -189,8 +189,6 @@ IHazMoney.changeTag = function(inc)
     var to = from + inc;
     var tag;
 
-    console.log(from, to);
-
     if (to === -1)
         to = cols.length - 1;
     if (to === cols.length)
@@ -222,7 +220,6 @@ IHazMoney.jumpPreviousUntagged = function()
 IHazMoney.arrows = function(e)
 {
     var nrows = 1, to = 1, hl = {37:-1, 39: 1};
-    console.log(e.which);
     switch (e.which)
     {
         case 38: // k
@@ -276,6 +273,15 @@ IHazMoney.stopPropagation = function(e)
     e.stopPropagation();
 };
 
+IHazMoney.kill = function(e, delta)
+{
+    // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+};
+
+
 // main 
 // ====
 
@@ -286,13 +292,8 @@ IHazMoney.main = function()
 
     $(document).keypress(IHazMoney.navigate);
     $(document).keydown(IHazMoney.arrows);
-    $(document).mousewheel(function(e, delta)
-    {
-        // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
-        e.stopPropagation();
-        e.preventDefault();
-        return false;
-    });
+    $(document).mousewheel(IHazMoney.kill)
+
     $('INPUT').keypress(IHazMoney.stopPropagation);
     $('INPUT').keyup(IHazMoney.tagCreatorKeyup);
 
@@ -302,7 +303,7 @@ IHazMoney.main = function()
         function () {$(this).removeClass('ocus'); }
     );
 
-
+    $('#body').show();
     /*
     jQuery.mousemove(function(e) {
         // http://stackoverflow.com/questions/1133807/

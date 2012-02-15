@@ -1,80 +1,15 @@
-import decimal
+from ihazmoney import data
 
-from aspen import Response
-
-
-months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec"]
-
-def commaize(amount):
-    """Given a 2-decimal number as a string, return it with commas.
-    """
-    if isinstance(amount, decimal.Decimal):
-        amount = "%.02f" % amount
-    if decimal.Decimal(amount) == 0:
-        return "0" + ("&nbsp;" * 3)
-    if amount.startswith('-'):
-        amount = amount[1:] # abs
-    if len(amount) <= 6:
-        return amount
-    whole, fraction = amount.split('.')
-    whole = list(whole)
-    out = '.' + fraction
-    i = 1 
-    while whole:
-        out = whole.pop() + out
-        if i % 3 == 0:
-            out = ',' + out
-        i += 1
-    return out.lstrip(',')
-
-def pad(s, width):
-    print "padding %s to %d" % (s, width)
-    return ((width - len(s)) * "&nbsp;") + s
-
-def gentxns(txns, max_amount):
-    curdate = 0000, 00, 00
-    for row in txns:
-
-        # red hot, baby!
-        d = row['date']
-        year, month, day = d.year, d.month, d.day
-        if (year, month, day) == curdate:
-            date = ('<td class="year"><span class="hide">%04d</span></td>'
-                    '<td class="month"><span class="hide">%s</span></td>'
-                    '<td class="day"><span class="hide">%02d</span></td>')
-        elif (year, month) == curdate[:2]:
-            date = ('<td class="year"><span class="hide">%04d</span></td>'
-                    '<td class="month"><span class="hide">%s</span></td>'
-                    '<td class="day">%02d</td>')
-        elif (year,) == curdate[:1]:
-            date = ('<td class="year"><span class="hide">%04d</span></td>'
-                    '<td class="month">%s</td>'
-                    '<td class="day">%02d</td>')
-        else:
-            date = ('<td class="year">%04d</td>'
-                    '<td class="month">%s</td>'
-                    '<td class="day">%02d</td>')
-        date %= (year, months[month], day)
-        date = date.replace('>0', '>&nbsp;')
-        date = date.replace(' 0', '&nbsp;&nbsp;')
-        curdate = (year, month, day)
-
-        amount = commaize(str(abs(row['amount'])))
-        amount = pad(amount, max_amount)
-        if row['amount'] < 0:
-            amount = "<i>%s</i>" % amount
-
-        tag = row['tag'] # This comes out as a single string or None, not
-                         # (e.g.) list of strings, if there is only one tag. 
-                         # And our UI assures that there is only one tag.
-
-        if tag is None:
-            tag = "uncategorized"
-
-        yield row['id'], amount, row['description'], date, tag
 
 # ========================================================================== ^L
+
+if request.user.ANON:
+    tags, transactions, summary, balance = data.dummy()
+else:
+    email = request.user.session['email']
+    tags, transactions, summary = data.get(email)
+    balance = request.user.session['balance']
+
 
 # ========================================================================== ^L
 <!DOCTYPE html>
@@ -117,7 +52,7 @@ def gentxns(txns, max_amount):
                 <thead class="pegged">
                     <tr>
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th>{{ tag  }}</th>{% end %}
+                        {% for tag in tags %}<th>{{ tag }}</th>{% end %}
                     </tr>
                     <tr>
                         <th colspan="4" class="corner"></th>
@@ -127,7 +62,7 @@ def gentxns(txns, max_amount):
                 <thead class="unpegged">
                     <tr>
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th>{{ tag  }}</th>{% end %}
+                        {% for tag in tags %}<th>{{ tag }}</th>{% end %}
                     </tr>
                     <tr>
                         <th colspan="4" class="corner"></th>
@@ -135,7 +70,7 @@ def gentxns(txns, max_amount):
                     </tr>
                 </thead>
                 <tbody>
-                    {% for tid, amount, desc, date, tag in gentxns(txns, amount_width) %}
+                    {% for tid, amount, desc, date, tag in data.gentxns(transactions, 8) %}
                     <tr tid="{{ tid }}" tag="{{ tag }}">
                         {{ date }}
                         <td class="description">{{ desc }}</td>

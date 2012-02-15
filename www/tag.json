@@ -13,8 +13,9 @@ INSERT INTO taggings (transaction_id, tag_id)
 
 ^L
 
-email = request.user.session['email']
-tid = request.qs.one('tid')
-tag = request.qs.one('tag')
-db.execute(TAG, (tid, tid, email, tid, email, tag))
-response.body = {}
+if not request.user.ANON:
+    email = request.user.session['email']
+    tid = request.qs.one('tid')
+    tag = request.qs.one('tag')
+    db.execute(TAG, (tid, tid, email, tid, email, tag))
+response.code = 204
