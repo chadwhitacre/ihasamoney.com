@@ -98,21 +98,23 @@ IHazMoney.resize = function()
     var BOD = $('BODY');
     var bod = $('#body');
 
-    var transactionHeight = WIN.height() - 24 - (WIN.height() % 14) ;
+    var headHeight = $('THEAD.unpegged').outerHeight();
+    var transactionHeight = WIN.height() - headHeight;
+    transactionHeight -= transactionHeight % 14;
+    var bodyHeight = headHeight + transactionHeight;
     // fit for 14px-height rows
-    var topHeight = WIN.height() - transactionHeight - 1;
-    $('#top').height(topHeight);
     $('.corner').width( $('.year').eq(0).width()
                       + $('.month').eq(0).width()
                       + $('.day').eq(0).width()
                       + $('.description').eq(0).width()
                        );
+
     $('THEAD.pegged').width($('THEAD.unpegged').width());
     $('THEAD.unpegged TH').each(function(i)
     {
         $('THEAD.pegged TH').eq(i).width($(this).width());
     });
-    $('TBODY').height(transactionHeight);
+    $('#body').height(bodyHeight);
 };
 
 
@@ -158,22 +160,25 @@ IHazMoney.tagCreatorKeyup = function(e)
 
 IHazMoney.scrollBy = function(num)
 {
-    var container = $('BODY');
-    var newTop = container.scrollTop() + (num * 14);
-    var max = $('TBODY').height() - 14;
-    if (Math.abs(num) > 1)
-    {
-        if (newTop < 0)
-            newTop = 0;
-        if (newTop > max)
-            newTop = max;
+    var container = $('#body');
+
+    var cur = $('TBODY TR.focus');
+    var rows = $('TBODY TR');
+    var from = rows.index(cur);
+    var to = from + num;
+
+    if (0 <= to && to < rows.length)
+    { 
+        cur.removeClass('focus');
+        rows.eq(to).addClass('focus');
+        var curScroll = container.scrollTop();
+        if (to * 14 < container.scrollTop()) {
+            container.scrollTop(curScroll + (num * 14));
+        } else if (to * 14 > container.scrollTop() + container.height() - $('THEAD.unpegged').height() - 14) {
+            container.scrollTop(curScroll + (num * 14));
+        }
     }
-    if (newTop >= 0 && newTop <= max)
-    {
-        container.scrollTop(newTop);
-        $('TBODY TR.focus').removeClass('focus');
-        $('TBODY TR').eq(newTop / 14).addClass('focus');
-    }
+
     IHazMoney.highlightColumn();
 };
 
@@ -296,10 +301,6 @@ IHazMoney.navigate = function(e)
     e.preventDefault();
 
     var nrows = 1, to = 1, hl = {104:-1, 108: 1};
-    if (e.shiftKey)
-        nrows = $('#transactions').height() / 14;       // page at a time
-    if (e.ctrlKey)
-        nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
     switch (e.which)
     {
         case 107: // k

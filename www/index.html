@@ -79,7 +79,7 @@ else:
                         {% for _tag in tags %}<td 
                             class="amount{% if _tag == tag %} tagged{% end %}"
                             tag="{{ _tag }}">
-                            {% if _tag == tag %}{{ amount }}{% end %}</td>
+                            <b>{% if _tag == tag %}{{ amount }}{% end %}</b></td>
                         {% end %}
                     </tr>
                     {% end %}
