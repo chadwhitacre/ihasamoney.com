@@ -172,11 +172,26 @@ IHazMoney.scrollBy = function(num)
         cur.removeClass('focus');
         rows.eq(to).addClass('focus');
         var curScroll = container.scrollTop();
-        if (to * 14 < container.scrollTop()) {
-            container.scrollTop(curScroll + (num * 14));
-        } else if (to * 14 > container.scrollTop() + container.height() - $('THEAD.unpegged').height() - 14) {
-            container.scrollTop(curScroll + (num * 14));
-        }
+        var scrollTop = container.scrollTop();
+        var scrollBottom = ( scrollTop
+                           + container.height() 
+                           - $('THEAD.unpegged').height() 
+                           - 14
+                            );
+        var scrollMiddle = ( scrollTop 
+                           + Math.floor((scrollBottom - scrollTop) / 3)
+                            );
+        scrollMiddle -= scrollMiddle % 14;
+
+        var at = to * 14;
+        var to = curScroll + (num * 14);
+        if (at < scrollTop) {
+            container.scrollTop(to);
+        } else if (at > scrollBottom) {
+            container.scrollTop(to);
+        } else if (at === scrollMiddle) {
+            container.scrollTop(to);
+        } 
     }
 
     IHazMoney.highlightColumn();
