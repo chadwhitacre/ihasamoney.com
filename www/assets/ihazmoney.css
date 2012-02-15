@@ -74,6 +74,10 @@ TH.corner {
 TH.amount {
     padding: 5px 6px 5px 0;
 }
+TH.amount B {
+    border: 1px solid white;
+    font-weight: normal;
+}
 TR.heads TH.current {
     background: #E6F2F0;
     border-bottom: 1px solid #2A8F79;
