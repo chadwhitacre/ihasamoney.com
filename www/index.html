@@ -1,6 +1,5 @@
 from ihazmoney import data
 
-
 # ========================================================================== ^L
 
 if request.user.ANON:
@@ -9,7 +8,6 @@ else:
     email = request.user.session['email']
     tags, transactions, summary = data.get(email)
     balance = request.user.session['balance']
-
 
 # ========================================================================== ^L
 <!DOCTYPE html>
@@ -50,27 +48,27 @@ else:
 
             <table>
                 <thead class="pegged">
-                    <tr>
+                    <tr class="heads">
                         <th colspan="4" class="corner"></th>
                         {% for tag in tags %}<th>{{ tag }}</th>{% end %}
                     </tr>
-                    <tr>
+                    <tr class="summary">
                         <th colspan="4" class="corner"></th>
                         {% for tag in tags %}<th class="amount">{{ summary[tag] }}</th>{% end %}
                     </tr>
                 </thead>
                 <thead class="unpegged">
-                    <tr>
+                    <tr class="heads">
                         <th colspan="4" class="corner"></th>
                         {% for tag in tags %}<th>{{ tag }}</th>{% end %}
                     </tr>
-                    <tr>
+                    <tr class="summary">
                         <th colspan="4" class="corner"></th>
                         {% for tag in tags %}<th class="amount">{{ summary[tag] }}</th>{% end %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for tid, amount, desc, date, tag in data.gentxns(transactions, 8) %}
+                    {% for tid, amount, desc, date, tag in data.gentxns(transactions) %}
                     <tr tid="{{ tid }}" tag="{{ tag }}">
                         {{ date }}
                         <td class="description">{{ desc }}</td>

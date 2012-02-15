@@ -88,6 +88,9 @@ TR.focus .hide {
 TR.focus TD.tag {
     background: #2A8F79;
 }
+TR.heads TH.corner {
+    border-bottom: 0;
+}
 .tag {
     border-style: none solid;
 }
