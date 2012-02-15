@@ -130,11 +130,6 @@ IHazMoney.createTag = function(e)
                  })
 };
 
-IHazMoney.toggleTag = function()
-{
-    IHazMoney.updateAlso();
-};
-
 IHazMoney.toggleTagCreator = function()
 {
     $('#top .widget').toggle()
@@ -179,13 +174,16 @@ IHazMoney.scrollBy = function(num)
         $('TBODY TR.focus').removeClass('focus');
         $('TBODY TR').eq(newTop / 14).addClass('focus');
     }
+    IHazMoney.highlightColumn();
 };
 
 IHazMoney.changeTag = function(inc)
 {
     var tid = $('TR.focus').attr('tid');
     var cols = $('TR.focus TD.amount');
-    var from = cols.index($('TR.focus TD.amount.tagged'));
+    var cell = $('TR.focus TD.amount.tagged');
+    var amount = cell.text();
+    var from = cols.index(cell);
     var to = from + inc;
     var tag;
 
@@ -204,18 +202,74 @@ IHazMoney.changeTag = function(inc)
     from.removeClass('tagged');
     to.html(from.html()).addClass('tagged');
     from.empty();
+
+    // Update summary amount.
+
+    // Do some hackish decimal math, assuming two decimal places.
+    function parseDecimal(s)
+    {
+        var foo = s.replace(',', '');
+        var parts = foo.split('.');
+        var whole = parseInt(parts[0], 10) * 100;
+        var sign = whole < 0 ? -1 : 1;
+        whole = Math.abs(whole);
+        var part = parts[1] === undefined ? 0 : parseInt(parts[1], 10);
+        var combined = whole + part;
+        return (combined * sign);
+    }
+    function add(d1, d2)
+    {
+        d1 = parseDecimal(d1);
+        d2 = parseDecimal(d2);
+        return (d1 + d2) / 100;
+    }
+    function subtract(d1, d2)
+    {
+        d1 = parseDecimal(d1);
+        d2 = parseDecimal(d2);
+        return (d1 - d2) / 100;
+    }
+    function commaize(f)
+    {
+        if (f === 0)
+            return "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;";
+        f = f.toFixed(2);
+        var sign = '';
+        if (f[0] === '-')
+        {
+            sign = '-';
+            f = f.slice(1);
+        }
+        var len = f.length;
+        for (var i=len, j; i > 0; i--)
+        {
+            j = len - i;
+            if (j > 3 && j % 3 === 0)
+                f = f.slice(0,i) + "," + f.slice(i,f.length);
+        }
+        f = sign + f;
+        while (f.length < 10)
+            f = " " + f;
+        while (f.indexOf(" ") !== -1)
+            f = f.replace(" ", "&nbsp;");
+        return f;
+    }
+
+    var entering = $('THEAD.pegged TH.amount[tag="' + tag + '"]');
+    entering.html(commaize(add(entering.text(), amount)));
+
+    var leaving = $('THEAD.pegged TH.amount.current');
+    leaving.html(commaize(subtract(leaving.text(), amount)));
+
+    IHazMoney.highlightColumn();
 };
 
-IHazMoney.jumpNextUntagged = function()
+IHazMoney.highlightColumn = function()
 {
-    var from = $('#transactions .focus');
-    console.log('tbd ...');
-}
-
-IHazMoney.jumpPreviousUntagged = function()
-{
-    console.log('tbd ...');
-}
+    var tag = $(".focus .tagged").attr('tag');
+    $('THEAD.pegged TH.current').removeClass('current');
+    $('THEAD.pegged TH[tag="' + tag + '"]').addClass('current');
+};
 
 IHazMoney.arrows = function(e)
 {
@@ -246,7 +300,6 @@ IHazMoney.navigate = function(e)
         nrows = $('#transactions').height() / 14;       // page at a time
     if (e.ctrlKey)
         nrows = $('#transactions TABLE').height() / 14; // jump top/bottom
-    console.log(e.which);
     switch (e.which)
     {
         case 107: // k
@@ -258,12 +311,6 @@ IHazMoney.navigate = function(e)
         case 108: // l
             to *= hl[e.which];
             IHazMoney.changeTag(to);
-            break;
-        case 110: // n
-            IHazMoney.jumpNextUntagged();
-            break;
-        case 112: // p
-            IHazMoney.jumpPreviousUntagged();
             break;
     }
 };
@@ -303,12 +350,5 @@ IHazMoney.main = function()
         function () {$(this).removeClass('ocus'); }
     );
 
-    $('#body').show();
-    /*
-    jQuery.mousemove(function(e) {
-        // http://stackoverflow.com/questions/1133807/
-        window.mouseXPos = e.pageX;
-        window.mouseYPos = e.pageY;
-    });
-    */
+    IHazMoney.highlightColumn();
 };

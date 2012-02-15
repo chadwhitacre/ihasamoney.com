@@ -6,7 +6,7 @@
 BODY {
     margin: 0;
     padding: 0;
-    font: normal 12px/14px Arial, sans-serif;
+    font: normal 12px/12px Arial, sans-serif;
     color: #301403;
     color: #614C3E;
 }
@@ -40,18 +40,19 @@ BODY {
 TABLE {
     color: #614C3E;
     width: 100%;
+    border-collapse: separate;
 }
 THEAD.pegged {
     position: fixed;
     top: 0;
-    left: 1px; /* ?! */
+    left: 0;
     background: white;
     z-index: 2;
 }
 TBODY {
 }
 TD {
-    padding: 0 14px 0 0;
+    padding: 0 12px 0 0;
 }
 .amount {
     font: normal 10px/14px Monaco, "Lucida Console", monospace;
@@ -61,7 +62,7 @@ TH {
     font: normal 12px/14px Arial, sans-serif;
     padding: 5px 1em;
     text-align: center;
-    border-bottom: 1px solid #CCBAAD;
+    border-bottom: 1px solid #CCAABD;
     white-space: nowrap;
 }
 TH.corner {
@@ -71,11 +72,15 @@ TH.corner {
 TH.amount {
     padding: 5px 6px 5px 0;
 }
-TR.focus {
+TR.heads TH.current {
+    background: #E6F2F0;
+    border-bottom: 1px solid #2A8F79;
+}
+TR.focus TD.description {
+    background: #E6F2F0;
 }
 TR.focus TD.tagged {
-    background: #E6F2F0;
-    order: 1px solid #2A8F79;
+    border: 1px solid #2A8F79;
 }
 TR.focus I {
 }
@@ -91,9 +96,6 @@ TR.focus TD.tag {
 TR.heads TH.corner {
     border-bottom: 0;
 }
-.tag {
-    border-style: none solid;
-}
 .amount,
 .year,
 .month,
@@ -107,13 +109,13 @@ TR.heads TH.corner {
 .month,
 .day {
     text-align: right;
-    font: normal 12px/14px Arial, sans-serif;
+    font: normal 12px/12px Arial, sans-serif;
 }
 .amount I {
     font-style: normal;
 }
 .description {
-    font: normal 12px/14px Arial, sans-serif;
+    font: normal 12px/12px Arial, sans-serif;
     padding: 0 5px;
     white-space: nowrap;
     border-right: 1px #CCAABD solid;

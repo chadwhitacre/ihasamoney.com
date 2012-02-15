@@ -50,21 +50,25 @@ else:
                 <thead class="pegged">
                     <tr class="heads">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th>{{ tag }}</th>{% end %}
+                        {% for tag in tags %}<th 
+                            tag="{{ tag }}">{{ tag }}</th>{% end %}
                     </tr>
                     <tr class="summary">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th class="amount">{{ summary[tag] }}</th>{% end %}
+                        {% for tag in tags %}<th tag="{{ tag }}"
+                            class="amount">{{ summary[tag] }}</th>{% end %}
                     </tr>
                 </thead>
                 <thead class="unpegged">
                     <tr class="heads">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th>{{ tag }}</th>{% end %}
+                        {% for tag in tags %}<th 
+                            tag="{{ tag }}">{{ tag }}</th>{% end %}
                     </tr>
                     <tr class="summary">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th class="amount">{{ summary[tag] }}</th>{% end %}
+                        {% for tag in tags %}<th tag="{{ tag }}"
+                            class="amount">{{ summary[tag] }}</th>{% end %}
                     </tr>
                 </thead>
                 <tbody>
