@@ -11,5 +11,4 @@ setup( author = 'Chad Whitacre'
      , name = 'ihazmoney'
      , packages = find_packages()
      , version = version
-     , zip_safe = False
       )
