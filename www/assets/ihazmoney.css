@@ -42,6 +42,7 @@ BODY {
 }
 TABLE {
     color: #614C3E;
+    color: #301403;
     width: 100%;
     border-collapse: separate;
     background: white;
@@ -56,9 +57,13 @@ THEAD.pegged {
 TD {
     padding: 0 12px 0 0;
 }
+TD, TH {
+    olor: #CCAABD;
+}
 .amount {
     font: normal 10px/14px Monaco, "Lucida Console", monospace;
     text-align: center;
+    padding: 0;
 }
 TH {
     font: normal 12px/14px Arial, sans-serif;
@@ -66,6 +71,16 @@ TH {
     text-align: center;
     border-bottom: 1px solid #CCAABD;
     white-space: nowrap;
+}
+TBODY B {
+    font-weight: normal;
+    display: block;
+    idth: 100%;
+    height: 12px;
+    border: 1px solid white;
+}
+TBODY TR.focus TD.tagged B {
+    border: 1px solid #2A8F79;
 }
 TH.corner {
     border-right: 1px #CCAABD solid;
@@ -82,24 +97,24 @@ TR.heads TH.current {
     background: #E6F2F0;
     border-bottom: 1px solid #2A8F79;
 }
+TBODY TD.highlighted B {
+    ackground: #E6F2F0;
+    order-color: #E6F2F0 ! important;
+}
+TR.focus TD.current B {
+    background: white;
+}
 TR.focus TD.description {
     background: #E6F2F0;
 }
 TR.focus TD.tagged {
     position: relative;
 }
-TBODY B {
-    font-weight: normal ! important;
-    display: block;
-    width: 100%;
-    height: 12px;
-    border: 1px solid white;
-}
-TBODY TR.focus TD.tagged B {
-    border: 1px solid #2A8F79;
-}
 .hide {
     display: none;
+}
+TR.focus TD {
+    color: #301403;
 }
 TR.focus .hide {
     display: inline;
@@ -110,7 +125,6 @@ TR.focus TD.tag {
 TR.heads TH.corner {
     border-bottom: 0;
 }
-.amount,
 .year,
 .month,
 .day {

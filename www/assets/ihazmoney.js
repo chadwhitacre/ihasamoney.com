@@ -193,8 +193,7 @@ IHazMoney.scrollBy = function(num)
             container.scrollTop(to);
         } 
     }
-
-    IHazMoney.highlightColumn();
+    IHazMoney.highlightRowCol();
 };
 
 IHazMoney.changeTag = function(inc)
@@ -221,7 +220,7 @@ IHazMoney.changeTag = function(inc)
         jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
     from.removeClass('tagged');
     to.html(from.html()).addClass('tagged');
-    from.empty();
+    from.html('<b></b>');
 
     // Update summary amount.
 
@@ -281,14 +280,26 @@ IHazMoney.changeTag = function(inc)
     var leaving = $('THEAD.pegged TH.amount.current');
     leaving.html(commaize(subtract(leaving.text(), amount)));
 
-    IHazMoney.highlightColumn();
+    IHazMoney.highlightRowCol();
 };
 
-IHazMoney.highlightColumn = function()
+IHazMoney.highlightRowCol = function()
 {
+    var i = 0;
     var tag = $(".focus .tagged").attr('tag');
-    $('THEAD.pegged TH.current').removeClass('current');
-    $('THEAD.pegged TH[tag="' + tag + '"]').addClass('current');
+
+    // Change the highlighted column head.
+    $('.current').removeClass('current');
+    $('TH[tag="' + tag + '"]').addClass('current');
+   
+    // Change the column highlight. 
+    $('.highlighted').removeClass('highlighted');
+    i = $('TBODY TR').index($('TR.focus'));
+    $('TD[tag="' + tag + '"]:lt(' + i + ')').addClass('highlighted');
+   
+    // Change the row highlight. 
+    i = $('TBODY TR TD').index($('TD[tag="' + tag + '"]'));
+    $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
 IHazMoney.arrows = function(e)
@@ -366,5 +377,5 @@ IHazMoney.main = function()
         function () {$(this).removeClass('ocus'); }
     );
 
-    IHazMoney.highlightColumn();
+    IHazMoney.highlightRowCol();
 };
