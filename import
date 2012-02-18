@@ -4,7 +4,7 @@ import datetime
 import decimal
 
 import psycopg2
-from ihazmoney import wire_db
+from ihasamoney import wire_db
 from ofx_parse import OfxParser
 
 
@@ -16,7 +16,7 @@ db = wire_db()
 ofx = OfxParser.parse(open('transactions-clean.ofx'))
 balance = 0
 for t in ofx.bank_account.statement.transactions:
-    email = "admin@ihazmoney.com"
+    email = "admin@ihasamoney.com"
 
     year, month, day = [int(x) for x in (t.date[0:4], t.date[4:6], t.date[6:8])]
     date = datetime.date(year, month, day)
@@ -51,7 +51,7 @@ transactions = csv.reader(open('transactions.csv'))
 headers = transactions.next()
 balance = 0
 for row in transactions:
-    email = "admin@ihazmoney.com"
+    email = "admin@ihasamoney.com"
     month, day, year = [int(x) for x in row[0].split('/')]
     date = datetime.date(year, month, day)
     amount = decimal.Decimal(row[3])

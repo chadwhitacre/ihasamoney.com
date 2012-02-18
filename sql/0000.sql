@@ -1,2 +1,2 @@
-DROP DATABASE ihazmoney;
-CREATE DATABASE ihazmoney;
+DROP DATABASE ihasamoney;
+CREATE DATABASE ihasamoney;

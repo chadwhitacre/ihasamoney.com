@@ -1,6 +1,6 @@
 """Given a email and password, return a boolean.
 """
-from ihazmoney.authentication import sign_in, sessions, User
+from ihasamoney.authentication import sign_in, sessions, User
 
 # ========================================================================== ^L
 

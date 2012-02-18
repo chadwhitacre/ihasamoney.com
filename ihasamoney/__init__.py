@@ -8,7 +8,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool as ConnectionPool
 
 
-log = logging.getLogger('ihazmoney')
+log = logging.getLogger('ihasamoney')
 
 
 # canonizer
@@ -64,7 +64,7 @@ class PostgresManager(object):
     """
 
     def __init__(self, connection_spec):
-        log.info('wiring up ihazmoney.db: %s' % connection_spec)
+        log.info('wiring up ihasamoney.db: %s' % connection_spec)
         self.pool = ConnectionPool( minconn=1
                                   , maxconn=10
                                   , dsn=connection_spec

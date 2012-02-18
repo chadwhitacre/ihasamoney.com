@@ -8,7 +8,7 @@ from hashlib import sha1
 from aspen import Response
 
 
-log = logging.getLogger('ihazmoney.authentication')
+log = logging.getLogger('ihasamoney.authentication')
 sessions = {}
 BEGINNING_OF_EPOCH = rfc822.formatdate(0)
 TIMEOUT = 60 * 60 * 24 * 7 # one week
@@ -19,14 +19,14 @@ def hash(password):
     return sha1(password + salt).hexdigest()
 
 def authentic(email, password):
-    from ihazmoney import db
+    from ihasamoney import db
     SQL = ("SELECT email FROM users WHERE email=%s AND hash=%s")
     hashed = hash(password)
     rec = db.fetchone(SQL, (email, hashed))
     return rec is not None
 
 def sign_in(email, password):
-    from ihazmoney import db
+    from ihasamoney import db
     SQL = ("UPDATE users SET session_token=%s "
            "WHERE email=%s AND hash=%s RETURNING *")
     token = str(uuid.uuid4())
@@ -38,7 +38,7 @@ def sign_in(email, password):
     return {}
 
 def load_session(token):
-    from ihazmoney import db
+    from ihasamoney import db
     SQL = """\
         SELECT email
              , session_token

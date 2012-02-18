@@ -1,7 +1,7 @@
 """Given a email and password, return a boolean.
 """
-from ihazmoney import db, validate
-from ihazmoney.authentication import sign_in, hash, sessions, User
+from ihasamoney import db, validate
+from ihasamoney.authentication import sign_in, hash, sessions, User
 from psycopg2 import IntegrityError
 
 

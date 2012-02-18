@@ -1,4 +1,4 @@
-This is the ihazmoney.com website.
+This is the ihasamoney.com website.
 
 The first step is to install and prepare Postgres. There's a little script at
 sql/reset.sh which will run the *.sql files in that directory. NB: 0000.sql
@@ -10,20 +10,20 @@ yourself by tweaking the reset.sh file as needed, etc.
 Next create a local.env file in this directory that contains the following
 (tweak for your environment):
 
-    DATABASE_URL=postgres://{user}:{password}@localhost:5432/ihazmoney
+    DATABASE_URL=postgres://{user}:{password}@localhost:5432/ihasamoney
     CANONICAL_HOST=
     CANONICAL_SCHEME=http
     GAUGES=false
     SALT=password some unguessable salt
 
 Now `make run` in this directory, and hit http://localhost:8080/. Voila! You
-haz money. Sign in using admin@ihazmoney.com, password 'so secret'.
+haz money. Sign in using admin@ihasamoney.com, password 'so secret'.
 
 Download transactions from Mint to a file named transactions.csv in this
 directory. The link on Mint is at the very bottom of the "Transactions" screen
 and says something like "Export all NNN transactions". Then import them into
-admin@ihazmoney.com using the "import" tool in this directory (the swaddle tool
+admin@ihasamoney.com using the "import" tool in this directory (the swaddle tool
 runs a command using environment variables from a file):
 
     $ . env/bin/activate
-    [ihazmoney]$ ./swaddle local.env ./import
+    [ihasamoney]$ ./swaddle local.env ./import

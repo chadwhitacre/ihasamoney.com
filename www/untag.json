@@ -1,4 +1,4 @@
-from ihazmoney import db
+from ihasamoney import db
 
 UNTAG = """
 

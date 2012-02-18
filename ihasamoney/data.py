@@ -3,7 +3,7 @@ import random
 
 from datetime import date
 from datetime import timedelta
-from ihazmoney import db
+from ihasamoney import db
 
 
 months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",

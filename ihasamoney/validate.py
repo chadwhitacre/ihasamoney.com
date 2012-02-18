@@ -5,7 +5,7 @@ Given input, return a problem string, or the empty string if there are no proble
 """
 import re
 
-from ihazmoney.authentication import hash
+from ihasamoney.authentication import hash
 
 
 # http://www.regular-expressions.info/email.html

@@ -1,4 +1,0 @@
-from ihazmoney import get_tags
-^L
-email = request.user.session['email']
-response.body = get_tags(email)
