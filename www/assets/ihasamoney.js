@@ -80,19 +80,19 @@ if(!Array.prototype.remove)
 // Main namespace.
 // ===============
 
-IHazMoney = {};
+IHasAMoney = {};
 
-IHazMoney.wire = function(name, callback)
+IHasAMoney.wire = function(name, callback)
 {
-    $(IHazMoney).bind(name, callback);
+    $(IHasAMoney).bind(name, callback);
 };
 
-IHazMoney.fire = function(name)
+IHasAMoney.fire = function(name)
 {
-    $(IHazMoney).trigger(name);
+    $(IHasAMoney).trigger(name);
 };
 
-IHazMoney.resize = function()
+IHasAMoney.resize = function()
 {
     var WIN = $(window);
     var BOD = $('BODY');
@@ -121,7 +121,7 @@ IHazMoney.resize = function()
 // Tags
 // ====
 
-IHazMoney.createTag = function(e)
+IHasAMoney.createTag = function(e)
 {
     var button = $(e.target);
     var tag = $('#top INPUT').val();
@@ -132,7 +132,7 @@ IHazMoney.createTag = function(e)
                  })
 };
 
-IHazMoney.toggleTagCreator = function()
+IHasAMoney.toggleTagCreator = function()
 {
     $('#top .widget').toggle()
     var cur = $('#top .knob').text();
@@ -145,20 +145,20 @@ IHazMoney.toggleTagCreator = function()
     $('#top .knob').text(next);
 };
 
-IHazMoney.tagCreatorKeyup = function(e)
+IHasAMoney.tagCreatorKeyup = function(e)
 {
     switch (e.which)
     {
         case 27:
-            IHazMoney.toggleTagCreator();
+            IHasAMoney.toggleTagCreator();
             break;
         case 13:
-            IHazMoney.createTag({"target": $('#top BUTTON').get(0)});
+            IHasAMoney.createTag({"target": $('#top BUTTON').get(0)});
             break;
     }
 };
 
-IHazMoney.scrollBy = function(num)
+IHasAMoney.scrollBy = function(num)
 {
     var container = $('#body');
 
@@ -193,10 +193,10 @@ IHazMoney.scrollBy = function(num)
             container.scrollTop(to);
         } 
     }
-    IHazMoney.highlightRowCol();
+    IHasAMoney.highlightRowCol();
 };
 
-IHazMoney.changeTag = function(inc)
+IHasAMoney.changeTag = function(inc)
 {
     var tid = $('TR.focus').attr('tid');
     var cols = $('TR.focus TD.amount');
@@ -280,10 +280,10 @@ IHazMoney.changeTag = function(inc)
     var leaving = $('THEAD.pegged TH.amount.current');
     leaving.html(commaize(subtract(leaving.text(), amount)));
 
-    IHazMoney.highlightRowCol();
+    IHasAMoney.highlightRowCol();
 };
 
-IHazMoney.highlightRowCol = function()
+IHasAMoney.highlightRowCol = function()
 {
     var i = 0;
     var tag = $(".focus .tagged").attr('tag');
@@ -302,7 +302,7 @@ IHazMoney.highlightRowCol = function()
     $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
-IHazMoney.arrows = function(e)
+IHasAMoney.arrows = function(e)
 {
     var nrows = 1, to = 1, hl = {37:-1, 39: 1};
     switch (e.which)
@@ -310,19 +310,19 @@ IHazMoney.arrows = function(e)
         case 38: // k
             nrows = -1
         case 40: // j
-            IHazMoney.scrollBy(nrows);
+            IHasAMoney.scrollBy(nrows);
             e.preventDefault();
             break;
         case 37: // h 
         case 39: // l
             to *= hl[e.which];
-            IHazMoney.changeTag(to);
+            IHasAMoney.changeTag(to);
             e.preventDefault();
             break;
     }
 };
 
-IHazMoney.navigate = function(e)
+IHasAMoney.navigate = function(e)
 {
     e.preventDefault();
 
@@ -332,22 +332,22 @@ IHazMoney.navigate = function(e)
         case 107: // k
             nrows = -1
         case 106: // j
-            IHazMoney.scrollBy(nrows);
+            IHasAMoney.scrollBy(nrows);
             break;
         case 104: // h 
         case 108: // l
             to *= hl[e.which];
-            IHazMoney.changeTag(to);
+            IHasAMoney.changeTag(to);
             break;
     }
 };
 
-IHazMoney.stopPropagation = function(e)
+IHasAMoney.stopPropagation = function(e)
 {
     e.stopPropagation();
 };
 
-IHazMoney.kill = function(e, delta)
+IHasAMoney.kill = function(e, delta)
 {
     // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
     e.stopPropagation();
@@ -359,17 +359,17 @@ IHazMoney.kill = function(e, delta)
 // main 
 // ====
 
-IHazMoney.main = function()
+IHasAMoney.main = function()
 {
-    $(window).resize(IHazMoney.resize);
-    IHazMoney.resize();
+    $(window).resize(IHasAMoney.resize);
+    IHasAMoney.resize();
 
-    $(document).keypress(IHazMoney.navigate);
-    $(document).keydown(IHazMoney.arrows);
-    $(document).mousewheel(IHazMoney.kill)
+    $(document).keypress(IHasAMoney.navigate);
+    $(document).keydown(IHasAMoney.arrows);
+    $(document).mousewheel(IHasAMoney.kill)
 
-    $('INPUT').keypress(IHazMoney.stopPropagation);
-    $('INPUT').keyup(IHazMoney.tagCreatorKeyup);
+    $('INPUT').keypress(IHasAMoney.stopPropagation);
+    $('INPUT').keyup(IHasAMoney.tagCreatorKeyup);
 
     $('TBODY TR').eq(0).addClass('focus');
     $('TBODY TR').hover(
@@ -377,5 +377,5 @@ IHazMoney.main = function()
         function () {$(this).removeClass('ocus'); }
     );
 
-    IHazMoney.highlightRowCol();
+    IHasAMoney.highlightRowCol();
 };
