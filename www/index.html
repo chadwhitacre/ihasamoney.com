@@ -3,7 +3,7 @@ from ihasamoney import data
 # ========================================================================== ^L
 
 if request.user.ANON:
-    tags, transactions, summary, balance = data.dummy()
+    tags, transactions, summary, balance = data.fake()
 else:
     email = request.user.session['email']
     tags, transactions, summary = data.get(email)
@@ -108,8 +108,8 @@ else:
 
                         <h2>Ways to Play</h2>
 
-                        <p>1. <a href="">Close</a>
-                        to play with dummy data NOW.</p>
+                        <p>1. Play <i>now</i> with <a href="">fake
+                            data</a>.</p>
 
                         <p class="gray">2. Import your own data for free. No
                         persistence.</p>

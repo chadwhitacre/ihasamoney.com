@@ -143,7 +143,7 @@ def get(email):
 
 # Dummy Data
 # ==========
-# First-time anonymous users get a bunch of dummy data to play with.
+# First-time anonymous users get a bunch of fake data to play with.
 
 class Transactions(list):
 
@@ -160,8 +160,8 @@ class Transactions(list):
         self.id += 1
 
 
-def dummy():
-    """Return sum dayz of dummy data.
+def fake():
+    """Return sum dayz of fake data.
     """
     tags = []
     transactions = Transactions()
