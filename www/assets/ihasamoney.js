@@ -82,6 +82,8 @@ if(!Array.prototype.remove)
 
 IHasAMoney = {};
 
+IHasAMoney.disabled = false;
+
 IHasAMoney.wire = function(name, callback)
 {
     $(IHasAMoney).bind(name, callback);
@@ -123,6 +125,7 @@ IHasAMoney.resize = function()
 
 IHasAMoney.createTag = function(e)
 {
+    if (IHasAMoney.disabled) return false;
     var button = $(e.target);
     var tag = $('#top INPUT').val();
     jQuery.ajax({ type: "POST"
@@ -134,6 +137,7 @@ IHasAMoney.createTag = function(e)
 
 IHasAMoney.toggleTagCreator = function()
 {
+    if (IHasAMoney.disabled) return false;
     $('#top .widget').toggle()
     var cur = $('#top .knob').text();
     var next = 'create a tag';
@@ -147,6 +151,7 @@ IHasAMoney.toggleTagCreator = function()
 
 IHasAMoney.tagCreatorKeyup = function(e)
 {
+    if (IHasAMoney.disabled) return false;
     switch (e.which)
     {
         case 27:
@@ -160,6 +165,7 @@ IHasAMoney.tagCreatorKeyup = function(e)
 
 IHasAMoney.scrollBy = function(num)
 {
+    if (IHasAMoney.disabled) return false;
     var container = $('#body');
 
     var cur = $('TBODY TR.focus');
@@ -198,6 +204,7 @@ IHasAMoney.scrollBy = function(num)
 
 IHasAMoney.changeTag = function(inc)
 {
+    if (IHasAMoney.disabled) return false;
     var tid = $('TR.focus').attr('tid');
     var cols = $('TR.focus TD.amount');
     var cell = $('TR.focus TD.amount.tagged');
@@ -285,6 +292,8 @@ IHasAMoney.changeTag = function(inc)
 
 IHasAMoney.highlightRowCol = function()
 {
+    if (IHasAMoney.disabled) return false;
+
     var i = 0;
     var tag = $(".focus .tagged").attr('tag');
 
@@ -324,6 +333,8 @@ IHasAMoney.arrows = function(e)
 
 IHasAMoney.navigate = function(e)
 {
+    if (IHasAMoney.disabled) return false;
+
     e.preventDefault();
 
     var nrows = 1, to = 1, hl = {104:-1, 108: 1};
@@ -355,6 +366,18 @@ IHasAMoney.kill = function(e, delta)
     return false;
 };
 
+IHasAMoney.openSplash = function()
+{
+    $('#splash-wrap').show();
+    IHasAMoney.disabled = true;
+};
+
+IHasAMoney.closeSplash = function()
+{
+    $('#splash-wrap').hide();
+    IHasAMoney.disabled = false;
+    return false;
+};
 
 // main 
 // ====
@@ -378,4 +401,6 @@ IHasAMoney.main = function()
     );
 
     IHasAMoney.highlightRowCol();
+    IHasAMoney.openSplash();
+    $('#splash A').click(IHasAMoney.closeSplash);
 };
