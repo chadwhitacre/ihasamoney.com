@@ -379,3 +379,13 @@ FORM .right.half INPUT {
 FORM INPUT:focus {
     border-color: #2A8F79;
 }
+
+#splash #cheat-sheet {
+    font: normal 10px/20px Monaco, "Lucida Console", monospace;
+}
+#splash U {
+    text-decoration: none;
+    border: 1px solid #614C3E;
+    border-radius: 2px;
+    padding: 1px 5px;
+}
