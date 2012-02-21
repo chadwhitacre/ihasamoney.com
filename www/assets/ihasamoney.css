@@ -161,26 +161,46 @@ TR.heads TH.corner {
     z-index: 4;
     background: white;
     box-shadow: 5px 5px 15px #333;
-    font: normal 12pt/16pt Arial, sans-serif;
+    font: normal 11pt/14pt Arial, sans-serif;
 } 
 #splash H2 {
-    font: bold 14pt/18pt Arial, sans-serif;
+    font: bold 12pt/16pt Georgia, serif;
     margin: 2em 0 0.5em;
+    text-align: center;
 }
 #splash H2:first-child {
     margin-top: 0;
+}
+#splash H2 I {
+    font-weight: normal;
+}
+#splash SPAN {
+    background: white;
+    position: relative;
+    z-index: 10;
+    padding: 0 5px;
+}
+#splash .line {
+    height: 1px;
+    background: #614C3E;
+    position: relative;
+    top: -0.75em;
+    z-index: 9;
 }
 #splash .gray {
     color: #CCBAAD;
     text-decoration: line-through;
 }
 #splash UL {
-    margin: 1em 0;
+    margin: 0.5em 0;
 }
 #splash LI {
-    margin: 0.25em 2em;
+    margin: 0 0 0 2em;
     padding: 0em;
     list-style: disc;
+}
+#splash OL LI {
+    list-style: decimal;
 }
 #splash IMG {
     display: block;
@@ -192,7 +212,7 @@ TR.heads TH.corner {
     float: right;
 }
 #splash DIV.pad {
-    padding: 10px;
+    padding: 10px 46px;
 }
 #mask {
     position: fixed;
@@ -206,7 +226,7 @@ TR.heads TH.corner {
 }
 
 
-INPUT {
+#foo INPUT {
     font-size: 10px;
     line-height: 10px;
     width: 64px;
@@ -217,11 +237,11 @@ INPUT {
     outline: none;
     color: #614C3E;
 }
-INPUT:focus {
+#foo INPUT:focus {
     border-color: #2A8F79;
 }
 BUTTON {
-    font: normal 10px/10px Monaco, "Lucida Console", monospace;
+    font: normal 10pt/12pt Arial, sans-serif;
     text-shadow: #001b38 0px 1px 1px;
     text-decoration: none;
 
@@ -239,8 +259,8 @@ BUTTON {
     -khtml-border-radius: 3px;
     border-radius: 3px;
 
-    padding: 1px 2px;
-    margin: 0 5px;
+    padding: 1pt 2pt;
+    margin: 0;
     vertical-align: middle;
 
     background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
@@ -303,4 +323,59 @@ BUTTON:active {
         0 .33em 2em rgba(0,0,0,.67) inset,
         1px 1px 0 rgba(255,255,255,.25) inset, 
         -1px -1px 0 rgba(255,255,255,.25) inset;
+}
+
+#splash B {
+    color: #2A8F79;
+}
+FORM {
+    margin: 0.5em auto;
+    width: 300px;
+}
+FORM .half {
+    width: 150px;
+}
+FORM .full {
+    clear: both;
+    text-align: right;
+    padding-top: 5px;
+}
+FORM #other {
+    font: normal 9pt/14pt Arial, sans-serif;
+    color: #00E;
+    cursor: pointer;
+}
+FORM #other:hover {
+    text-decoration: underline;
+}
+FORM .left {
+    float: left;
+}
+FORM .right {
+    float: left;
+}
+FORM LABEL {
+    display: block;
+    font: normal 10px/14px Monaco, "Lucida Console", monospace;
+    margin: 5px 0 0;
+    padding: 0;
+}
+FORM INPUT {
+    font: normal 11pt/14pt Arial, sans-serif;
+    width: 292px;
+    margin: 0;
+    padding: 3px;
+    border: 1px solid #CCBAAD;
+    outline: none;
+    color: #614C3E;
+}
+FORM .half INPUT {
+    width: 137px;
+}
+FORM .right.half LABEL,
+FORM .right.half INPUT {
+    margin-left: 5px;
+}
+FORM INPUT:focus {
+    border-color: #2A8F79;
 }

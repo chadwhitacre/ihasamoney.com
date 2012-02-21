@@ -340,15 +340,18 @@ IHasAMoney.navigate = function(e)
     var nrows = 1, to = 1, hl = {104:-1, 108: 1};
     switch (e.which)
     {
-        case 107: // k
+        case 107:   // k
             nrows = -1
-        case 106: // j
+        case 106:   // j
             IHasAMoney.scrollBy(nrows);
             break;
-        case 104: // h 
-        case 108: // l
+        case 104:   // h 
+        case 108:   // l
             to *= hl[e.which];
             IHasAMoney.changeTag(to);
+            break;
+        case 63:    // ?
+            IHasAMoney.openSplash();
             break;
     }
 };
@@ -370,6 +373,7 @@ IHasAMoney.openSplash = function()
 {
     $('#splash-wrap').show();
     IHasAMoney.disabled = true;
+    $('#splash INPUT').eq(0).focus();
 };
 
 IHasAMoney.closeSplash = function()
@@ -377,6 +381,85 @@ IHasAMoney.closeSplash = function()
     $('#splash-wrap').hide();
     IHasAMoney.disabled = false;
     return false;
+};
+
+IHasAMoney.toggleForm = function()
+{
+    e.preventDefault();
+    e.stopPropagation();
+    if ($('#splash .full SPAN').text() === 'Register')
+        IHasAMoney.switchToRegister();
+    else
+        IHasAMoney.switchToSignIn();
+    return false;
+};
+
+IHasAMoney.submitForm = function(e)
+{
+    e.preventDefault();
+    e.stopPropagation();
+
+    var url = "";
+    var data = {};
+    data.email = $('INPUT[name=email]').val();
+    data.password = $('INPUT[name=password]').val();
+
+    if ($('#splash BUTTON').text() === 'Register')
+    {
+        console.log("registering");
+        url = "/register.json";
+        data['confirm'] = $('INPUT[name=confirm]').val();
+    }
+    else
+    {
+        url = "/sign-in.json";
+        console.log('signing in');
+    }
+
+    function success(data)
+    {
+        if (data.problem !== undefined)
+        {
+            $('P.msg').html(data.problem);
+        }
+        else
+        {
+            window.location.href = "/";
+        }
+    };
+
+    function error(xhr, foo, bar)
+    {
+        console.log("failed", xhr, foo, bar);
+    };
+
+    jQuery.ajax({ url: url
+                , type: "POST"
+                , data: data
+                , dataType: "json"
+                , success: success
+                , error: error
+                 });
+
+    return false;
+};
+
+IHasAMoney.switchToSignIn = function()
+{
+    $('#splash .password').removeClass('half left');
+    $('#splash .confirm').hide();
+    $('#splash #other').text('Register');
+    $('#splash BUTTON').text('Sign In');
+    $('#splash INPUT').eq(0).focus();
+};
+
+IHasAMoney.switchToRegister = function()
+{
+    $('#splash .password').addClass('half left');
+    $('#splash .confirm').show();
+    $('#splash #other').text('Sign In');
+    $('#splash BUTTON').text('Register');
+    $('#splash INPUT').eq(0).focus();
 };
 
 // main 
@@ -402,5 +485,8 @@ IHasAMoney.main = function()
 
     IHasAMoney.highlightRowCol();
     IHasAMoney.openSplash();
-    $('#splash A').click(IHasAMoney.closeSplash);
+    IHasAMoney.switchToSignIn();
+    $('#splash #fake').click(IHasAMoney.closeSplash);
+    $('#splash FORM').submit(IHasAMoney.submitForm);
+    $('#splash FORM #other').click(IHasAMoney.toggleForm);
 };

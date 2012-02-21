@@ -91,10 +91,13 @@ else:
                 <img src="/assets/ihasamoney.jpg" />
                 <div class="text"><div class="pad">
 
-                        <h2>IHasAMoney.com</h2>
+                        <h2>
+                            <span>IHasAMoney.com</span>
+                            <div class="line"></div>
+                        </h2>
 
-                        <p>IHasAMoney.com is a personal finance application
-                        with the following invariants:</p>
+                        <p>This is a personal finance application with the
+                        following invariants:</p>
 
                         <ul>
                             <li>You aren&rsquo;t the product.</li>
@@ -105,21 +108,49 @@ else:
                             <li>Lolcat.</li>
                         </ul>
 
-                        <h2>Ways to Play</h2>
+                        <p>It costs <b>$2.99/mo</b>.</p>
 
-                        <p>1. Play <i>now</i> with <a href="">fake
+
+                        <h2>
+                            <span>Sign In <i>or</i> Register</span>
+                            <div class="line"></div>
+                        </h2>
+                        
+                        <p class="msg">Or play with <a href="" id="fake">fake
                             data</a>.</p>
 
-                        <p class="gray">2. Import your own data for free. No
-                        persistence.</p>
+                        <form>
+                            <label for="email">Email</label>
+                            <input id="email" name="email" 
+                                tabindex="1" /><br />
 
-                        <p class="gray">3. Persist your data for $2.99/mo.</p>
+                            <div class="left half password">
+                                <label for="password">Password</label>
+                                <input type="password" name="password" 
+                                    tabindex="2" />
+                            </div>
+
+                            <div class="right half confirm">
+                                <label for="password">Confirm Password</label>
+                                <input type="password" name="confirm" 
+                                    tabindex="3"/><br />
+                            </div>
+
+                            <div class="full">
+                                <a href="" id="other" tabindex="5">Register</a>
+                                <button tabindex="4">Sign In</button>
+                            </div>
+                        </form> 
 
 
-                        <h2>UI</h2>
+                        <h2>
+                            <span>Cheat Sheet</span>
+                            <div class="line"></div>
+                        </h2>
 
                         <p>Down/up arrow or j/k to select transaction.</p>
                         <p>Left/right arrow or h/l to recategorize.</p>
+                        <p>? to get back here.</p>
 
                 </div></div>
             </div>

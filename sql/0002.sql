@@ -1,6 +1,6 @@
 INSERT INTO users (email, hash, is_admin) 
-VALUES ('admin@ihasamoney.com', 'a302a5f575298d08678904e026a3ab62792a96fb', true);
--- password: 'so secret'
+VALUES ('admin@ihasamoney.com', '02d790ae084e8b02ebda666a80a62126f8cfd0d1', true);
+-- password: 'so secret', salt 'FOO'
 
 INSERT INTO tags (email, tag) VALUES ('admin@ihasamoney.com', 'utilities');
 INSERT INTO tags (email, tag) VALUES ('admin@ihasamoney.com', 'government');
