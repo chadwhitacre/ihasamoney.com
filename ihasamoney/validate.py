@@ -22,16 +22,15 @@ def email(email):
 
     if not problem:
         if not email:
-            problem = ("Um, did you enter an email address?")
+            problem = "No email??"
 
     if not problem:
         if len(email) > 64:
-            problem = ("Sorry, we won't take an email address longer than 64 "
-                       "characters. Yours is %d." % len(email))
+            problem = "Too much email!!"
 
     if not problem:
         if EMAIL.match(email) is None:
-            problem = "That doesn&rsquo;t look to me like an email address."
+            problem = "Bad email!!"
 
     return problem
 
@@ -41,13 +40,10 @@ def password(password, confirm):
     if not problem:
         if len(password) < 6:
             short = 6 - len(password)
-            problem = ("Sorry, your password must be at least six characters "
-                       "long. You need %s more character%s.")
-            problem %= DIGITS[short], _plural(short)
+            problem = "Need more password!"
 
     if not problem:
         if password != confirm:
-            problem = ("Sorry, the password and password confirmation "
-                       "don&rsquo;t match.")
+            problem = "Password mismatch!"
 
     return problem

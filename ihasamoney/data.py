@@ -136,7 +136,10 @@ def get(email):
 
             """, (email,))
 
-    summary['uncategorized'] = commaize(uncategorized['sum'])
+    uncategorized_sum = uncategorized['sum']
+    if uncategorized_sum is None:
+        uncategorized_sum = 0
+    summary['uncategorized'] = commaize(uncategorized_sum)
 
     return tags, transactions, summary
 

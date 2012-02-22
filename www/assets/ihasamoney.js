@@ -383,11 +383,11 @@ IHasAMoney.closeSplash = function()
     return false;
 };
 
-IHasAMoney.toggleForm = function()
+IHasAMoney.toggleForm = function(e)
 {
     e.preventDefault();
     e.stopPropagation();
-    if ($('#splash .full SPAN').text() === 'Register')
+    if ($('#splash #other').text() === 'Register')
         IHasAMoney.switchToRegister();
     else
         IHasAMoney.switchToSignIn();
@@ -418,14 +418,11 @@ IHasAMoney.submitForm = function(e)
 
     function success(data)
     {
-        if (data.problem !== undefined)
-        {
-            $('P.msg').html(data.problem);
-        }
+        if (data.problem !== "")
+            $('#feedback').stop(true, true)
+                          .html(data.problem).show().fadeOut(8000);
         else
-        {
             window.location.href = "/";
-        }
     };
 
     function error(xhr, foo, bar)
