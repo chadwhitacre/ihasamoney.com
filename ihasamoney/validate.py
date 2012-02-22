@@ -40,10 +40,10 @@ def password(password, confirm):
     if not problem:
         if len(password) < 6:
             short = 6 - len(password)
-            problem = "Need more password!"
+            problem = "Need more password!!"
 
     if not problem:
         if password != confirm:
-            problem = "Password mismatch!"
+            problem = "Password mismatch!!"
 
     return problem

@@ -27,16 +27,6 @@ else:
         <div id="body">
 
             <div id="top">
-                <div id="sign">
-                    {% if "signing_in" in globals() %}
-                    You are signing in.
-                    {% elif request.user.ANON %}       
-                    You are not signed in. <a href="/sign/in.html">Sign in</a>.
-                    {% else %}
-                    {{ request.user.session['email'] }} -
-                    <a href="/sign/out.html">sign out</a>
-                    {% end %}
-                </div>
                 <div id="balance">${{ balance }}</div>
             </div>
 
@@ -89,7 +79,13 @@ else:
         <div id="splash-wrap">
             <div id="splash">
                 <img src="/assets/ihasamoney.jpg" />
-                <div id ="feedback"></div>
+                <div id="feedback"></div>
+                <div id="eyes">
+                    <div class="eye left"></div>
+                    <div class="eye right"></div>
+                    <div class="pupil left"></div>
+                    <div class="pupil right"></div>
+                </div>
                 <div class="text"><div class="pad">
 
                         <h2>
@@ -97,7 +93,8 @@ else:
                             <div class="line"></div>
                         </h2>
 
-                        <p>This is a personal finance application with the
+                        {% if request.user.ANON %}
+                        <p>This is a personal finance application with teh
                         following invariants:</p>
 
                         <ul>
@@ -110,17 +107,17 @@ else:
                         </ul>
 
                         <p>It costs <b>$2.99/mo</b>.</p>
-
-
+                        
+                        
                         <h2>
                             <span>Sign In <i>or</i> Register</span>
                             <div class="line"></div>
+                            <p>or play with <a href="" id="fake">fake
+                                data</a></p>
                         </h2>
                         
-                        <p class="fake">or play with <a href="" id="fake">fake
-                            data</a></p>
 
-                        <form>
+                        <form action="" id="auth">
                             <label for="email">Email</label>
                             <input id="email" name="email" 
                                 tabindex="1" /><br />
@@ -157,9 +154,63 @@ else:
                             <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
                             <u>l</u> to recategorize.<br />
                            
-                            <u>?</u> to get back here.
+                            <u>Esc</u> to open/close cat.
                         
                         </div>
+
+
+                        {% else %}
+                        <p>Signed in as
+                        <b>{{ request.user.session['email'] }}</b>.
+                        <form action="/sign-out.html" method="GET">
+                            <div class="full">
+                                <button type="submit">Sign&nbsp;out</button>
+                            </div>
+                        </form>
+
+                        <h2>
+                            <span>Upload Data</span>
+                            <div class="line"></div>
+                        </h2>
+
+                        <form>
+                            <label for="csv">
+                            format:&nbsp; CSV<br />
+                            columns: YYYYMMDD,0.00,description<br />
+                            headers: optional
+                            </label>
+                            <input type="file" id="csv" name="csv" />
+
+                            <div class="full">
+                                <button tabindex="4">Upload</button>
+                            </div>
+                        </form>
+
+                        <h2>
+                            <span>API</span>
+                            <div class="line"></div>
+                        </h2>
+
+                        <p>POST CSV to <a
+                            href="/transactions/">/transactions/</a>.</p>
+
+                        <h2>
+                            <span>Cheat Sheet</span>
+                            <div class="line"></div>
+                        </h2>
+
+                        <div id="cheat-sheet">
+
+                            <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
+                            <u>k</u> to select a transaction.<br />
+
+                            <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
+                            <u>l</u> to recategorize.<br />
+                           
+                            <u>Esc</u> to close/open the cat.
+                        
+                        </div>
+                        {% end %}
 
                 </div></div>
             </div>

@@ -311,57 +311,34 @@ IHasAMoney.highlightRowCol = function()
     $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
-IHasAMoney.arrows = function(e)
-{
-    var nrows = 1, to = 1, hl = {37:-1, 39: 1};
-    switch (e.which)
-    {
-        case 38: // k
-            nrows = -1
-        case 40: // j
-            IHasAMoney.scrollBy(nrows);
-            e.preventDefault();
-            break;
-        case 37: // h 
-        case 39: // l
-            to *= hl[e.which];
-            IHasAMoney.changeTag(to);
-            e.preventDefault();
-            break;
-    }
-};
-
 IHasAMoney.navigate = function(e)
 {
     if (IHasAMoney.disabled) return false;
 
-    e.preventDefault();
-
-    var nrows = 1, to = 1, hl = {104:-1, 108: 1};
+    var nrows = 1, to = 1, hl = {37: -1, 39: 1, 72:-1, 76: 1};
     switch (e.which)
     {
-        case 107:   // k
+        case 38:    // up arrow
+        case 75:    // k
             nrows = -1
-        case 106:   // j
+        case 40:    // down arrow
+        case 74:    // j
             IHasAMoney.scrollBy(nrows);
             break;
-        case 104:   // h 
-        case 108:   // l
+        case 37:    // left arrow
+        case 39:    // right arrow
+        case 72:    // h
+        case 76:    // l
             to *= hl[e.which];
             IHasAMoney.changeTag(to);
             break;
-        case 63:    // ?
+        case 27:    // ESC
             IHasAMoney.openSplash();
             break;
     }
 };
 
-IHasAMoney.stopPropagation = function(e)
-{
-    e.stopPropagation();
-};
-
-IHasAMoney.kill = function(e, delta)
+IHasAMoney.kill = function(e)
 {
     // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
     e.stopPropagation();
@@ -371,15 +348,25 @@ IHasAMoney.kill = function(e, delta)
 
 IHasAMoney.openSplash = function()
 {
-    $('#splash-wrap').show();
     IHasAMoney.disabled = true;
     $('#splash INPUT').eq(0).focus();
+    $('#splash-wrap').show();
+    $(document).unbind('keypress');
+    $(document).unbind('keydown');
+    $(document).keydown(function(e) 
+    { 
+        if (e.which === 27)
+            IHasAMoney.closeSplash();
+    });
 };
 
 IHasAMoney.closeSplash = function()
 {
-    $('#splash-wrap').hide();
     IHasAMoney.disabled = false;
+    $('#splash-wrap').hide();
+    $(document).unbind('keypress');
+    $(document).unbind('keydown');
+    $(document).keydown(IHasAMoney.navigate);
     return false;
 };
 
@@ -387,13 +374,14 @@ IHasAMoney.toggleForm = function(e)
 {
     e.preventDefault();
     e.stopPropagation();
-    if ($('#splash #other').text() === 'Register')
+    if ($('FORM#auth #other').text() === 'Register')
         IHasAMoney.switchToRegister();
     else
         IHasAMoney.switchToSignIn();
     return false;
 };
 
+IHasAMoney.feedbackOut = null; // {clear,set}Timout handler
 IHasAMoney.submitForm = function(e)
 {
     e.preventDefault();
@@ -404,7 +392,7 @@ IHasAMoney.submitForm = function(e)
     data.email = $('INPUT[name=email]').val();
     data.password = $('INPUT[name=password]').val();
 
-    if ($('#splash BUTTON').text() === 'Register')
+    if ($('FORM#auth BUTTON').text() === 'Register')
     {
         console.log("registering");
         url = "/register.json";
@@ -419,8 +407,16 @@ IHasAMoney.submitForm = function(e)
     function success(data)
     {
         if (data.problem !== "")
-            $('#feedback').stop(true, true)
-                          .html(data.problem).show().fadeOut(8000);
+        {
+            window.clearTimeout(IHasAMoney.feedbackOut);
+            $('#eyes').stop(true, true).show()
+            $('#feedback').stop(true, true).html(data.problem).show()
+            IHasAMoney.feedbackOut = window.setTimeout(function()
+            {
+                $('#eyes').hide();
+                $('#feedback').hide();
+            }, 8000);
+        }
         else
             window.location.href = "/";
     };
@@ -443,20 +439,20 @@ IHasAMoney.submitForm = function(e)
 
 IHasAMoney.switchToSignIn = function()
 {
-    $('#splash .password').removeClass('half left');
-    $('#splash .confirm').hide();
-    $('#splash #other').text('Register');
-    $('#splash BUTTON').text('Sign In');
-    $('#splash INPUT').eq(0).focus();
+    $('FORM#auth .password').removeClass('half left');
+    $('FORM#auth .confirm').hide();
+    $('FORM#auth #other').text('Register');
+    $('FORM#auth BUTTON').text('Sign In');
+    $('FORM#auth INPUT').eq(0).focus();
 };
 
 IHasAMoney.switchToRegister = function()
 {
-    $('#splash .password').addClass('half left');
-    $('#splash .confirm').show();
-    $('#splash #other').text('Sign In');
-    $('#splash BUTTON').text('Register');
-    $('#splash INPUT').eq(0).focus();
+    $('FORM#auth .password').addClass('half left');
+    $('FORM#auth .confirm').show();
+    $('FORM#auth #other').text('Sign In');
+    $('FORM#auth BUTTON').text('Register');
+    $('FORM#auth INPUT').eq(0).focus();
 };
 
 // main 
@@ -467,23 +463,21 @@ IHasAMoney.main = function()
     $(window).resize(IHasAMoney.resize);
     IHasAMoney.resize();
 
-    $(document).keypress(IHasAMoney.navigate);
-    $(document).keydown(IHasAMoney.arrows);
-    $(document).mousewheel(IHasAMoney.kill)
+    $(document).mousewheel(IHasAMoney.kill);
 
-    $('INPUT').keypress(IHasAMoney.stopPropagation);
-    $('INPUT').keyup(IHasAMoney.tagCreatorKeyup);
+    // Wire up auth form. No-op if already signed in.
+    $('#fake').click(function()
+    {
+        IHasAMoney.switchToRegister();
+        IHasAMoney.closeSplash();
+        return false;
+    });
+    $('FORM#auth').submit(IHasAMoney.submitForm);
+    $('FORM#auth #other').click(IHasAMoney.toggleForm);
 
     $('TBODY TR').eq(0).addClass('focus');
-    $('TBODY TR').hover(
-        function () {$(this).addClass('ocus'); },
-        function () {$(this).removeClass('ocus'); }
-    );
-
     IHasAMoney.highlightRowCol();
-    IHasAMoney.openSplash();
+
     IHasAMoney.switchToSignIn();
-    $('#splash #fake').click(IHasAMoney.closeSplash);
-    $('#splash FORM').submit(IHasAMoney.submitForm);
-    $('#splash FORM #other').click(IHasAMoney.toggleForm);
+    IHasAMoney.openSplash();
 };

@@ -23,7 +23,7 @@ if not problem:
     try:
         db.execute(SIGN_UP, (email, hashed))
     except IntegrityError:
-        problem = ("Already registurd!")
+        problem = ("U already registurd!!")
 if not problem:
     session = sign_in(email, password) # bug if it fails
     request.user = User(session)

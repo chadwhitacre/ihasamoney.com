@@ -1,5 +1,6 @@
-"""Given a email and password, return a boolean.
+"""Given an email and password, return a boolean.
 """
+from aspen import Response
 from ihasamoney.authentication import sign_in, sessions, User
 
 # ========================================================================== ^L
@@ -8,11 +9,19 @@ email = request.body.one('email')
 password = request.body.one('password')
 problem = ""
 
-session = {}
-if email is not None:
-    session = sign_in(email, password)
-if not session:
-    problem = "Bad credz!!"
+if None in (email, password):
+    raise Response(400)
 
-request.user = User(session)
+email = email.strip()
+if email == "":
+    problem = "No email??"
+elif password == "":
+    problem = "Passwerd??"
+else:
+    session = sign_in(email, password)
+    if not session:
+        problem = "Bad credz!!"
+    else:
+        request.user = User(session)
+
 response.body = {"problem": problem}
