@@ -1,5 +1,128 @@
+import csv
+import datetime
+import decimal
+import re
+import sys
 
+from ihasamoney import db
+
+date_re = re.compile(r'\d{8}')
+
+EXISTING = """\
+        
+    SELECT amount
+      FROM transactions 
+     WHERE email = %s 
+       AND their_id = %s
+
+"""
+
+INSERT = """\
+
+    INSERT INTO transactions (their_id, email, date, amount, description)
+         VALUES (%s, %s, %s, %s, %s)
+               ;
+
+    UPDATE users 
+       SET balance = ((
+               SELECT balance FROM users WHERE email = %s
+           ) + %s)
+     WHERE email = %s
+
+"""
+
+UPDATE = """\
+
+        UPDATE transactions
+           SET date=%s
+             , amount=%s
+             , description=%s
+         WHERE email = %s
+           AND their_id = %s
+              ;
+
+        UPDATE users 
+           SET balance = ((
+                   SELECT balance FROM users WHERE email = %s
+               ) - %s + %s)
+         WHERE email = %s
+
+"""
+
+def upsert_transaction(email, tid, date, amount, description):
+    """Given data, update the database.
+    """
+    old_amount = db.fetchone(EXISTING, (email, tid))
+    if old_amount is None:
+        args = (tid, email, date, amount, description, email, amount, email)
+        db.execute(INSERT, args)
+    else:
+        args = (date, amount, description, email, tid, email, old_amount, 
+                amount, email)
+        db.execute(UPDATE, args)
 
 # ========================================================================== ^L
 
-response.body = {}
+if request.user.ANON:
+    raise Response(404)
+
+problems = []
+content = request.body['csv'].value.splitlines()
+email = request.user.session['email'] 
+
+ngood = 0
+
+for row in csv.reader(content):
+
+    def bad(problem):
+        problems.append({"row": row, "problem": problem})
+
+    # len
+    if len(row) != 4:
+        bad("Your CSV has a row with %d columns." % len(row))
+        continue 
+    tid, date, amount, description = row
+
+    # tid
+    if not tid.strip():
+        tid = None
+    elif len(tid) > 256:
+        bad("Transaction ids can't be longer than 256 bytes.")
+        continue
+
+    # date
+    if date_re.match(date) is None:
+        bad("Date must be in YYYYMMDD format.")
+        continue
+    yyyy, mm, dd = int(date[0:4]), int(date[4:6]), int(date[6:8])
+    try:
+        date = datetime.date(yyyy, mm, dd)
+    except:
+        bad("Bad date: %s" % date)
+        continue
+ 
+    # amount
+    try:
+        amount = decimal.Decimal(amount)
+    except:
+        bad("Bad amount: %s" % amount)
+        continue
+
+    # description
+    description = description[:256]
+
+    # persist!
+    try:
+        upsert_transaction(email, tid, date, amount, description)
+    except:
+        bad(str(sys.exc_info()[1]))
+        continue
+
+    ngood += 1
+
+nbad = len(problems)
+response.body = { "problems": problems
+                , "nbad": nbad
+                , "ngood": ngood
+                , "ntotal": nbad + ngood
+                 }

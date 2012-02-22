@@ -13,10 +13,12 @@ CREATE TABLE users
 -- Max amount is $999,999,999,999,999.99.
 CREATE TABLE transactions 
 ( id            bigserial       PRIMARY KEY
+, their_id      varchar(256)    
 , email         varchar(64)     REFERENCES users ON DELETE CASCADE
 , date          date            NOT NULL
 , amount        numeric(15,2)   NOT NULL
 , description   text            NOT NULL
+, UNIQUE (their_id, email)
  );
 
 CREATE TABLE tags

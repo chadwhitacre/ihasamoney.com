@@ -311,6 +311,18 @@ IHasAMoney.highlightRowCol = function()
     $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
+
+/* Navigation */
+/* ========== */
+
+IHasAMoney.kill = function(e)
+{
+    // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+};
+
 IHasAMoney.navigate = function(e)
 {
     if (IHasAMoney.disabled) return false;
@@ -338,13 +350,9 @@ IHasAMoney.navigate = function(e)
     }
 };
 
-IHasAMoney.kill = function(e)
-{
-    // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
-    e.stopPropagation();
-    e.preventDefault();
-    return false;
-};
+
+/* Splash Screen (Cat!) */
+/* ==================== */
 
 IHasAMoney.openSplash = function()
 {
@@ -370,7 +378,52 @@ IHasAMoney.closeSplash = function()
     return false;
 };
 
-IHasAMoney.toggleForm = function(e)
+
+/* Form Generics */
+/* ============= */
+
+IHasAMoney.feedbackOut = null; // {clear,set}Timout handler
+IHasAMoney.feedback = function(e)
+{
+    window.clearTimeout(IHasAMoney.feedbackOut);
+    $('#eyes').stop(true, true).show()
+    $('#feedback').stop(true, true).html(data.problem).show()
+    IHasAMoney.feedbackOut = window.setTimeout(function()
+    {
+        $('#eyes').hide();
+        $('#feedback').hide();
+    }, 8000);
+}
+
+IHasAMoney.submitForm = function(url, data, callback)
+{
+    function success(data)
+    {
+        if (data.problem !== "")
+            IHasAMoney.feedback(data.problem);
+        else
+            callback();
+    }
+
+    function error(xhr, foo, bar)
+    {
+        console.log("failed", xhr, foo, bar);
+    }
+
+    jQuery.ajax({ url: url
+                , type: "POST"
+                , data: data
+                , dataType: "json"
+                , success: success
+                , error: error
+                 });
+}
+
+
+/* Auth Form */
+/* ========= */
+
+IHasAMoney.toggleAuthForm = function(e)
 {
     e.preventDefault();
     e.stopPropagation();
@@ -381,8 +434,14 @@ IHasAMoney.toggleForm = function(e)
     return false;
 };
 
-IHasAMoney.feedbackOut = null; // {clear,set}Timout handler
-IHasAMoney.submitForm = function(e)
+IHasAMoney.playWithFakeData = function()
+{
+    IHasAMoney.switchToRegister();
+    IHasAMoney.closeSplash();
+    return false;
+};
+
+IHasAMoney.submitAuthForm = function(e)
 {
     e.preventDefault();
     e.stopPropagation();
@@ -404,35 +463,11 @@ IHasAMoney.submitForm = function(e)
         console.log('signing in');
     }
 
-    function success(data)
+    function callback()
     {
-        if (data.problem !== "")
-        {
-            window.clearTimeout(IHasAMoney.feedbackOut);
-            $('#eyes').stop(true, true).show()
-            $('#feedback').stop(true, true).html(data.problem).show()
-            IHasAMoney.feedbackOut = window.setTimeout(function()
-            {
-                $('#eyes').hide();
-                $('#feedback').hide();
-            }, 8000);
-        }
-        else
-            window.location.href = "/";
-    };
-
-    function error(xhr, foo, bar)
-    {
-        console.log("failed", xhr, foo, bar);
-    };
-
-    jQuery.ajax({ url: url
-                , type: "POST"
-                , data: data
-                , dataType: "json"
-                , success: success
-                , error: error
-                 });
+        window.location.href = "/";
+    }
+    IHasAMoney.submit(url, data, callback);
 
     return false;
 };
@@ -455,6 +490,16 @@ IHasAMoney.switchToRegister = function()
     $('FORM#auth INPUT').eq(0).focus();
 };
 
+
+/* Upload Form */
+/* =========== */
+
+IHasAMoney.submitUploadForm = function(e)
+{
+    // TODO http://blueimp.github.com/jQuery-File-Upload/
+};
+
+
 // main 
 // ====
 
@@ -466,14 +511,9 @@ IHasAMoney.main = function()
     $(document).mousewheel(IHasAMoney.kill);
 
     // Wire up auth form. No-op if already signed in.
-    $('#fake').click(function()
-    {
-        IHasAMoney.switchToRegister();
-        IHasAMoney.closeSplash();
-        return false;
-    });
-    $('FORM#auth').submit(IHasAMoney.submitForm);
-    $('FORM#auth #other').click(IHasAMoney.toggleForm);
+    $('#fake').click(IHasAMoney.playWithFakeData);
+    $('FORM#auth').submit(IHasAMoney.submitAuthForm);
+    $('FORM#auth #other').click(IHasAMoney.toggleAuthForm);
 
     $('TBODY TR').eq(0).addClass('focus');
     IHasAMoney.highlightRowCol();

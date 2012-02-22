@@ -160,29 +160,33 @@ else:
 
 
                         {% else %}
+
                         <p>Signed in as
                         <b>{{ request.user.session['email'] }}</b>.
+
                         <form action="/sign-out.html" method="GET">
                             <div class="full">
                                 <button type="submit">Sign&nbsp;out</button>
                             </div>
                         </form>
 
+
                         <h2>
                             <span>Upload Data</span>
                             <div class="line"></div>
                         </h2>
 
-                        <form>
+                        <form action="/transactions/" id="upload" method="POST"
+                            enctype="multipart/form-data">
                             <label for="csv">
                             format:&nbsp; CSV<br />
-                            columns: YYYYMMDD,0.00,description<br />
-                            headers: optional
+                            columns: id,YYYYMMDD,0.00,description<br />
+                            headers: no 
                             </label>
                             <input type="file" id="csv" name="csv" />
 
                             <div class="full">
-                                <button tabindex="4">Upload</button>
+                                <button type="submit">Upload</button>
                             </div>
                         </form>
 
