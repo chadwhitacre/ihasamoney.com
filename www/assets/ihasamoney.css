@@ -439,17 +439,17 @@ FORM INPUT:focus {
     height: 37px;
 }
 .pupil {
-    height: 16px;
-    width: 16px;
-    border-radius: 16px;
+    height: 18px;
+    width: 18px;
+    border-radius: 18px;
     background: black;
     position: absolute;
 }
 .pupil.left {
-    top: 16px;
+    top: 15px;
     left: 24px;
 }
 .pupil.right {
-    top: 16px;
-    left: 75px;
+    top: 15px;
+    left: 74px;
 }
