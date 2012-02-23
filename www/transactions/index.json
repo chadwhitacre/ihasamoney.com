@@ -63,6 +63,7 @@ def upsert_transaction(email, tid, date, amount, description):
 
 # ========================================================================== ^L
 
+request.allow('POST')
 if request.user.ANON:
     raise Response(404)
 

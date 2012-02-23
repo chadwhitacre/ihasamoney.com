@@ -453,21 +453,19 @@ IHasAMoney.submitAuthForm = function(e)
 
     if ($('FORM#auth BUTTON').text() === 'Register')
     {
-        console.log("registering");
         url = "/register.json";
         data['confirm'] = $('INPUT[name=confirm]').val();
     }
     else
     {
         url = "/sign-in.json";
-        console.log('signing in');
     }
 
     function callback()
     {
         window.location.href = "/";
     }
-    IHasAMoney.submit(url, data, callback);
+    IHasAMoney.submitForm(url, data, callback);
 
     return false;
 };
