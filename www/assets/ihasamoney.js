@@ -383,11 +383,11 @@ IHasAMoney.closeSplash = function()
 /* ============= */
 
 IHasAMoney.feedbackOut = null; // {clear,set}Timout handler
-IHasAMoney.feedback = function(e)
+IHasAMoney.feedback = function(msg)
 {
     window.clearTimeout(IHasAMoney.feedbackOut);
     $('#eyes').stop(true, true).show()
-    $('#feedback').stop(true, true).html(data.problem).show()
+    $('#feedback').stop(true, true).html(msg).show()
     IHasAMoney.feedbackOut = window.setTimeout(function()
     {
         $('#eyes').hide();
