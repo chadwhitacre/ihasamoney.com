@@ -3,10 +3,10 @@ from ihasamoney import data
 # ========================================================================== ^L
 
 if request.user.ANON:
-    tags, transactions, summary, balance = data.fake()
+    categories, transactions, summary, balance = data.fake()
 else:
     email = request.user.session['email']
-    tags, transactions, summary = data.get(email)
+    categories, transactions, summary = data.get(email)
     balance = request.user.session['balance']
 
 # ========================================================================== ^L
@@ -19,7 +19,16 @@ else:
         <style>@import url("/assets/ihasamoney.css");</style>
         <script src="/assets/ihasamoney.js"></script>
         <script>
-            $(document).ready(IHasAMoney.main);
+            $(document).ready(function()
+            {
+                IHasAMoney.init();
+                {% if request.user.ANON %}
+                IHasAMoney.switchToSignIn();
+                IHasAMoney.openSplash();
+                {% else %}
+                IHasAMoney.closeSplash();
+                {% end %}
+            });
         </script>
         {% block head %}{% end %}
     </head>
@@ -33,43 +42,43 @@ else:
             <!--
                 <span class="widget"><input 
                 /><button>create</button></span><span 
-                class="knob">create a tag</span>
+                class="knob">create a category</span>
             -->
 
             <table>
                 <thead class="pegged">
                     <tr class="heads">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th 
-                            tag="{{ tag }}">{{ tag }}</th>{% end %}
+                        {% for category in categories %}<th 
+                            category="{{ category }}">{{ category }}</th>{% end %}
                     </tr>
                     <tr class="summary">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th tag="{{ tag }}"
-                            class="amount"><b>{{ summary[tag] }}</b></th>{% end %}
+                        {% for category in categories %}<th category="{{ category }}"
+                            class="amount"><b>{{ summary[category] }}</b></th>{% end %}
                     </tr>
                 </thead>
                 <thead class="unpegged">
                     <tr class="heads">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th 
-                            tag="{{ tag }}">{{ tag }}</th>{% end %}
+                        {% for category in categories %}<th 
+                            category="{{ category }}">{{ category }}</th>{% end %}
                     </tr>
                     <tr class="summary">
                         <th colspan="4" class="corner"></th>
-                        {% for tag in tags %}<th tag="{{ tag }}"
-                            class="amount"><b>{{ summary[tag] }}</b></th>{% end %}
+                        {% for category in categories %}<th category="{{ category }}"
+                            class="amount"><b>{{ summary[category] }}</b></th>{% end %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for tid, amount, desc, date, tag in data.gentxns(transactions) %}
-                    <tr tid="{{ tid }}" tag="{{ tag }}">
+                    {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
+                    <tr tid="{{ tid }}" category="{{ category }}">
                         {{ date }}
                         <td class="description">{{ desc }}</td>
-                        {% for _tag in tags %}<td 
-                            class="amount{% if _tag == tag %} tagged{% end %}"
-                            tag="{{ _tag }}">
-                            <b>{% if _tag == tag %}{{ amount }}{% end %}</b></td>
+                        {% for _category in categories %}<td 
+                            class="amount{% if _category == category %} categorized{% end %}"
+                            category="{{ _category }}">
+                            <b>{% if _category == category %}{{ amount }}{% end %}</b></td>
                         {% end %}
                     </tr>
                     {% end %}

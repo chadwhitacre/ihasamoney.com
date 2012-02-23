@@ -1,0 +1,25 @@
+from ihasamoney import db
+
+CATEGORIZE = """
+
+DELETE FROM categorizations 
+      WHERE transaction_id = %s 
+        AND (SELECT email FROM transactions WHERE id = %s) = %s
+           ;
+
+INSERT INTO categorizations (transaction_id, category_id)
+     VALUES (%s, (SELECT id 
+                    FROM categories 
+                   WHERE email = %s 
+                     AND category = %s))
+
+"""
+
+^L
+
+if not request.user.ANON:
+    email = request.user.session['email']
+    tid = request.qs.one('tid')
+    category = request.qs.one('category')
+    db.execute(CATEGORIZE, (tid, tid, email, tid, email, category))
+response.code = 204

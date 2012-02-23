@@ -1,0 +1,7 @@
+from ihasamoney.data import get_categories
+^L
+out = []
+if not request.user.ANON:
+    email = request.user.session['email']
+    out = [o['category'] for o in get_categories(email)]
+response.body = out

@@ -1,0 +1,12 @@
+from ihasamoney import db, data
+^L
+out = []
+if not request.user.ANON:
+    if request.POST:
+        email = request.user.session['email']
+        category = request.path['category']
+        db.execute( "INSERT INTO categories (email, category) VALUES (%s, %s)"
+                  , (email, category)
+                   )
+        out = list(data.get_categories(email))
+response.body = out

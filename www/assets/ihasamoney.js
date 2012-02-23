@@ -120,27 +120,27 @@ IHasAMoney.resize = function()
 };
 
 
-// Tags
+// Categorys
 // ====
 
-IHasAMoney.createTag = function(e)
+IHasAMoney.createCategory = function(e)
 {
     if (IHasAMoney.disabled) return false;
-    var button = $(e.target);
-    var tag = $('#top INPUT').val();
-    jQuery.ajax({ type: "POST"
-                , url: "/tags/" + tag + "/"
-                , success: function() { window.location.reload() }
-                , dataType: 'json'
-                 })
+    var category = prompt("Name your category!");
+    if (category !== null)
+        jQuery.ajax({ type: "POST"
+                    , url: "/categories/" + category + "/"
+                    , success: function() { window.location.reload() }
+                    , dataType: 'json'
+                     })
 };
 
-IHasAMoney.toggleTagCreator = function()
+IHasAMoney.toggleCategoryCreator = function()
 {
     if (IHasAMoney.disabled) return false;
     $('#top .widget').toggle()
     var cur = $('#top .knob').text();
-    var next = 'create a tag';
+    var next = 'create a category';
     if (cur == next)
     {
         $('#top INPUT').val('').focus();
@@ -149,16 +149,16 @@ IHasAMoney.toggleTagCreator = function()
     $('#top .knob').text(next);
 };
 
-IHasAMoney.tagCreatorKeyup = function(e)
+IHasAMoney.categoryCreatorKeyup = function(e)
 {
     if (IHasAMoney.disabled) return false;
     switch (e.which)
     {
         case 27:
-            IHasAMoney.toggleTagCreator();
+            IHasAMoney.toggleCategoryCreator();
             break;
         case 13:
-            IHasAMoney.createTag({"target": $('#top BUTTON').get(0)});
+            IHasAMoney.createCategory({"target": $('#top BUTTON').get(0)});
             break;
     }
 };
@@ -202,16 +202,16 @@ IHasAMoney.scrollBy = function(num)
     IHasAMoney.highlightRowCol();
 };
 
-IHasAMoney.changeTag = function(inc)
+IHasAMoney.changeCategory = function(inc)
 {
     if (IHasAMoney.disabled) return false;
     var tid = $('TR.focus').attr('tid');
     var cols = $('TR.focus TD.amount');
-    var cell = $('TR.focus TD.amount.tagged');
+    var cell = $('TR.focus TD.amount.categorized');
     var amount = cell.text();
     var from = cols.index(cell);
     var to = from + inc;
-    var tag;
+    var category;
 
     if (to === -1)
         to = cols.length - 1;
@@ -220,13 +220,13 @@ IHasAMoney.changeTag = function(inc)
 
     from = cols.eq(from);
     to = cols.eq(to);
-    tag = to.attr('tag');
-    if (tag == "uncategorized")
-        jQuery.getJSON('/untag.json', {tid: tid});
+    category = to.attr('category');
+    if (category == "uncategorized")
+        jQuery.getJSON('/uncategorize.json', {tid: tid});
     else
-        jQuery.getJSON('/tag.json', {tid: tid, tag: tag});
-    from.removeClass('tagged');
-    to.html(from.html()).addClass('tagged');
+        jQuery.getJSON('/categorize.json', {tid: tid, category: category});
+    from.removeClass('categorized');
+    to.html(from.html()).addClass('categorized');
     from.html('<b></b>');
 
     // Update summary amount.
@@ -281,7 +281,7 @@ IHasAMoney.changeTag = function(inc)
         return f;
     }
 
-    var entering = $('THEAD.pegged TH.amount[tag="' + tag + '"]');
+    var entering = $('THEAD.pegged TH.amount[category="' + category + '"]');
     entering.html(commaize(add(entering.text(), amount)));
 
     var leaving = $('THEAD.pegged TH.amount.current');
@@ -295,19 +295,19 @@ IHasAMoney.highlightRowCol = function()
     if (IHasAMoney.disabled) return false;
 
     var i = 0;
-    var tag = $(".focus .tagged").attr('tag');
+    var category = $(".focus .categorized").attr('category');
 
     // Change the highlighted column head.
     $('.current').removeClass('current');
-    $('TH[tag="' + tag + '"]').addClass('current');
+    $('TH[category="' + category + '"]').addClass('current');
    
     // Change the column highlight. 
     $('.highlighted').removeClass('highlighted');
     i = $('TBODY TR').index($('TR.focus'));
-    $('TD[tag="' + tag + '"]:lt(' + i + ')').addClass('highlighted');
+    $('TD[category="' + category + '"]:lt(' + i + ')').addClass('highlighted');
    
     // Change the row highlight. 
-    i = $('TBODY TR TD').index($('TD[tag="' + tag + '"]'));
+    i = $('TBODY TR TD').index($('TD[category="' + category + '"]'));
     $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
@@ -328,6 +328,7 @@ IHasAMoney.navigate = function(e)
     if (IHasAMoney.disabled) return false;
 
     var nrows = 1, to = 1, hl = {37: -1, 39: 1, 72:-1, 76: 1};
+    console.log(e.which);
     switch (e.which)
     {
         case 38:    // up arrow
@@ -342,10 +343,14 @@ IHasAMoney.navigate = function(e)
         case 72:    // h
         case 76:    // l
             to *= hl[e.which];
-            IHasAMoney.changeTag(to);
+            IHasAMoney.changeCategory(to);
             break;
         case 27:    // ESC
             IHasAMoney.openSplash();
+            break;
+        case 78:    // n
+            if (e.shiftKey)
+                IHasAMoney.createCategory();
             break;
     }
 };
@@ -501,7 +506,7 @@ IHasAMoney.submitUploadForm = function(e)
 // main 
 // ====
 
-IHasAMoney.main = function()
+IHasAMoney.init = function()
 {
     $(window).resize(IHasAMoney.resize);
     IHasAMoney.resize();
@@ -515,7 +520,4 @@ IHasAMoney.main = function()
 
     $('TBODY TR').eq(0).addClass('focus');
     IHasAMoney.highlightRowCol();
-
-    IHasAMoney.switchToSignIn();
-    IHasAMoney.openSplash();
 };

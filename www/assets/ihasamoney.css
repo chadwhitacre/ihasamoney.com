@@ -79,7 +79,7 @@ TBODY B {
     height: 12px;
     border: 1px solid white;
 }
-TBODY TR.focus TD.tagged B {
+TBODY TR.focus TD.categorized B {
     border: 1px solid #2A8F79;
 }
 TH.corner {
@@ -107,7 +107,7 @@ TR.focus TD.current B {
 TR.focus TD.description {
     background: #E6F2F0;
 }
-TR.focus TD.tagged {
+TR.focus TD.categorized {
     position: relative;
 }
 .hide {
@@ -119,7 +119,7 @@ TR.focus TD {
 TR.focus .hide {
     display: inline;
 }
-TR.focus TD.tag {
+TR.focus TD.category {
     background: #2A8F79;
 }
 TR.heads TH.corner {

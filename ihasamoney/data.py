@@ -68,25 +68,37 @@ def gentxns(txns):
 
         amount = commaize(str(row['amount']))
 
-        tag = row['tag'] # This comes out as a single string or None, not
-                         # (e.g.) list of strings, if there is only one tag. 
-                         # And our UI assures that there is only one tag.
+        category = row['category'] # This comes out as a single string or None,
+                                   # not (e.g.) a list of strings, if there is 
+                                   # only one category. And our UI assures that
+                                   # there is only one category.
 
-        if tag is None:
-            tag = "uncategorized"
+        if category is None:
+            category = "uncategorized"
 
-        yield row['id'], amount, row['description'], date, tag
+        yield row['id'], amount, row['description'], date, category
 
 
 # Real Data
 # =========
 # Actual users get actual data. It's only fair.
 
+def get_categories(email):
+    categories = """\
+            
+        SELECT category
+          FROM categories 
+         WHERE email = %s 
+      ORDER BY category ASC
+
+    """
+    return db.fetchall(categories, (email,))
+
 def get(email):
     """Return data for the given user.
     """
-    tags = "SELECT tag FROM tags WHERE email = %s ORDER BY tag ASC"
-    tags = ['uncategorized'] + [x['tag'] for x in db.fetchall(tags, (email,))]
+    categories = get_categories(email)
+    categories = ['uncategorized'] + [x['category'] for x in categories]
 
     transactions = list(db.fetchall("""
 
@@ -95,12 +107,12 @@ def get(email):
              , date
              , amount
              , description
-             , (  SELECT tags.tag
-                    FROM tags
-                    JOIN taggings
-                      ON taggings.tag_id = tags.id
-                   WHERE taggings.transaction_id = transactions.id
-                ) as tag -- a single tag, it turns out
+             , (  SELECT categories.category
+                    FROM categories
+                    JOIN categorizations
+                      ON categorizations.category_id = categories.id
+                   WHERE categorizations.transaction_id = transactions.id
+                ) as category -- a single category, it turns out
           FROM transactions 
          WHERE email=%s 
       ORDER BY date DESC
@@ -109,30 +121,30 @@ def get(email):
 
     sums = db.fetchall("""
         
-        SELECT tags.tag                 AS tag
+        SELECT categories.category      AS category
              , sum(transactions.amount) AS sum
           FROM transactions 
-          JOIN taggings 
-            ON taggings.transaction_id = transactions.id 
-          JOIN tags 
-            ON tags.id = taggings.tag_id 
+          JOIN categorizations 
+            ON categorizations.transaction_id = transactions.id 
+          JOIN categories 
+            ON categories.id = categorizations.category_id 
          WHERE transactions.email = %s
-      GROUP BY tag
-      ORDER BY tag
+      GROUP BY category
+      ORDER BY category
 
             """, (email,))
-    summary = dict([(tag, commaize(0)) for tag in tags])
+    summary = dict([(category, commaize(0)) for category in categories])
     for row in sums:
-        summary[row['tag']] = commaize(row['sum'])
+        summary[row['category']] = commaize(row['sum'])
 
     uncategorized = db.fetchone("""
         
         SELECT sum(transactions.amount) AS sum
           FROM transactions 
-     LEFT JOIN taggings 
-            ON transactions.id = taggings.transaction_id
+     LEFT JOIN categorizations 
+            ON transactions.id = categorizations.transaction_id
          WHERE transactions.email = %s
-           AND taggings.id is NULL
+           AND categorizations.id is NULL
 
             """, (email,))
 
@@ -141,24 +153,24 @@ def get(email):
         uncategorized_sum = 0
     summary['uncategorized'] = commaize(uncategorized_sum)
 
-    return tags, transactions, summary
+    return categories, transactions, summary
 
 
-# Dummy Data
-# ==========
+# Fake Data
+# =========
 # First-time anonymous users get a bunch of fake data to play with.
 
 class Transactions(list):
 
     id = 0
     this_month = date.today().month
-    def add_transaction(self, date, amount, payee, type, tag):
-        tag = "uncategorized" if date.month == self.this_month else tag
+    def add_transaction(self, date, amount, payee, type, category):
+        category = "uncategorized" if date.month == self.this_month else category
         self.append({ "id": self.id
                     , "date": date
                     , "amount": decimal.Decimal(amount)
                     , "description": payee + " " + type
-                    , "tag": tag
+                    , "category": category
                      })
         self.id += 1
 
@@ -166,7 +178,7 @@ class Transactions(list):
 def fake():
     """Return sum dayz of fake data.
     """
-    tags = []
+    categories = []
     transactions = Transactions()
     summary = []
 
@@ -211,7 +223,7 @@ def fake():
 
 
     # How much do people spend per transaction?  This is taken from
-    # the tag_summaries table in the live database.
+    # the category_summaries table in the live database.
 
     avg_txn_amts = \
         { "transportation":-70.77,
@@ -227,7 +239,7 @@ def fake():
           "utilities":     -90.81 }
 
 
-    # For now, just throw in some merchant names for each tag. Later
+    # For now, just throw in some merchant names for each category. Later
     # this should come from the merchant_summaries table.
 
     top_merchants = \
@@ -258,24 +270,24 @@ def fake():
 
     balance = "%.02f" % generate_amt(1000)
 
-    def generate_transaction(transactions, tag, type, date=None):
+    def generate_transaction(transactions, category, type, date=None):
         if date is None:
             days_ago = timedelta(days=random.randint(0, days))
             date = (end_date - days_ago)
         
-        amount = generate_amt(avg_txn_amts[tag])
+        amount = generate_amt(avg_txn_amts[category])
         txn_amt = decimal.Decimal("%.02f" % amount)
         
-        merchant = random.choice(top_merchants[tag])
+        merchant = random.choice(top_merchants[category])
         
-        transactions.add_transaction(date, txn_amt, merchant, type, tag)
+        transactions.add_transaction(date, txn_amt, merchant, type, category)
         return txn_amt
 
-    tags = spending_pcts.keys()
-    tags.remove("housing")
-    tags.append("income")
-    tags.append("uncategorized")
-    summary = dict([(t, 0) for t in tags])
+    categories = spending_pcts.keys()
+    categories.remove("housing")
+    categories.append("income")
+    categories.append("uncategorized")
+    summary = dict([(t, 0) for t in categories])
 
 
     # First deal with income
@@ -291,54 +303,54 @@ def fake():
                                     , amount=paycheck_amt
                                     , payee="Payroll"
                                     , type="DEP"
-                                    , tag="income"
+                                    , category="income"
                                      )
     summary["income"] = commaize(income_amount)
 
 
     # Then deal with housing
 
-    housing_tag = random.choice(["rent", "mortgage"])
+    housing_category = random.choice(["rent", "mortgage"])
 
     housing_days_ago = 0
 
     while housing_days_ago < days:
         housing_days_ago += 30
         last_housing = (end_date - timedelta(days=housing_days_ago))
-        amount = generate_transaction(transactions, housing_tag, "DEBIT")
+        amount = generate_transaction(transactions, housing_category, "DEBIT")
         total_spending -= abs(amount)
 
 
-    # Now deal with the rest of the tags
+    # Now deal with the rest of the categories
    
     housing_spending = total_spending
-    for tag in tags:
-        if tag in ["income"]:
+    for category in categories:
+        if category in ["income"]:
             continue
-        tag_spending = total_spending * decimal.Decimal(spending_pcts.get(tag, 0))
-        tag_amount = 0
-        while tag_spending > 0 and total_spending > 0:
-            amount = generate_transaction(transactions, tag, "DEBIT")
-            tag_amount += amount
-            tag_spending   -= abs(amount)
+        category_spending = total_spending * decimal.Decimal(spending_pcts.get(category, 0))
+        category_amount = 0
+        while category_spending > 0 and total_spending > 0:
+            amount = generate_transaction(transactions, category, "DEBIT")
+            category_amount += amount
+            category_spending   -= abs(amount)
             total_spending -= abs(amount)
-        summary[tag] = commaize(decimal.Decimal("%.02f" % tag_amount))
-    tags.append(housing_tag)
-    summary[housing_tag] = commaize(decimal.Decimal("-%.02f" % housing_spending))
+        summary[category] = commaize(decimal.Decimal("%.02f" % category_amount))
+    categories.append(housing_category)
+    summary[housing_category] = commaize(decimal.Decimal("-%.02f" % housing_spending))
 
     
     # And lastly, summarize transactions.
 
-    uncat = [t['amount'] for t in transactions if t['tag'] == "uncategorized"]
+    uncat = [t['amount'] for t in transactions if t['category'] == "uncategorized"]
     summary["uncategorized"] = commaize(sum(uncat))
 
 
     # Prep our return structure.
 
-    tags.remove("uncategorized")
-    tags.remove("income")
-    tags = ["uncategorized", "income"] + sorted(tags)
+    categories.remove("uncategorized")
+    categories.remove("income")
+    categories = ["uncategorized", "income"] + sorted(categories)
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
     balance = decimal.Decimal(balance) + total_spending
 
-    return (tags, transactions, summary, balance)
+    return (categories, transactions, summary, balance)

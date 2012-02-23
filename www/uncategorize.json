@@ -1,8 +1,8 @@
 from ihasamoney import db
 
-UNTAG = """
+UNCATEGORIZE = """
 
-DELETE FROM taggings 
+DELETE FROM categorizations 
       WHERE transaction_id = %s 
         AND (SELECT email FROM transactions WHERE id = %s) = %s
 
@@ -13,5 +13,5 @@ DELETE FROM taggings
 if not request.user.ANON:
     email = request.user.session['email']
     tid = request.qs.one('tid')
-    db.execute(UNTAG, (tid, tid, email))
+    db.execute(UNCATEGORIZE, (tid, tid, email))
 response.code = 204
