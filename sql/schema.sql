@@ -1,6 +1,7 @@
 -- Create the initial structure.
 
 CREATE OR REPLACE FUNCTION initial_structure() RETURNS void AS $$
+
     CREATE TABLE users 
     ( email                 varchar(64)     PRIMARY KEY
     , hash                  char(40)        NOT NULL
@@ -35,6 +36,7 @@ CREATE OR REPLACE FUNCTION initial_structure() RETURNS void AS $$
     , transaction_id    bigint      REFERENCES transactions ON DELETE CASCADE
     , tag_id            bigint      REFERENCES tags ON DELETE CASCADE
      );
+
 $$ LANGUAGE SQL;
 
 
@@ -58,19 +60,31 @@ CREATE OR REPLACE FUNCTION rename_tag_sequence_to_category() RETURNS void AS $$
 $$ LANGUAGE SQL;
 
 
--- Now define two wrappers.
--- The first one runs all of the above DDL.
+-- Let's get payments in there.
+
+CREATE OR REPLACE FUNCTION define_payments() RETURNS void AS $$
+   
+    -- Max amount is $999,999,999,999,999.99.
+    CREATE TABLE payment_attempts
+    ( id            bigserial       PRIMARY KEY
+    , email         varchar(64)     REFERENCES users ON DELETE CASCADE
+    , timestamp     timestamp       NOT NULL DEFAULT 'now'
+    , amount        numeric(15,2)   NOT NULL
+    , reference_id  text            DEFAULT NULL
+    , problem       text            DEFAULT NULL
+     );
+
+$$ LANGUAGE SQL;
+
+
+
+
+
+-- Now define a wrappers that runs all of the above DDL.
 
 CREATE OR REPLACE FUNCTION build_from_scratch() RETURNS void AS $$
     SELECT initial_structure();
     SELECT rename_tag_to_category();    
     SELECT rename_tag_sequence_to_category();
-$$ LANGUAGE SQL;
-
-
--- The second one runs just the last step. 
--- Update this when the last step changes.
-
-CREATE OR REPLACE FUNCTION migrate() RETURNS void AS $$
-    SELECT rename_tag_sequence_to_category(); -- update
+    SELECT define_payments();
 $$ LANGUAGE SQL;

@@ -1,36 +1,59 @@
+import os
 from ihasamoney import data
 
 # ========================================================================== ^L
 
-if request.user.ANON:
+if request.user.ANON or not request.user.PAID:
     categories, transactions, summary, balance = data.fake()
 else:
     email = request.user.session['email']
     categories, transactions, summary = data.get(email)
     balance = request.user.session['balance']
 
+todayth = "first"
+
 # ========================================================================== ^L
 <!DOCTYPE html>
 <html>
     <head>
         <title>I has a money.</title>
+        <style>@import url("/assets/ihasamoney.css");</style>
         <script src="/assets/jquery-1.7.1.min.js"></script>
         <script src="/assets/jquery.mousewheel.js"></script>
-        <style>@import url("/assets/ihasamoney.css");</style>
         <script src="/assets/ihasamoney.js"></script>
+        {% if request.user.ANON %}
         <script>
             $(document).ready(function()
             {
                 IHasAMoney.init();
-                {% if request.user.ANON %}
                 IHasAMoney.switchToSignIn();
                 IHasAMoney.openSplash();
-                {% else %}
-                IHasAMoney.closeSplash();
-                {% end %}
             });
         </script>
-        {% block head %}{% end %}
+        {% elif not request.user.PAID %}
+        <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
+        <script>
+            $(document).ready(function()
+            {
+                IHasAMoney.init();
+                IHasAMoney.initSamurai('{{ os.environ['SAMURAI_MERCHANT_KEY'] }}');
+                IHasAMoney.openSplash();
+            });
+        </script>
+        {% else %}
+        <script src="/assets/jquery-accordion/lib/jquery.easing.js"></script>
+        <script src="/assets/jquery-accordion/lib/jquery.dimensions.js"></script>
+        <script src="/assets/jquery-accordion/jquery.accordion.js"></script>
+        <script>
+            $(document).ready(function()
+            {
+                IHasAMoney.init();
+                IHasAMoney.initSamurai('{{ os.environ['SAMURAI_MERCHANT_KEY'] }}');
+                IHasAMoney.initAccordion();
+                IHasAMoney.closeSplash();
+            });
+        </script>
+        {% end %}
     </head>
     <body>
         <div id="body">
@@ -38,12 +61,6 @@ else:
             <div id="top">
                 <div id="balance">${{ balance }}</div>
             </div>
-
-            <!--
-                <span class="widget"><input 
-                /><button>create</button></span><span 
-                class="knob">create a category</span>
-            -->
 
             <table>
                 <thead class="pegged">
@@ -87,7 +104,7 @@ else:
         </div>
         <div id="splash-wrap">
             <div id="splash">
-                <img src="/assets/ihasamoney.jpg" />
+                <img src="/assets/ihasamoney.jpg" class="cat" />
                 <div id="feedback"></div>
                 <div id="eyes">
                     <div class="eye left"></div>
@@ -97,26 +114,28 @@ else:
                 </div>
                 <div class="text"><div class="pad">
 
+                        {% if request.user.ANON %}
                         <h2>
                             <span>IHasAMoney.com</span>
                             <div class="line"></div>
                         </h2>
-
-                        {% if request.user.ANON %}
-                        <p>This is a personal finance application with teh
-                        following invariants:</p>
-
-                        <ul>
-                            <li>You aren&rsquo;t the product.</li>
-                            <li>Never takes your bank creds.</li>
-                            <li>Shows data and comparisons.</li>
-                            <li>No pie charts.</li>
-                            <li>Nice API.</li>
-                            <li>Lolcat.</li>
-                        </ul>
-
-                        <p>It costs <b>$2.99/mo</b>.</p>
                         
+                        <div class="omgworstclassnameever">
+                            <p>This is a personal finance application with teh
+                            following invariants:</p>
+
+                            <ul>
+                                <li>You aren&rsquo;t the product.</li>
+                                <li>Never takes your bank creds.</li>
+                                <li>Shows data and comparisons.</li>
+                                <li>No pie charts.</li>
+                                <li>Nice API.</li>
+                                <li>Lolcat.</li>
+                            </ul>
+
+                            <p>It costs <b>$2.99/mo</b>.</p>
+                        </div>
+
                         
                         <h2>
                             <span>Sign In <i>or</i> Register</span>
@@ -125,8 +144,7 @@ else:
                                 data</a></p>
                         </h2>
                         
-
-                        <form action="" id="auth">
+                        <form action="" id="auth" class="omgworstclassnameever">
                             <label for="email">Email</label>
                             <input id="email" name="email" 
                                 tabindex="1" /><br />
@@ -155,7 +173,7 @@ else:
                             <div class="line"></div>
                         </h2>
 
-                        <div id="cheat-sheet">
+                        <div id="cheat-sheet" class="omgworstclassnameever">
 
                             <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
                             <u>k</u> to select a transaction.<br />
@@ -170,59 +188,163 @@ else:
 
                         {% else %}
 
-                        <p>Signed in as
-                        <b>{{ request.user.session['email'] }}</b>.
+                        <div id="acct">
 
-                        <form action="/sign-out.html" method="GET">
-                            <div class="full">
+                            <h2>
+                                <span>IHasAMoney.com</span>
+                                <div class="line"></div>
+                            </h2>
+
+                            <p>Signed in as
+                            <b>{{ request.user.session['email'] }}</b>.</p>
+
+                            <form action="/sign-out.html" method="GET">
                                 <button type="submit">Sign&nbsp;out</button>
-                            </div>
-                        </form>
+                            </form>
+                            <div class="clear"></div>
 
+                        </div>
+
+
+                        {% if not request.user.PAID %}
 
                         <h2>
-                            <span>Upload Data</span>
+                            <span>Payment Details</span>
                             <div class="line"></div>
+                            <p>or play with <a href="" id="fake">fake
+                                data</a></p>
                         </h2>
+                        <form id="payment">
+                            
+                            <div class="left half">
+                                <label for="first-name">First Name</label>
+                                <input id="first-name" name="first-name" 
+                                 />
+                            </div>
 
-                        <form action="/transactions/" id="upload" method="POST"
-                            enctype="multipart/form-data">
-                            <label for="csv">
-                            format:&nbsp; CSV<br />
-                            columns: id,YYYYMMDD,0.00,description<br />
-                            headers: no 
-                            </label>
-                            <input type="file" id="csv" name="csv" />
+                            <div class="right half">
+                                <label for="last-name">Last Name</label>
+                                <input id="last-name" name="last-name" 
+                                 />
+                            </div>
+
+                            <div class="clear"></div>
+
+                            <label for="address-1">Address 1</label>
+                            <input id="address-1" name="address-1" 
+                                 />
+
+                            <label for="address-2">Address 2</label>
+                            <input id="address-2" name="address-2" 
+                                 />
+
+
+                            <div class="float city">
+                                <label for="city">City</label>
+                                <input id="city" name="city" 
+                                     />
+                            </div>
+
+                            <div class="float state not-first">
+                                <label for="state">State</label>
+                                <input id="state" name="state" 
+                                     />
+                            </div>
+
+                            <div class="float zip not-first">
+                                <label for="zip">ZIP</label>
+                                <input id="zip" name="zip" 
+                                     />
+                            </div>
+
+                            <div class="clear"></div>
+
+                            <div class="float card_number">
+                                <label for="card_number">Credit Card Number</label>
+                                <input id="card_number" name="card_number" 
+                                     />
+                            </div>
+
+                            <div class="float expiry not-first">
+                                <label for="expiry">Expiry</label>
+                                <input id="expiry" name="expiry" 
+                                     />
+                            </div>
+
+                            <div class="float cvv not-first">
+                                <label for="cvv">CVV</label>
+                                <input id="cvv" name="cvv" 
+                                     />
+                            </div>
+
+                            <div class="clear"></div>
 
                             <div class="full">
-                                <button type="submit">Upload</button>
+                                <img src="/assets/cards.png" />
+                                <button type="submit">Subscribe</button>
                             </div>
+
+                            <p>You&rsquo;ll be charged <b>$2.99</b> on the 
+                            <b>{{ todayth }}</b> of each month.</p>
+                           
+                            <p>Thank you.</p>
+
                         </form>
 
-                        <h2>
-                            <span>API</span>
-                            <div class="line"></div>
-                        </h2>
 
-                        <p>POST CSV to <a
-                            href="/transactions/">/transactions/</a>.</p>
+                        {% else %}
+                        <div id="accordion">
 
-                        <h2>
-                            <span>Cheat Sheet</span>
-                            <div class="line"></div>
-                        </h2>
+                            <h2>
+                                <span>Upload Data</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div>
+                                <form action="/transactions/" id="upload" 
+                                    method="POST"
+                                    enctype="multipart/form-data">
 
-                        <div id="cheat-sheet">
+                                    <label for="csv">
+                                    format:&nbsp; CSV<br />
+                                    columns: id,YYYYMMDD,0.00,description<br />
+                                    headers: no 
+                                    </label>
+                                    <input type="file" id="csv" name="csv" />
 
-                            <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                            <u>k</u> to select a transaction.<br />
+                                    <div class="full">
+                                        <button type="submit">Upload</button>
+                                    </div>
+                                    <div class="clear"></div>
+                                </form>
+                            </div>
 
-                            <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                            <u>l</u> to recategorize.<br />
-                           
-                            <u>Esc</u> to close/open the cat.
-                        
+                            <h2>
+                                <span>API</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div>
+                                <p>POST CSV to <a
+                                    href="/transactions/">/transactions/</a>.</p>
+                            </div>
+
+                            <h2>
+                                <span>Cheat Sheet</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div id="cheat-sheet">
+
+                                <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
+                                <u>k</u> to select a transaction.<br />
+
+                                <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
+                                <u>l</u> to recategorize.<br />
+                               
+                                <u>Esc</u> to close/open the cat.
+                            
+                            </div>
+
                         </div>
+                        {% end %}
                         {% end %}
 
                 </div></div>

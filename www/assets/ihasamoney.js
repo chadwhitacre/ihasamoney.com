@@ -117,6 +117,7 @@ IHasAMoney.resize = function()
         $('THEAD.pegged TH').eq(i).width($(this).width());
     });
     $('#body').height(bodyHeight);
+    $('#accordion').height(402 - $('#acct').height());
 };
 
 
@@ -520,4 +521,41 @@ IHasAMoney.init = function()
 
     $('TBODY TR').eq(0).addClass('focus');
     IHasAMoney.highlightRowCol();
+};
+
+IHasAMoney.initSamurai = function(merchant_key)
+{
+    $('#splash INPUT').eq(0).focus();
+    Samurai.init({merchant_key: merchant_key});
+
+    function onTransactionCreation(data) 
+    {
+        console.log('got something else!', data);
+
+        // Parse the transaction response JSON and convert it to an object
+        var transaction = jQuery.parseJSON(data).transaction;
+
+        if(transaction.success) {
+          // Update the page to display the results
+          $('#samurai FORM').children('.results').html('<h3>Your purchase is complete!</h3><h4>'+transaction.payment_method.payment_method.first_name+' '+transaction.payment_method.payment_method.last_name+': $'+transaction.amount+' - '+transaction.description+'</h4>');
+          Samurai.trigger('form', 'completed');
+        } else {
+          // Let the error handler scan the response object for errors,
+          // then display these errors
+          Samurai.PaymentErrorHandler.forForm($('form').get(0)).handleErrorsFromResponse(transaction);
+        }
+    }
+
+    function onPayment(e, data)
+    {
+        console.log('got something!', e, data);
+        jQuery.post('/create-transaction', data.payment_method, onTransactionCreation);
+    }
+
+    Samurai.on('#samurai FORM', 'payment', onPayment);
+};
+
+IHasAMoney.initAccordion = function()
+{
+    $('#accordion').accordion({header: 'h2', fillSpace: true});
 };

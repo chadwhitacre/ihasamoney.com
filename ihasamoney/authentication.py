@@ -45,16 +45,18 @@ def load_session(token):
              , session_expires
              , created
              , is_admin
+             , paid_through 
              , balance 
           FROM users
          WHERE session_token=%s
     """
     rec = db.fetchone(SQL, (token,))
+    out = {}
     if rec is not None:
         assert rec['session_token'] == token # sanity
         assert 'hash' not in rec # safety
-        return rec
-    return {}
+        out = rec
+    return out
 
 class User:
 
@@ -73,6 +75,12 @@ class User:
     @property
     def ANON(self):
         return not bool(self.session.get('email', False))
+
+    @property
+    def PAID(self):
+        if self.session.get('paid_through', None) is None:
+            return False
+        return self.session['paid_through'] >= datetime.date.today()
 
 def inbound(request):
     """Authenticate from a cookie.

@@ -17,7 +17,7 @@ INSERT INTO categorizations (transaction_id, category_id)
 
 ^L
 
-if not request.user.ANON:
+if request.user.PAID:
     email = request.user.session['email']
     tid = request.qs.one('tid')
     category = request.qs.one('category')
