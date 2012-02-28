@@ -11,6 +11,7 @@ else:
     balance = request.user.session['balance']
 
 todayth = "first"
+merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
 
 # ========================================================================== ^L
 <!DOCTYPE html>
@@ -36,7 +37,7 @@ todayth = "first"
             $(document).ready(function()
             {
                 IHasAMoney.init();
-                IHasAMoney.initSamurai('{{ os.environ['SAMURAI_MERCHANT_KEY'] }}');
+                IHasAMoney.initPayment('{{ merchant_key }}');
                 IHasAMoney.openSplash();
             });
         </script>
@@ -48,7 +49,7 @@ todayth = "first"
             $(document).ready(function()
             {
                 IHasAMoney.init();
-                IHasAMoney.initSamurai('{{ os.environ['SAMURAI_MERCHANT_KEY'] }}');
+                IHasAMoney.initPayment('{{ merchant_key }}');
                 IHasAMoney.initAccordion();
                 IHasAMoney.closeSplash();
             });
@@ -217,25 +218,25 @@ todayth = "first"
                         <form id="payment">
                             
                             <div class="left half">
-                                <label for="first-name">First Name</label>
-                                <input id="first-name" name="first-name" 
+                                <label for="first_name">First Name</label>
+                                <input id="first_name" name="first_name" 
                                  />
                             </div>
 
                             <div class="right half">
-                                <label for="last-name">Last Name</label>
-                                <input id="last-name" name="last-name" 
+                                <label for="last_name">Last Name</label>
+                                <input id="last_name" name="last_name" 
                                  />
                             </div>
 
                             <div class="clear"></div>
 
-                            <label for="address-1">Address 1</label>
-                            <input id="address-1" name="address-1" 
+                            <label for="address_1">Address 1</label>
+                            <input id="address_1" name="address_1" 
                                  />
 
-                            <label for="address-2">Address 2</label>
-                            <input id="address-2" name="address-2" 
+                            <label for="address_2">Address 2</label>
+                            <input id="address_2" name="address_2" 
                                  />
 
 
@@ -286,8 +287,6 @@ todayth = "first"
 
                             <p>You&rsquo;ll be charged <b>$2.99</b> on the 
                             <b>{{ todayth }}</b> of each month.</p>
-                           
-                            <p>Thank you.</p>
 
                         </form>
 

@@ -1,0 +1,41 @@
+"""Save a payment method token (pmt) for a user.
+
+When the user fills out the payment details form in the UI, we POST the new
+info to Samurai (using the Samurai js library, which wraps a cross-site AJAX
+library). Samurai always gives us a payment method token in return, no matter
+how bad the info was that we POSTed. This present script is called next. It 
+takes the pmt and performs an Authorize with it. This tells us if the info is
+good or not. If it's not, we make the user re-enter their details.
+
+The user isn't actually billed until the first or fifteenth of the month.
+
+"""
+from ihasamoney import db, get_next_bill_date
+from samurai.processor import Processor
+
+PMT = """\
+
+    UPDATE customers
+       SET payment_method_token=%s 
+       AND next_bill_date=%s
+     WHERE session_token=%s;
+
+"""
+
+#=========================================================================== ^L
+
+request.allow('POST')
+
+pmt = request.body.one('pmt')
+if pmt is None:
+    raise Response(400) 
+
+transaction = Processor.payment(pmt, website.subscription_amount)
+if not transaction.errors:
+    session_token = request.user.session['session_token']
+    db.execute(PMT, (pmt, get_next_bill_date(), session_token,))
+    out = {"problem": ""}
+else:
+    out = {"problem": "Billing fail!!", "errors": transaction.errors}
+
+response.body = out

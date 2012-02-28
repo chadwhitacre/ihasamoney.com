@@ -389,29 +389,50 @@ IHasAMoney.closeSplash = function()
 /* ============= */
 
 IHasAMoney.feedbackOut = null; // {clear,set}Timout handler
-IHasAMoney.feedback = function(msg)
+IHasAMoney.showFeedback = function(msg, details)
 {
     window.clearTimeout(IHasAMoney.feedbackOut);
     $('#eyes').stop(true, true).show()
-    $('#feedback').stop(true, true).html(msg).show()
+    
+    msg += '<div class="details"></div>';
+    $('#feedback').stop(true, true).html(msg).show();
+    for (var i=0; i < details.length; i++)
+        $('#feedback .details').append('<p>' + details[i] + '</p>');
+    
     IHasAMoney.feedbackOut = window.setTimeout(function()
     {
         $('#eyes').hide();
         $('#feedback').hide();
-    }, 8000);
+    }, 15000);
 }
 
-IHasAMoney.submitForm = function(url, data, callback)
+IHasAMoney.submitForm = function(url, data, success, error)
 {
-    function success(data)
+    if (success === undefined)
     {
-        if (data.problem !== "")
-            IHasAMoney.feedback(data.problem);
-        else
-            callback();
+        success = function()
+        {   
+            window.location.href = "/";
+        }
     }
 
-    function error(xhr, foo, bar)
+    if (error === undefined)
+    {
+        error = function(data)
+        {
+            IHasAMoney.showFeedback(data.problem);
+        };
+    }
+    
+    function _success(data)
+    {
+        if (data.problem === "" || data.problem === undefined)
+            success(data);
+        else
+            error(data);
+    }
+
+    function _error(xhr, foo, bar)
     {
         console.log("failed", xhr, foo, bar);
     }
@@ -420,8 +441,8 @@ IHasAMoney.submitForm = function(url, data, callback)
                 , type: "POST"
                 , data: data
                 , dataType: "json"
-                , success: success
-                , error: error
+                , success: _success
+                , error: _error
                  });
 }
 
@@ -467,11 +488,7 @@ IHasAMoney.submitAuthForm = function(e)
         url = "/sign-in.json";
     }
 
-    function callback()
-    {
-        window.location.href = "/";
-    }
-    IHasAMoney.submitForm(url, data, callback);
+    IHasAMoney.submitForm(url, data);
 
     return false;
 };
@@ -504,6 +521,66 @@ IHasAMoney.submitUploadForm = function(e)
 };
 
 
+/* Payment Details Form */
+/* ==================== */
+
+IHasAMoney.submitPaymentForm = function(e)
+{
+    e.stopPropagation();
+    e.preventDefault();
+
+    function val(field)
+    {
+        return $('FORM#payment INPUT[name="' + field + '"]').val();
+    };
+
+    var details = {};
+    details.first_name = val('first_name');
+    details.last_name = val('last_name');
+    details.address_1 = val('address_1');
+    details.address_2 = val('address_2');
+    details.city = val('city');
+    details.state = val('state');
+    details.zip = val('zip');
+    details.card_number = val('card_number');
+    details.cvv = val('cvv');
+    
+    var expiry = val('expiry').split('/');
+    details.expiry_month = expiry[0];
+    details.expiry_year = expiry[1];
+
+    console.log(details);
+    Samurai.payment({credit_card: details}, IHasAMoney.savePaymentMethod);
+
+    return false;
+};
+
+IHasAMoney.savePaymentMethod = function(data)
+{
+    // Afaict this is always present, no matter the garbage we gave them.
+    var pmt = data.payment_method.payment_method_token;
+
+    function detailedFeedback(data)
+    {
+        var details = [];
+        for (var field in data.errors) 
+        {
+            var errors = data.errors[field];
+            var nerrors = errors.length;
+            for (var i=0; i < nerrors; i++)
+                details.push(errors[i]);
+        }
+
+        IHasAMoney.showFeedback(data.problem, details);
+    }
+    IHasAMoney.submitForm( "/save-pmt.json"
+                         , {pmt: pmt}
+                         , undefined
+                         , detailedFeedback
+                          );
+};
+
+
 // main 
 // ====
 
@@ -523,36 +600,11 @@ IHasAMoney.init = function()
     IHasAMoney.highlightRowCol();
 };
 
-IHasAMoney.initSamurai = function(merchant_key)
+IHasAMoney.initPayment = function(merchant_key)
 {
     $('#splash INPUT').eq(0).focus();
     Samurai.init({merchant_key: merchant_key});
-
-    function onTransactionCreation(data) 
-    {
-        console.log('got something else!', data);
-
-        // Parse the transaction response JSON and convert it to an object
-        var transaction = jQuery.parseJSON(data).transaction;
-
-        if(transaction.success) {
-          // Update the page to display the results
-          $('#samurai FORM').children('.results').html('<h3>Your purchase is complete!</h3><h4>'+transaction.payment_method.payment_method.first_name+' '+transaction.payment_method.payment_method.last_name+': $'+transaction.amount+' - '+transaction.description+'</h4>');
-          Samurai.trigger('form', 'completed');
-        } else {
-          // Let the error handler scan the response object for errors,
-          // then display these errors
-          Samurai.PaymentErrorHandler.forForm($('form').get(0)).handleErrorsFromResponse(transaction);
-        }
-    }
-
-    function onPayment(e, data)
-    {
-        console.log('got something!', e, data);
-        jQuery.post('/create-transaction', data.payment_method, onTransactionCreation);
-    }
-
-    Samurai.on('#samurai FORM', 'payment', onPayment);
+    $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
 };
 
 IHasAMoney.initAccordion = function()

@@ -43,6 +43,11 @@ def canonize(request):
 def parse_rows(rows):
     return [row.strip().split(';') for row in rows.splitlines()]
 
+def get_next_bill_date():
+    """
+    """
+
+
 
 # db
 # ==
@@ -149,10 +154,20 @@ def wire_db():
     dsn = url_to_dsn(url)
     return PostgresManager(dsn)
 
+def wire_samurai():
+    import samurai.config
+    samurai.config.merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
+    samurai.config.merchant_password = os.environ['SAMURAI_MERCHANT_PASSWORD']
+    samurai.config.processor_token = os.environ['SAMURAI_PROCESSOR_TOKEN']
+
 db = None 
 def startup(website):
     """Set up db and gauges.
     """
     global db
     db = wire_db()
-    website.gauges = os.environ['GAUGES'] != 'false'
+    wire_samurai()
+    gauges = os.environ['GAUGES'].lower()
+    assert gauges in ('true', 'false')
+    website.gauges = gauges == 'true'
+    website.subscription_amount = os.environ['SUBSCRIPTION_AMOUNT']
