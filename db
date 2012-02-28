@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+import commands
+import os
+import urlparse
+
+urlparse.uses_netloc.append('postgres')
+
+
+url = os.environ['DATABASE_URL']
+url = urlparse.urlparse(url)
+conninfo = '"host=%s user=%s password=%s dbname=%s"'
+conninfo %= (url.hostname, url.username, url.password, url.path[1:])
+
+os.environ['PATH'] += ':/Library/PostgreSQL/9.0/bin' # Ugh. Ack.
+psql = commands.getoutput("which psql")
+print psql, conninfo
+os.execv(psql, [psql, conninfo])
