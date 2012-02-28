@@ -2,6 +2,7 @@ import datetime
 
 from aspen import json
 from ihasamoney import db, get_next_bill_date
+from samurai.payment_method import PaymentMethod as SamuraiPaymentMethod
 from samurai.processor import Processor
 
 
@@ -60,10 +61,12 @@ def get_next_bill_date(session, day_of_month):
     if month == 12:
         year += 1
         month = 1
+    else:
+        month += 1
 
     # compute day by attempting to make a date
     day = day_of_month
-    safety_belt = 5
+    safety_belt = 5 # XXX tighten this up, but not without tests
     while safety_belt > 0:
         try:
             out = datetime.date(year, month, day)
@@ -87,10 +90,11 @@ def bill(session, pmt, amount, day_of_month=None):
     response cycle; a new one will be created on the next request.
 
     """
-    assert day_of_month is None or 1 <= day_of_month <= 31, day_of_month 
+    assert day_of_month is None or (1 <= day_of_month <= 31), day_of_month 
     session_token = session['session_token']
+    email = session['email']
 
-    transaction = Processor.purchase(pmt, amount)
+    transaction = Processor.purchase(pmt, amount, custom=email)
     if transaction.errors:
         errors_json = json.dumps(transaction.errors)
         db.execute(FAILURE, (pmt, errors_json, session_token))
@@ -121,3 +125,47 @@ def bill(session, pmt, amount, day_of_month=None):
 
         out = dict()
     return out
+
+
+# Payment Method
+# ==============
+
+class PaymentMethod(object):
+    """This is a dict-like wrapper around a Samurai PaymentMethod.
+    """
+
+    payment_method = None # underlying payment method
+
+    def __init__(self, pmt):
+        """Given a payment method token, loads data from Samurai.
+        """
+        if pmt is not None:
+           self.payment_method = SamuraiPaymentMethod.find(pmt)
+
+    def _get(self, name):
+        """Given a name, return a string.
+        """
+        out = ""
+        if self.payment_method is not None:
+            out = getattr(self.payment_method, name, "")
+            if out is None:
+                out = ""
+        return out
+
+    def __getitem__(self, name):
+        """Given a name, return a string.
+        """
+        if name == 'last_four':
+            out = self._get('last_four_digits')
+            if out:
+                out = "************" + out
+        elif name == 'expiry':
+            month = self._get('expiry_month')
+            year = self._get('expiry_year')
+            if month and year:
+                out = "%d/%d" % (month, year)
+            else:
+                out = ""
+        else:
+            out = self._get(name)
+        return out

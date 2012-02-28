@@ -9,6 +9,7 @@ is in the eating. If the charge fails, the user is considered "lapsed," and we
 will make them re-enter their details.
 
 """
+from aspen import Response
 from ihasamoney import billing
 
 #=========================================================================== ^L

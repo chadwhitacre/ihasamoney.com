@@ -23,9 +23,9 @@ INSERT = """\
          VALUES (%s, %s, %s, %s, %s)
                ;
 
-    UPDATE users 
+    UPDATE customers 
        SET balance = ((
-               SELECT balance FROM users WHERE email = %s
+               SELECT balance FROM customers WHERE email = %s
            ) + %s)
      WHERE email = %s
 
@@ -41,9 +41,9 @@ UPDATE = """\
            AND their_id = %s
               ;
 
-        UPDATE users 
+        UPDATE customers 
            SET balance = ((
-                   SELECT balance FROM users WHERE email = %s
+                   SELECT balance FROM customers WHERE email = %s
                ) - %s + %s)
          WHERE email = %s
 

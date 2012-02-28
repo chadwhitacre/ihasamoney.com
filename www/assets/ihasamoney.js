@@ -121,8 +121,8 @@ IHasAMoney.resize = function()
 };
 
 
-// Categorys
-// ====
+/* Categories */
+/* ========== */
 
 IHasAMoney.createCategory = function(e)
 {
@@ -329,7 +329,7 @@ IHasAMoney.navigate = function(e)
     if (IHasAMoney.disabled) return false;
 
     var nrows = 1, to = 1, hl = {37: -1, 39: 1, 72:-1, 76: 1};
-    console.log(e.which);
+    //console.log(e.which);
     switch (e.which)
     {
         case 38:    // up arrow
@@ -396,8 +396,9 @@ IHasAMoney.showFeedback = function(msg, details)
     
     msg += '<div class="details"></div>';
     $('#feedback').stop(true, true).html(msg).show();
-    for (var i=0; i < details.length; i++)
-        $('#feedback .details').append('<p>' + details[i] + '</p>');
+    if (details !== undefined)
+        for (var i=0; i < details.length; i++)
+            $('#feedback .details').append('<p>' + details[i] + '</p>');
     
     IHasAMoney.feedbackOut = window.setTimeout(function()
     {
@@ -434,6 +435,7 @@ IHasAMoney.submitForm = function(url, data, success, error)
 
     function _error(xhr, foo, bar)
     {
+        IHasAMoney.showFeedback("So sorry!!");
         console.log("failed", xhr, foo, bar);
     }
 
@@ -535,6 +537,11 @@ IHasAMoney.submitPaymentForm = function(e)
     };
 
     var details = {};
+
+    var pmt = val('payment_method_token');
+    if (pmt !== undefined)
+        details.payment_method_token = pmt;
+
     details.first_name = val('first_name');
     details.last_name = val('last_name');
     details.address_1 = val('address_1');
@@ -559,7 +566,7 @@ IHasAMoney.savePaymentMethod = function(data)
 {
     // Afaict this is always present, no matter the garbage we gave to Samurai.
     var pmt = data.payment_method.payment_method_token;
-    var dayOfMonth = $('FORM#payment #dayOfMonth').attr('i');
+    var dayOfMonth = $('#dayOfMonth').attr('dayOfMonth');
 
     function detailedFeedback(data)
     {
@@ -581,7 +588,7 @@ IHasAMoney.savePaymentMethod = function(data)
                           );
 };
 
-IHasAMoney.getDayOfMonth = function()
+IHasAMoney.setDayOfMonth = function(dayOfMonth)
 {
     var blah = [ '' 
                , 'first', 'second', 'third', 'fourth', 'fifth'
@@ -595,23 +602,20 @@ IHasAMoney.getDayOfMonth = function()
                 , 'twenty-ninth', 'thirtieth'
                , 'thirty-first'
                 ];
-    var dayOfMonth = (new Date()).getDate();
-    return [dayOfMonth, blah[dayOfMonth]];
-};
 
-IHasAMoney.setDayOfMonth = function()
-{
-    var dayOfMonth = IHasAMoney.getDayOfMonth();
-    $('FORM#payment #dayOfMonth').attr('i', dayOfMonth[0]).text(dayOfMonth[1]);
-    if (dayOfMonth[0] > 28)
-        $('FORM#payment #orLast').html(" (or last day) ");
+    if (dayOfMonth === null || dayOfMonth === undefined)
+        dayOfMonth = (new Date()).getDate();
+    
+    $('#dayOfMonth').attr('dayOfMonth', dayOfMonth).text(blah[dayOfMonth]);
+    if (dayOfMonth > 28)
+        $('#orLast').html(" (or last day) ");
 };
 
 
 // main 
 // ====
 
-IHasAMoney.init = function()
+IHasAMoney.init = function(session)
 {
     $(window).resize(IHasAMoney.resize);
     IHasAMoney.resize();
@@ -625,6 +629,7 @@ IHasAMoney.init = function()
 
     $('TBODY TR').eq(0).addClass('focus');
     IHasAMoney.highlightRowCol();
+    IHasAMoney.setDayOfMonth(session.day_of_month_to_bill);
 };
 
 IHasAMoney.initPayment = function(merchant_key)
@@ -632,7 +637,6 @@ IHasAMoney.initPayment = function(merchant_key)
     $('#splash INPUT').eq(0).focus();
     Samurai.init({merchant_key: merchant_key});
     $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
-    IHasAMoney.setDayOfMonth();
 };
 
 IHasAMoney.initAccordion = function()

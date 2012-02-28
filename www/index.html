@@ -1,5 +1,8 @@
 import os
-from ihasamoney import data
+from aspen import json
+from ihasamoney import billing, data
+
+WANT = ["day_of_month_to_bill", "email"]
 
 # ========================================================================== ^L
 
@@ -10,7 +13,12 @@ else:
     categories, transactions, summary = data.get(email)
     balance = request.user.session['balance']
 
+pm = billing.PaymentMethod(request.user.session.get('payment_method_token'))
+pmt = pm['payment_method_token']
 merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
+to_client = {}
+for key in WANT:
+    to_client[key] = request.user.session.get(key, '')
 
 # ========================================================================== ^L
 <!DOCTYPE html>
@@ -21,11 +29,16 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
         <script src="/assets/jquery-1.7.1.min.js"></script>
         <script src="/assets/jquery.mousewheel.js"></script>
         <script src="/assets/ihasamoney.js"></script>
+        <script>
+            $(document).ready(function()
+            {
+                IHasAMoney.init({{ json.dumps(to_client) }});
+            });
+        </script>
         {% if request.user.ANON %}
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.init();
                 IHasAMoney.switchToSignIn();
                 IHasAMoney.openSplash();
             });
@@ -35,19 +48,18 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.init();
                 IHasAMoney.initPayment('{{ merchant_key }}');
                 IHasAMoney.openSplash();
             });
         </script>
         {% else %}
+        <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
         <script src="/assets/jquery-accordion/lib/jquery.easing.js"></script>
         <script src="/assets/jquery-accordion/lib/jquery.dimensions.js"></script>
         <script src="/assets/jquery-accordion/jquery.accordion.js"></script>
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.init();
                 IHasAMoney.initPayment('{{ merchant_key }}');
                 IHasAMoney.initAccordion();
                 IHasAMoney.closeSplash();
@@ -216,45 +228,50 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
                         </h2>
                         <form id="payment">
                             
+                            {% if pmt %}
+                            <input name="payment_method_token" type="hidden" 
+                                value="{{ pmt }}" />
+                            {% end %}
+
                             <div class="left half">
                                 <label for="first_name">First Name</label>
                                 <input id="first_name" name="first_name" 
-                                 />
+                                       value="{{ pm['first_name'] }}" />
                             </div>
 
                             <div class="right half">
                                 <label for="last_name">Last Name</label>
                                 <input id="last_name" name="last_name" 
-                                 />
+                                       value="{{ pm['last_name'] }}" />
                             </div>
 
                             <div class="clear"></div>
 
                             <label for="address_1">Address 1</label>
                             <input id="address_1" name="address_1" 
-                                 />
+                                   value="{{ pm['address_1'] }}" />
 
                             <label for="address_2">Address 2</label>
                             <input id="address_2" name="address_2" 
-                                 />
+                                   value="{{ pm['address_2'] }}" />
 
 
                             <div class="float city">
                                 <label for="city">City</label>
                                 <input id="city" name="city" 
-                                     />
+                                       value="{{ pm['city'] }}" />
                             </div>
 
                             <div class="float state not-first">
                                 <label for="state">State</label>
                                 <input id="state" name="state" 
-                                     />
+                                       value="{{ pm['state'] }}" />
                             </div>
 
                             <div class="float zip not-first">
                                 <label for="zip">ZIP</label>
                                 <input id="zip" name="zip" 
-                                     />
+                                       value="{{ pm['zip'] }}" />
                             </div>
 
                             <div class="clear"></div>
@@ -262,19 +279,18 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
                             <div class="float card_number">
                                 <label for="card_number">Credit Card Number</label>
                                 <input id="card_number" name="card_number" 
-                                     />
+                                       value="{{ pm['last_four'] }}" />
                             </div>
 
                             <div class="float expiry not-first">
                                 <label for="expiry">Expiry</label>
                                 <input id="expiry" name="expiry" 
-                                     />
+                                       value="{{ pm['expiry'] }}" />
                             </div>
 
                             <div class="float cvv not-first">
                                 <label for="cvv">CVV</label>
-                                <input id="cvv" name="cvv" 
-                                     />
+                                <input id="cvv" name="cvv" value="" />
                             </div>
 
                             <div class="clear"></div>
@@ -292,6 +308,7 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
 
 
                         {% else %}
+
                         <div id="accordion">
 
                             <h2>
@@ -340,6 +357,26 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
                                
                                 <u>Esc</u> to close/open the cat.
                             
+                            </div>
+
+                            <h2>
+                                <span>Payment Details</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div>
+                                <form action="/pmt/suspend.html" method="POST">
+                                    
+                                    <p>You are charged <b>$2.99</b> on the <b
+                                        id="dayOfMonth"></b><span id="orLast">
+                                    </span>of each month.</p>
+
+                                    <div class="full">
+                                        <button type="submit">Suspend 
+                                                               Account</button>
+                                    </div>
+                                    <div class="clear"></div>
+
+                                </form>
                             </div>
 
                         </div>
