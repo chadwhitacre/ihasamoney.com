@@ -50,5 +50,4 @@ $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION build_from_scratch() RETURNS void AS $$
     SELECT initial_structure();
-    SELECT define_payments();
 $$ LANGUAGE SQL;

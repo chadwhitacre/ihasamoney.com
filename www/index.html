@@ -10,7 +10,6 @@ else:
     categories, transactions, summary = data.get(email)
     balance = request.user.session['balance']
 
-todayth = "first"
 merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
 
 # ========================================================================== ^L
@@ -285,8 +284,9 @@ merchant_key = os.environ['SAMURAI_MERCHANT_KEY']
                                 <button type="submit">Subscribe</button>
                             </div>
 
-                            <p>You&rsquo;ll be charged <b>$2.99</b> on the 
-                            <b>{{ todayth }}</b> of each month.</p>
+                            <p>You&rsquo;ll be charged <b>$2.99</b> on the <b
+                                id="dayOfMonth"></b><span id="orLast">
+                            </span>of each month.</p>
 
                         </form>
 

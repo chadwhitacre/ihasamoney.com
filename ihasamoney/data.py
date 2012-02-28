@@ -81,7 +81,7 @@ def gentxns(txns):
 
 # Real Data
 # =========
-# Actual users get actual data. It's only fair.
+# Actual customers get actual data. It's only fair.
 
 def get_categories(email):
     categories = """\
@@ -158,7 +158,7 @@ def get(email):
 
 # Fake Data
 # =========
-# First-time anonymous users get a bunch of fake data to play with.
+# Anonymous gets a bunch of fake data to play with.
 
 class Transactions(list):
 

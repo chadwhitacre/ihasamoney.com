@@ -20,20 +20,20 @@ def hash(password):
 
 def authentic(email, password):
     from ihasamoney import db
-    SQL = ("SELECT email FROM users WHERE email=%s AND hash=%s")
-    hashed = hash(password)
-    rec = db.fetchone(SQL, (email, hashed))
+    SQL = ("SELECT email FROM customers WHERE email=%s AND password_hash=%s")
+    password_hash = hash(password)
+    rec = db.fetchone(SQL, (email, password_hash))
     return rec is not None
 
 def sign_in(email, password):
     from ihasamoney import db
-    SQL = ("UPDATE users SET session_token=%s "
-           "WHERE email=%s AND hash=%s RETURNING *")
+    SQL = ("UPDATE customers SET session_token=%s "
+           "WHERE email=%s AND password_hash=%s RETURNING *")
     token = str(uuid.uuid4())
-    hashed = hash(password)
-    rec = db.fetchone(SQL, (token, email, hashed))
+    password_hash = hash(password)
+    rec = db.fetchone(SQL, (token, email, password_hash))
     if rec is not None:
-        del rec['hash'] # safety
+        del rec['password_hash'] # safety
         return rec
     return {}
 
@@ -45,16 +45,19 @@ def load_session(token):
              , session_expires
              , created
              , is_admin
-             , paid_through 
+             , payment_method_token
+             , day_of_month_to_bill
+             , next_bill_date
+             , last_bill_result
              , balance 
-          FROM users
+          FROM customers 
          WHERE session_token=%s
     """
     rec = db.fetchone(SQL, (token,))
     out = {}
     if rec is not None:
         assert rec['session_token'] == token # sanity
-        assert 'hash' not in rec # safety
+        assert 'password_hash' not in rec # safety
         out = rec
     return out
 
@@ -78,9 +81,16 @@ class User:
 
     @property
     def PAID(self):
-        if self.session.get('paid_through', None) is None:
+        """A boolean indicating whether the customer is in good standing.
+
+        We base this determination on the last_bill_result field. Billing code
+        should set this to a non-empty string in any case where an attempt to
+        bill the customer failed.
+
+        """
+        if self.session.get('last_bill_result', None) is None:
             return False
-        return self.session['paid_through'] >= datetime.date.today()
+        return self.session['last_bill_result'] == ""
 
 def inbound(request):
     """Authenticate from a cookie.

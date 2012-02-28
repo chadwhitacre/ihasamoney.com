@@ -1,0 +1,42 @@
+"""Save a payment method token (pmt) for a user.
+
+When the user fills out the payment details form in the UI, we POST the new
+info to Samurai (using the Samurai js library, which wraps a cross-site AJAX
+library). Samurai always gives us a payment method token in return, no matter
+how bad the info was that we POSTed. This present script is called next. It
+takes the pmt and tries to bill with it. The proof of the pudding, as they say,
+is in the eating. If the charge fails, the user is considered "lapsed," and we
+will make them re-enter their details.
+
+"""
+from ihasamoney import billing
+
+#=========================================================================== ^L
+
+request.allow('POST')
+
+pmt = request.body.one('pmt')
+if pmt is None:
+    raise Response(400) 
+
+day_of_month = request.body.one('day_of_month')
+if day_of_month is None:
+    raise Response(400) 
+if not day_of_month.isdigit():
+    raise Response(400)
+day_of_month = int(day_of_month)
+if not (1 <= day_of_month <= 31):
+    raise Response(400)
+
+errors = billing.bill( request.user.session
+                     , pmt
+                     , website.subscription_amount
+                     , day_of_month
+                      )
+
+if errors:
+    out = {"problem": "Billing fail!!", "errors": errors}
+else:
+    out = {"problem": ""}
+
+response.body = out

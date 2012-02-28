@@ -386,6 +386,7 @@ FORM INPUT:focus {
     width: 180px;
     text-align: left;
     z-index: 20;
+    overflow: hidden;
 }
 
 #splash #cheat-sheet {

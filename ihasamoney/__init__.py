@@ -1,3 +1,4 @@
+import decimal
 import logging
 import os
 import urlparse
@@ -9,6 +10,10 @@ from psycopg2.pool import ThreadedConnectionPool as ConnectionPool
 
 
 log = logging.getLogger('ihasamoney')
+
+# Teach urlparse about postgres:// URLs.
+if 'postgres' not in urlparse.uses_netloc:
+    urlparse.uses_netloc.append('postgres')
 
 
 # canonizer
@@ -139,12 +144,12 @@ def url_to_dsn(url):
     """
     parsed = urlparse.urlparse(url)
     dbname = parsed.path[1:] # /foobar
-    # Why is the user:pass not parsed!? Is the scheme unrecognized?
-    user_pass, host = parsed.netloc.split('@')
-    user, password = user_pass.split(':')
-    port = '5432' # postgres default port
-    if ':' in host:
-        host, port = host.split(':')
+    user = parsed.username
+    password = parsed.password
+    host = parsed.hostname
+    port = parsed.port
+    if port is None:
+        port = '5432' # postgres default port
     dsn = "dbname=%s user=%s password=%s host=%s port=%s"
     dsn %= (dbname, user, password, host, port)
     return dsn
@@ -166,8 +171,12 @@ def startup(website):
     """
     global db
     db = wire_db()
+
     wire_samurai()
+
     gauges = os.environ['GAUGES'].lower()
     assert gauges in ('true', 'false')
     website.gauges = gauges == 'true'
-    website.subscription_amount = os.environ['SUBSCRIPTION_AMOUNT']
+    
+    amount = os.environ['SUBSCRIPTION_AMOUNT']
+    website.subscription_amount = decimal.Decimal(amount)

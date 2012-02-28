@@ -557,8 +557,9 @@ IHasAMoney.submitPaymentForm = function(e)
 
 IHasAMoney.savePaymentMethod = function(data)
 {
-    // Afaict this is always present, no matter the garbage we gave them.
+    // Afaict this is always present, no matter the garbage we gave to Samurai.
     var pmt = data.payment_method.payment_method_token;
+    var dayOfMonth = $('FORM#payment #dayOfMonth').attr('i');
 
     function detailedFeedback(data)
     {
@@ -573,11 +574,37 @@ IHasAMoney.savePaymentMethod = function(data)
 
         IHasAMoney.showFeedback(data.problem, details);
     }
-    IHasAMoney.submitForm( "/save-pmt.json"
-                         , {pmt: pmt}
+    IHasAMoney.submitForm( "/pmt/save.json"
+                         , {pmt: pmt, day_of_month: dayOfMonth}
                          , undefined
                          , detailedFeedback
                           );
+};
+
+IHasAMoney.getDayOfMonth = function()
+{
+    var blah = [ '' 
+               , 'first', 'second', 'third', 'fourth', 'fifth'
+               , 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'
+               , 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth'
+               , 'sixteenth', 'seventeenth', 'eighteenth', 'ninteenth'
+                , 'twentieth'
+               , 'twenty-first', 'twenty-second', 'twenty-third'
+                , 'twenty-fourth', 'twenty-fifth'
+               , 'twenty-sixth', 'twenty-seventh', 'twenty-eighth'
+                , 'twenty-ninth', 'thirtieth'
+               , 'thirty-first'
+                ];
+    var dayOfMonth = (new Date()).getDate();
+    return [dayOfMonth, blah[dayOfMonth]];
+};
+
+IHasAMoney.setDayOfMonth = function()
+{
+    var dayOfMonth = IHasAMoney.getDayOfMonth();
+    $('FORM#payment #dayOfMonth').attr('i', dayOfMonth[0]).text(dayOfMonth[1]);
+    if (dayOfMonth[0] > 28)
+        $('FORM#payment #orLast').html(" (or last day) ");
 };
 
 
@@ -605,6 +632,7 @@ IHasAMoney.initPayment = function(merchant_key)
     $('#splash INPUT').eq(0).focus();
     Samurai.init({merchant_key: merchant_key});
     $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
+    IHasAMoney.setDayOfMonth();
 };
 
 IHasAMoney.initAccordion = function()

@@ -14,4 +14,4 @@ conninfo %= (url.hostname, url.username, url.password, url.path[1:])
 os.environ['PATH'] += ':/Library/PostgreSQL/9.0/bin' # Ugh. Ack.
 psql = commands.getoutput("which psql")
 print psql, conninfo
-os.execv(psql, [psql, conninfo])
+os.execl(psql, psql, conninfo)
