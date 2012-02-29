@@ -160,8 +160,11 @@ RESUME = """\
 def redact_pmt(session):
     """Given a session dict, redact the current pmt with Samurai.
     """
-    pm = SamuraiPaymentMethod.find(session['payment_method_token'])
-    pm.redact()
+    pmt = session['payment_method_token'] 
+    if pmt is not None:
+        pm = PaymentMethod(pmt)
+        if pm['payment_method_token']:
+            pm.redact()
 
 def get_next_bill_date(session, day_of_month):
     """Given a session dict, return a datetime.date.
