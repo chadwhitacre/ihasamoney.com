@@ -4,6 +4,7 @@ import decimal
 import re
 import sys
 
+from aspen import Response
 from ihasamoney import db
 
 date_re = re.compile(r'\d{8}')
@@ -57,6 +58,7 @@ def upsert_transaction(email, tid, date, amount, description):
         args = (tid, email, date, amount, description, email, amount, email)
         db.execute(INSERT, args)
     else:
+        old_amount = old_amount['amount']
         args = (date, amount, description, email, tid, email, old_amount, 
                 amount, email)
         db.execute(UPDATE, args)
@@ -116,7 +118,8 @@ for row in csv.reader(content):
     try:
         upsert_transaction(email, tid, date, amount, description)
     except:
-        bad(str(sys.exc_info()[1]))
+        exc, msg, foo = sys.exc_info()
+        bad("%s: %s" % (exc.__name__, msg))
         continue
 
     ngood += 1
