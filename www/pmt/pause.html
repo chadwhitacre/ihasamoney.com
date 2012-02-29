@@ -1,4 +1,4 @@
-from ihasamoney import db
+from ihasamoney import billing
 
 #=========================================================================== ^L
 
@@ -6,10 +6,7 @@ request.allow("POST")
 if request.user.ANON:
     raise Response(404)
 
-email = request.user.session['email']
-db.execute( "UPDATE customers SET last_bill_result=NULL WHERE email=%s"
-          , (email,)
-           )
+billing.pause(request.user.session)
 request.redirect('/')
 
 #=========================================================================== ^L

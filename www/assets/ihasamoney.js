@@ -558,7 +558,6 @@ IHasAMoney.submitPaymentForm = function(e)
     credit_card.expiry_year = expiry[1];
     
     data.credit_card = credit_card; 
-
     Samurai.payment(data, IHasAMoney.savePaymentMethod);
 
     return false;
@@ -569,6 +568,7 @@ IHasAMoney.savePaymentMethod = function(data)
     // Afaict this is always present, no matter the garbage we gave to Samurai.
     var pmt = data.payment_method.payment_method_token;
     var dayOfMonth = $('#dayOfMonth').attr('dayOfMonth');
+    var action = $('FORM#payment BUTTON').text();
 
     function detailedFeedback(data)
     {
@@ -583,8 +583,9 @@ IHasAMoney.savePaymentMethod = function(data)
 
         IHasAMoney.showFeedback(data.problem, details);
     }
+
     IHasAMoney.submitForm( "/pmt/save.json"
-                         , {pmt: pmt, day_of_month: dayOfMonth}
+                         , {pmt: pmt, day_of_month: dayOfMonth, action: action}
                          , undefined
                          , detailedFeedback
                           );
@@ -639,6 +640,7 @@ IHasAMoney.initPayment = function(merchant_key)
     $('#splash INPUT').eq(0).focus();
     Samurai.init({merchant_key: merchant_key});
     $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
+    $('INPUT[name=expiry]').mask('99/9999');
 };
 
 IHasAMoney.initSplashNav = function()

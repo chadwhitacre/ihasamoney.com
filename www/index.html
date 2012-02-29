@@ -20,6 +20,12 @@ to_client = {}
 for key in WANT:
     to_client[key] = request.user.session.get(key, '')
 
+subscribe_text = "Subscribe"
+if pmt:
+    last_bill_result = request.user.session['last_bill_result'] 
+    if (last_bill_result is None) or (last_bill_result != ''):
+        subscribe_text = "Resume Billing"
+
 # ========================================================================== ^L
 <!DOCTYPE html>
 <html>
@@ -45,6 +51,7 @@ for key in WANT:
         </script>
         {% elif not request.user.PAID %}
         <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
+        <script src="/assets/jquery.maskedinput-1.3.min.js"></script>
         <script>
             $(document).ready(function()
             {
@@ -54,6 +61,7 @@ for key in WANT:
         </script>
         {% else %}
         <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
+        <script src="/assets/jquery.maskedinput-1.3.min.js"></script>
         <script>
             $(document).ready(function()
             {
@@ -208,7 +216,7 @@ for key in WANT:
                             <b>{{ request.user.session['email'] }}</b>.</p>
 
                             <form action="/sign-out.html" method="GET">
-                                <button type="submit">Sign&nbsp;out</button>
+                                <button type="submit">Sign Out</button>
                             </form>
                             <div class="clear"></div>
 
@@ -288,18 +296,19 @@ for key in WANT:
 
                                 <div class="float cvv not-first">
                                     <label for="cvv">CVV</label>
-                                    <input id="cvv" name="cvv" value="" />
+                                    <input id="cvv" name="cvv" />
                                 </div>
 
                                 <div class="clear"></div>
 
                                 <div class="full">
                                     <img src="/assets/cards.png" />
-                                    <button type="submit">Subscribe</button>
+                                    <button 
+                                    type="submit">{{ subscribe_text }}</button>
                                 </div>
 
-                                <p>You&rsquo;ll be charged <b>$2.99</b> on the <b
-                                    id="dayOfMonth"></b><span id="orLast">
+                                <p>You&rsquo;ll be charged <b>$2.99</b> on the
+                                <b id="dayOfMonth"></b><span id="orLast">
                                 </span>day of each month.</p>
 
                             </form>
@@ -362,15 +371,17 @@ for key in WANT:
                                     <div class="line"></div>
                                 </h2>
                                 <div>
-                                    <form action="/pmt/suspend.html" method="POST">
+                                    <form action="/pmt/pause.html" 
+                                        method="POST">
                                         
-                                        <p>You are charged <b>$2.99</b> on the <b
-                                            id="dayOfMonth"></b><span id="orLast">
-                                        </span>day of each month.</p>
+                                        <p>You are charged <b>$2.99</b> on the
+                                        <b id="dayOfMonth"></b><span
+                                            id="orLast"> </span>day of each
+                                        month.</p>
 
                                         <div class="full">
                                             <button type="submit">Pause
-                                                                   Billing</button>
+                                                Billing</button>
                                         </div>
                                         <div class="clear"></div>
 

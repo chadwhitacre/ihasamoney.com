@@ -4,22 +4,24 @@ When the user fills out the payment details form in the UI, we POST the new
 info to Samurai (using the Samurai js library, which wraps a cross-site AJAX
 library). Samurai always gives us a payment method token in return, no matter
 how bad the info was that we POSTed. This present script is called next. It
-takes the pmt and tries to bill with it. The proof of the pudding, as they say,
-is in the eating. If the charge fails, the user is considered "lapsed," and we
-will make them re-enter their details.
+takes the pmt and tries to bill or resume billing with it. The proof of the
+pudding, as they say, is in the eating. If the attempt fails, we will ask the
+customer to re-enter their details.
 
 """
 from aspen import Response
-from ihasamoney import billing
+from ihasamoney import billing, log
 
 #=========================================================================== ^L
 
 request.allow('POST')
 
+# validate pmt
 pmt = request.body.one('pmt')
 if pmt is None:
     raise Response(400) 
 
+# validate day_of_month
 day_of_month = request.body.one('day_of_month')
 if day_of_month is None:
     raise Response(400) 
@@ -29,11 +31,29 @@ day_of_month = int(day_of_month)
 if not (1 <= day_of_month <= 31):
     raise Response(400)
 
-errors = billing.bill( request.user.session
-                     , pmt
-                     , website.subscription_amount
-                     , day_of_month
-                      )
+# validate action
+action = request.body.one('action')
+if action not in ("Resume Billing", "Subscribe"):
+    raise Response(400)
+
+
+if action == "Resume Billing":
+    errors = billing.resume( request.user.session
+                           , pmt
+                           , website.subscription_amount
+                            )
+else:
+    errors = billing.bill( request.user.session
+                         , pmt
+                         , website.subscription_amount
+                         , day_of_month
+                          )
+
+email = request.user.session['email']
+worked = "No" if errors else "Yes"
+log.debug( "%s for %s with pmt %s. Did it work? %s." 
+         % (action, email, pmt, worked)
+          )
 
 if errors:
     out = {"problem": "Billing fail!!", "errors": errors}
