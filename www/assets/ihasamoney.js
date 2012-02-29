@@ -536,28 +536,30 @@ IHasAMoney.submitPaymentForm = function(e)
         return $('FORM#payment INPUT[name="' + field + '"]').val();
     };
 
-    var details = {};
+    var data = {};          // top-level POST body
 
     var pmt = val('payment_method_token');
     if (pmt !== undefined)
-        details.payment_method_token = pmt;
+        data.payment_method_token = pmt;
 
-    details.first_name = val('first_name');
-    details.last_name = val('last_name');
-    details.address_1 = val('address_1');
-    details.address_2 = val('address_2');
-    details.city = val('city');
-    details.state = val('state');
-    details.zip = val('zip');
-    details.card_number = val('card_number');
-    details.cvv = val('cvv');
+    var credit_card = {};   // holds CC info
+    credit_card.first_name = val('first_name');
+    credit_card.last_name = val('last_name');
+    credit_card.address_1 = val('address_1');
+    credit_card.address_2 = val('address_2');
+    credit_card.city = val('city');
+    credit_card.state = val('state');
+    credit_card.zip = val('zip');
+    credit_card.card_number = val('card_number');
+    credit_card.cvv = val('cvv');
     
     var expiry = val('expiry').split('/');
-    details.expiry_month = expiry[0];
-    details.expiry_year = expiry[1];
+    credit_card.expiry_month = expiry[0];
+    credit_card.expiry_year = expiry[1];
+    
+    data.credit_card = credit_card; 
 
-    console.log(details);
-    Samurai.payment({credit_card: details}, IHasAMoney.savePaymentMethod);
+    Samurai.payment(data, IHasAMoney.savePaymentMethod);
 
     return false;
 };
@@ -608,7 +610,7 @@ IHasAMoney.setDayOfMonth = function(dayOfMonth)
     
     $('#dayOfMonth').attr('dayOfMonth', dayOfMonth).text(blah[dayOfMonth]);
     if (dayOfMonth > 28)
-        $('#orLast').html(" (or last day) ");
+        $('#orLast').html(" (or last) ");
 };
 
 
@@ -639,7 +641,27 @@ IHasAMoney.initPayment = function(merchant_key)
     $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
 };
 
-IHasAMoney.initAccordion = function()
+IHasAMoney.initSplashNav = function()
 {
-    $('#accordion').accordion({header: 'h2', fillSpace: true});
+    function toggler(paneName)
+    {
+        return function() 
+        {
+            $('#pane-nav .selected').removeClass('selected');
+            $('#pane-nav LI[pane=' + paneName + ']').addClass('selected');
+            $('.pane').hide();
+            $('.pane[pane=' + paneName + ']').show();
+        };
+    }
+
+    var paneNav = $('#pane-nav');
+    $('.pane').each(function(i)
+    {
+        var title = $('H2 SPAN', this).text();
+        var paneName = $(this).attr('pane');
+        paneNav.append('<li pane="' + paneName + '"><span>' + title + '</span></li>');
+        $('li', paneNav).eq(i).click(toggler(paneName));
+    });
+
+    $('LI[pane]').eq(0).click();
 };

@@ -165,12 +165,8 @@ TR.heads TH.corner {
 } 
 #splash H2 {
     font: bold 12pt/16pt Georgia, serif;
-    margin: 0.5em 0;
+    margin: 1em 0 0.5em;
     text-align: center;
-    cursor: pointer;
-}
-#splash H2:first-child {
-    margin-top: 1em;
 }
 #splash H2 I {
     font-weight: normal;
@@ -213,6 +209,8 @@ TR.heads TH.corner {
     display: block;
     float: left;
     width: 393px;
+    border-right: 1px solid #614C3E;
+    z-index: 0;
 }
 #splash DIV.text {
     width: 393px;
@@ -322,7 +320,7 @@ BUTTON:active {
     color: #2A8F79;
 }
 FORM {
-    margin: 0.5em auto;
+    margin: 0 auto;
     width: 300px;
 }
 FORM .half {
@@ -337,6 +335,7 @@ FORM #other {
     font: normal 9pt/14pt Arial, sans-serif;
     color: #00E;
     cursor: pointer;
+    margin-right: 1em;
 }
 FORM #other:hover {
     text-decoration: underline;
@@ -445,11 +444,10 @@ FORM INPUT:focus {
 }
 #acct P {
     float: left;
-    margin: 0 0 0.5em;
+    margin: 0;
 }
 #acct BUTTON {
     float: right;
-    margin: 0 0 2em;
 }
 .clear {
     clear: both;
@@ -488,4 +486,40 @@ FORM#payment .full {
 .details P {
     text-indent: -1em;
     padding-left: 1em;
+}
+
+#splash #pane-nav {
+    margin: 0;
+    position: absolute;
+    top: 120px;
+    left: 193px;
+    width: 200px;
+
+}
+#pane-nav LI {
+    list-style: none;
+    text-align: right;
+    margin: 15px 0 0 0;
+}
+#pane-nav LI SPAN {
+    padding: 2pt 4pt 2pt 10pt;
+    border-radius: 10pt 0 0 10pt;
+    font: normal 12pt/12pt Georgia, serif;
+    cursor: pointer;
+    background: #CCBAAD;
+}
+#pane-nav LI SPAN:hover {
+    background: white;
+}
+#pane-nav LI.selected SPAN {
+    background: white;
+    font-style: italic;
+    position: relative;
+    left: 1px;
+}
+#pane-nav LI.selected SPAN:hover {
+    background: white;
+}
+.pane {
+    padding-top: 1em;
 }

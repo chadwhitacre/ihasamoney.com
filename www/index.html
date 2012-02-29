@@ -54,14 +54,11 @@ for key in WANT:
         </script>
         {% else %}
         <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
-        <script src="/assets/jquery-accordion/lib/jquery.easing.js"></script>
-        <script src="/assets/jquery-accordion/lib/jquery.dimensions.js"></script>
-        <script src="/assets/jquery-accordion/jquery.accordion.js"></script>
         <script>
             $(document).ready(function()
             {
                 IHasAMoney.initPayment('{{ merchant_key }}');
-                IHasAMoney.initAccordion();
+                IHasAMoney.initSplashNav();
                 IHasAMoney.closeSplash();
             });
         </script>
@@ -220,163 +217,176 @@ for key in WANT:
 
                         {% if not request.user.PAID %}
 
-                        <h2>
-                            <span>Payment Details</span>
-                            <div class="line"></div>
-                            <p>or play with <a href="" id="fake">fake
-                                data</a></p>
-                        </h2>
-                        <form id="payment">
-                            
-                            {% if pmt %}
-                            <input name="payment_method_token" type="hidden" 
-                                value="{{ pmt }}" />
-                            {% end %}
+                        <div class="pane">
+                            <h2>
+                                <span>Payment Details</span>
+                                <div class="line"></div>
+                                <p>or play with <a href="" id="fake">fake
+                                    data</a></p>
+                            </h2>
+                            <form id="payment">
+                                
+                                {% if pmt %}
+                                <input name="payment_method_token" type="hidden" 
+                                    value="{{ pmt }}" />
+                                {% end %}
 
-                            <div class="left half">
-                                <label for="first_name">First Name</label>
-                                <input id="first_name" name="first_name" 
-                                       value="{{ pm['first_name'] }}" />
-                            </div>
+                                <div class="left half">
+                                    <label for="first_name">First Name</label>
+                                    <input id="first_name" name="first_name" 
+                                           value="{{ pm['first_name'] }}" />
+                                </div>
 
-                            <div class="right half">
-                                <label for="last_name">Last Name</label>
-                                <input id="last_name" name="last_name" 
-                                       value="{{ pm['last_name'] }}" />
-                            </div>
+                                <div class="right half">
+                                    <label for="last_name">Last Name</label>
+                                    <input id="last_name" name="last_name" 
+                                           value="{{ pm['last_name'] }}" />
+                                </div>
 
-                            <div class="clear"></div>
+                                <div class="clear"></div>
 
-                            <label for="address_1">Address 1</label>
-                            <input id="address_1" name="address_1" 
-                                   value="{{ pm['address_1'] }}" />
+                                <label for="address_1">Address 1</label>
+                                <input id="address_1" name="address_1" 
+                                       value="{{ pm['address_1'] }}" />
 
-                            <label for="address_2">Address 2</label>
-                            <input id="address_2" name="address_2" 
-                                   value="{{ pm['address_2'] }}" />
+                                <label for="address_2">Address 2</label>
+                                <input id="address_2" name="address_2" 
+                                       value="{{ pm['address_2'] }}" />
 
 
-                            <div class="float city">
-                                <label for="city">City</label>
-                                <input id="city" name="city" 
-                                       value="{{ pm['city'] }}" />
-                            </div>
+                                <div class="float city">
+                                    <label for="city">City</label>
+                                    <input id="city" name="city" 
+                                           value="{{ pm['city'] }}" />
+                                </div>
 
-                            <div class="float state not-first">
-                                <label for="state">State</label>
-                                <input id="state" name="state" 
-                                       value="{{ pm['state'] }}" />
-                            </div>
+                                <div class="float state not-first">
+                                    <label for="state">State</label>
+                                    <input id="state" name="state" 
+                                           value="{{ pm['state'] }}" />
+                                </div>
 
-                            <div class="float zip not-first">
-                                <label for="zip">ZIP</label>
-                                <input id="zip" name="zip" 
-                                       value="{{ pm['zip'] }}" />
-                            </div>
+                                <div class="float zip not-first">
+                                    <label for="zip">ZIP</label>
+                                    <input id="zip" name="zip" 
+                                           value="{{ pm['zip'] }}" />
+                                </div>
 
-                            <div class="clear"></div>
+                                <div class="clear"></div>
 
-                            <div class="float card_number">
-                                <label for="card_number">Credit Card Number</label>
-                                <input id="card_number" name="card_number" 
-                                       value="{{ pm['last_four'] }}" />
-                            </div>
+                                <div class="float card_number">
+                                    <label for="card_number">Credit Card Number</label>
+                                    <input id="card_number" name="card_number" 
+                                           value="{{ pm['last_four'] }}" />
+                                </div>
 
-                            <div class="float expiry not-first">
-                                <label for="expiry">Expiry</label>
-                                <input id="expiry" name="expiry" 
-                                       value="{{ pm['expiry'] }}" />
-                            </div>
+                                <div class="float expiry not-first">
+                                    <label for="expiry">Expiry</label>
+                                    <input id="expiry" name="expiry" 
+                                           value="{{ pm['expiry'] }}" />
+                                </div>
 
-                            <div class="float cvv not-first">
-                                <label for="cvv">CVV</label>
-                                <input id="cvv" name="cvv" value="" />
-                            </div>
+                                <div class="float cvv not-first">
+                                    <label for="cvv">CVV</label>
+                                    <input id="cvv" name="cvv" value="" />
+                                </div>
 
-                            <div class="clear"></div>
+                                <div class="clear"></div>
 
-                            <div class="full">
-                                <img src="/assets/cards.png" />
-                                <button type="submit">Subscribe</button>
-                            </div>
+                                <div class="full">
+                                    <img src="/assets/cards.png" />
+                                    <button type="submit">Subscribe</button>
+                                </div>
 
-                            <p>You&rsquo;ll be charged <b>$2.99</b> on the <b
-                                id="dayOfMonth"></b><span id="orLast">
-                            </span>of each month.</p>
+                                <p>You&rsquo;ll be charged <b>$2.99</b> on the <b
+                                    id="dayOfMonth"></b><span id="orLast">
+                                </span>day of each month.</p>
 
-                        </form>
+                            </form>
+                        </div>
 
 
                         {% else %}
 
-                        <div id="accordion">
+                        <div id="panes">
 
-                            <h2>
-                                <span>Upload Data</span>
-                                <div class="line"></div>
-                            </h2>
-                            <div>
-                                <form action="/transactions/" id="upload" 
-                                    method="POST"
-                                    enctype="multipart/form-data">
+                            <ul id="pane-nav"></ul>
+                            <div class="clear"></div>
 
-                                    <label for="csv">
-                                    format:&nbsp; CSV<br />
-                                    columns: id,YYYYMMDD,0.00,description<br />
-                                    headers: no 
-                                    </label>
-                                    <input type="file" id="csv" name="csv" />
+                            <div class="pane" pane="cheat-sheet">
+                                <h2>
+                                    <span>Cheat Sheet</span>
+                                    <div class="line"></div>
+                                </h2>
+                                <div id="cheat-sheet">
 
-                                    <div class="full">
-                                        <button type="submit">Upload</button>
-                                    </div>
-                                    <div class="clear"></div>
-                                </form>
+                                    <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
+                                    <u>k</u> to select a transaction.<br />
+
+                                    <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
+                                    <u>l</u> to recategorize.<br />
+                                   
+                                    <u>Esc</u> to close/open the cat.
+                                
+                                </div>
                             </div>
 
-                            <h2>
-                                <span>API</span>
-                                <div class="line"></div>
-                            </h2>
-                            <div>
-                                <p>POST CSV to <a
-                                    href="/transactions/">/transactions/</a>.</p>
+                            <div class="pane" pane="upload-data">
+                                <h2>
+                                    <span>Upload Data</span>
+                                    <div class="line"></div>
+                                </h2>
+                                <div>
+                                    <form action="/transactions/" id="upload" 
+                                        method="POST"
+                                        enctype="multipart/form-data">
+
+                                        <label for="csv">
+                                        format:&nbsp; CSV<br />
+                                        columns: id,YYYYMMDD,0.00,description<br />
+                                        headers: no 
+                                        </label>
+                                        <input type="file" id="csv" name="csv" />
+
+                                        <div class="full">
+                                            <button type="submit">Upload</button>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </form>
+                                </div>
                             </div>
 
-                            <h2>
-                                <span>Cheat Sheet</span>
-                                <div class="line"></div>
-                            </h2>
-                            <div id="cheat-sheet">
+                            <div class="pane" pane="payment-details">
+                                <h2>
+                                    <span>Payment Details</span>
+                                    <div class="line"></div>
+                                </h2>
+                                <div>
+                                    <form action="/pmt/suspend.html" method="POST">
+                                        
+                                        <p>You are charged <b>$2.99</b> on the <b
+                                            id="dayOfMonth"></b><span id="orLast">
+                                        </span>day of each month.</p>
 
-                                <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                                <u>k</u> to select a transaction.<br />
+                                        <div class="full">
+                                            <button type="submit">Pause
+                                                                   Billing</button>
+                                        </div>
+                                        <div class="clear"></div>
 
-                                <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                                <u>l</u> to recategorize.<br />
-                               
-                                <u>Esc</u> to close/open the cat.
-                            
+                                    </form>
+                                </div>
                             </div>
 
-                            <h2>
-                                <span>Payment Details</span>
-                                <div class="line"></div>
-                            </h2>
-                            <div>
-                                <form action="/pmt/suspend.html" method="POST">
-                                    
-                                    <p>You are charged <b>$2.99</b> on the <b
-                                        id="dayOfMonth"></b><span id="orLast">
-                                    </span>of each month.</p>
-
-                                    <div class="full">
-                                        <button type="submit">Suspend 
-                                                               Account</button>
-                                    </div>
-                                    <div class="clear"></div>
-
-                                </form>
+                            <div class="pane" pane="api">
+                                <h2>
+                                    <span>API</span>
+                                    <div class="line"></div>
+                                </h2>
+                                <div>
+                                    <p>POST CSV (per <i>Upload Data</i>) to <a
+                                        href="/transactions/">/transactions/</a>.</p>
+                                </div>
                             </div>
 
                         </div>
