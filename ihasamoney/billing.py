@@ -105,7 +105,7 @@ Here are events affecting the system:
 import datetime
 
 from aspen import json
-from ihasamoney import db, get_next_bill_date, log
+from ihasamoney import db, log
 from samurai.payment_method import PaymentMethod as SamuraiPaymentMethod
 from samurai.processor import Processor
 
@@ -164,7 +164,7 @@ def redact_pmt(session):
     if pmt is not None:
         pm = PaymentMethod(pmt)
         if pm['payment_method_token']:
-            pm.redact()
+            pm._payment_method.redact()
 
 def get_next_bill_date(session, day_of_month):
     """Given a session dict, return a datetime.date.
@@ -306,20 +306,20 @@ class PaymentMethod(object):
     """This is a dict-like wrapper around a Samurai PaymentMethod.
     """
 
-    payment_method = None # underlying payment method
+    _payment_method = None # underlying payment method
 
     def __init__(self, pmt):
         """Given a payment method token, loads data from Samurai.
         """
         if pmt is not None:
-           self.payment_method = SamuraiPaymentMethod.find(pmt)
+           self._payment_method = SamuraiPaymentMethod.find(pmt)
 
     def _get(self, name):
         """Given a name, return a string.
         """
         out = ""
-        if self.payment_method is not None:
-            out = getattr(self.payment_method, name, "")
+        if self._payment_method is not None:
+            out = getattr(self._payment_method, name, "")
             if out is None:
                 out = ""
         return out

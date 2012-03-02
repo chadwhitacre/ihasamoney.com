@@ -640,7 +640,7 @@ IHasAMoney.initPayment = function(merchant_key)
     $('#splash INPUT').eq(0).focus();
     Samurai.init({merchant_key: merchant_key});
     $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
-    $('INPUT[name=expiry]').mask('99/9999');
+    $('INPUT[name=expiry]').mask('99/2099');
 };
 
 IHasAMoney.initSplashNav = function()

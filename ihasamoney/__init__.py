@@ -9,6 +9,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool as ConnectionPool
 
 
+__version__ = "0.0.6"
 log = logging.getLogger('ihasamoney')
 
 # Teach urlparse about postgres:// URLs.
@@ -40,18 +41,6 @@ def canonize(request):
     request.x.base = scheme + "://" + host
     if request.path.raw.count('/') >= 2:
         request.x.id = request.path.raw.split('/')[2]
-
-
-# utils
-# =====
-
-def parse_rows(rows):
-    return [row.strip().split(';') for row in rows.splitlines()]
-
-def get_next_bill_date():
-    """
-    """
-
 
 
 # db
@@ -174,9 +163,12 @@ def startup(website):
 
     wire_samurai()
 
+    # Should we include the js for http://gaug.es/?
     gauges = os.environ['GAUGES'].lower()
     assert gauges in ('true', 'false')
     website.gauges = gauges == 'true'
-    
+   
+    # Samurai uses the penny code to trigger certain responses, so we want
+    # some control over it in development.
     amount = os.environ['SUBSCRIPTION_AMOUNT']
     website.subscription_amount = decimal.Decimal(amount)

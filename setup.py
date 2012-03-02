@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
+from ihasamoney import __version__
 
 setup( name='IHasAMoney'
      , packages=find_packages()
-     , version="0.0.5"
+     , version=__version__
       )

@@ -1,6 +1,6 @@
 import os
 from aspen import json
-from ihasamoney import billing, data
+from ihasamoney import billing, data, __version__
 
 WANT = ["day_of_month_to_bill", "email"]
 
@@ -31,10 +31,10 @@ if pmt:
 <html>
     <head>
         <title>I has a money.</title>
-        <style>@import url("/assets/ihasamoney.css");</style>
+        <style>@import url("/assets/{{ __version__ }}/ihasamoney.css");</style>
         <script src="/assets/jquery-1.7.1.min.js"></script>
         <script src="/assets/jquery.mousewheel.js"></script>
-        <script src="/assets/ihasamoney.js"></script>
+        <script src="/assets/{{ __version__ }}/ihasamoney.js"></script>
         <script>
             $(document).ready(function()
             {
@@ -51,7 +51,7 @@ if pmt:
         </script>
         {% elif not request.user.PAID %}
         <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
-        <script src="/assets/jquery.maskedinput-1.3.min.js"></script>
+        <script src="/assets/.maskedinput-1.3.min.js"></script>
         <script>
             $(document).ready(function()
             {
@@ -121,7 +121,7 @@ if pmt:
         </div>
         <div id="splash-wrap">
             <div id="splash">
-                <img src="/assets/ihasamoney.jpg" class="cat" />
+                <img src="/assets/{{ __version__ }}/ihasamoney.jpg" class="cat" />
                 <div id="feedback"></div>
                 <div id="eyes">
                     <div class="eye left"></div>
@@ -304,7 +304,7 @@ if pmt:
                                 <div class="clear"></div>
 
                                 <div class="full">
-                                    <img src="/assets/cards.png" />
+                                    <img src="/assets/{{ __version__ }}/cards.png" />
                                     <button 
                                     type="submit">{{ subscribe_text }}</button>
                                 </div>
