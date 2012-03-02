@@ -21,8 +21,8 @@ if 'postgres' not in urlparse.uses_netloc:
 # =========
 
 class X: pass
-canonical_scheme = os.environ['CANONICAL_SCHEME']
-canonical_host = os.environ['CANONICAL_HOST']
+canonical_scheme = None
+canonical_host = None
 
 def canonize(request):
     """Enforce a certain scheme and hostname. Store these on request as well.
@@ -158,8 +158,10 @@ db = None
 def startup(website):
     """Set up db and gauges.
     """
-    global db
+    global db, canonical_scheme, canonical_host
     db = wire_db()
+    canonical_scheme = os.environ['CANONICAL_SCHEME']
+    canonical_host = os.environ['CANONICAL_HOST']
 
     wire_samurai()
 
