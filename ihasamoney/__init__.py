@@ -9,7 +9,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool as ConnectionPool
 
 
-__version__ = "0.0.6"
+__version__ = "~~VERSION~~"
 log = logging.getLogger('ihasamoney')
 
 # Teach urlparse about postgres:// URLs.
