@@ -487,7 +487,7 @@ IHasAMoney.submitAuthForm = function(e)
     }
     else
     {
-        url = "/sign-in.json";
+        url = "/sign/in.json";
     }
 
     IHasAMoney.submitForm(url, data);
