@@ -20,7 +20,7 @@ if [ $# = 0 ]; then
     echo "Usage: $0 <version>"
     echo
     echo "  This is a release script for IHasAMoney. We bump the version number in "
-    echo "  ihasamoney/__init__.py and then do a git dance, pushing to Heroku."
+    echo "  ihasamoney/version.py and then do a git dance, pushing to Heroku."
     echo
     exit
 fi
@@ -69,9 +69,9 @@ if [ $1 ]; then
             # Fix the version.
             # ================
 
-            sed -e "s/~~VERSION~~/$1/" -i '' ihasamoney/__init__.py
-            git ci ihasamoney/__init__.py \
-                -m"Setting version to $1 in ihasamoney/__init__.py."
+            sed -e "s/~~VERSION~~/$1/" -i '' ihasamoney/version.py
+            git ci ihasamoney/version.py \
+                -m"Setting version to $1 in ihasamoney/version.py."
             git tag $1
 
 
@@ -88,9 +88,9 @@ if [ $1 ]; then
             # Change the version back.
             # ========================
 
-            sed -e "s/$1/~~VERSION~~/" -i '' ihasamoney/__init__.py
-            git ci ihasamoney/__init__.py \
-                -m"Resetting version in ihasamoney/__init__.py."
+            sed -e "s/$1/~~VERSION~~/" -i '' ihasamoney/version.py
+            git ci ihasamoney/version.py \
+                -m"Resetting version in ihasamoney/version.py."
 
         fi
     fi
