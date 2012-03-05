@@ -38,15 +38,16 @@ if pmt:
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.init({{ json.dumps(to_client) }});
+                IHAM.init({{ json.dumps(to_client) }});
             });
         </script>
         {% if request.user.ANON %}
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.switchToSignIn();
-                IHasAMoney.openSplash();
+                IHAM.switchToSignIn();
+                IHAM.openModal();
+                IHAM.closeModal();
             });
         </script>
         {% elif not request.user.PAID %}
@@ -55,8 +56,8 @@ if pmt:
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.initPayment('{{ merchant_key }}');
-                IHasAMoney.openSplash();
+                IHAM.initPayment('{{ merchant_key }}');
+                IHAM.openModal();
             });
         </script>
         {% else %}
@@ -65,353 +66,346 @@ if pmt:
         <script>
             $(document).ready(function()
             {
-                IHasAMoney.initPayment('{{ merchant_key }}');
-                IHasAMoney.initSplashNav();
-                IHasAMoney.closeSplash();
+                IHAM.initPayment('{{ merchant_key }}');
+                IHAM.initModalNav();
+                IHAM.closeModal();
             });
         </script>
         {% end %}
     </head>
-    <body>
-        <div id="body">
+    <body><div id="body">
+        <div id="corner">
+            <button>Help Cat</button>
+        </div>
 
-            <div id="top">
-                <div id="balance">${{ balance }}</div>
-            </div>
-
+        <div id="heads">
             <table>
-                <thead class="pegged">
-                    <tr class="heads">
-                        <th colspan="4" class="corner"></th>
-                        {% for category in categories %}<th 
-                            category="{{ category }}">{{ category }}</th>{% end %}
-                    </tr>
-                    <tr class="summary">
-                        <th colspan="4" class="corner"></th>
-                        {% for category in categories %}<th category="{{ category }}"
-                            class="amount"><b>{{ summary[category] }}</b></th>{% end %}
-                    </tr>
-                </thead>
-                <thead class="unpegged">
-                    <tr class="heads">
-                        <th colspan="4" class="corner"></th>
-                        {% for category in categories %}<th 
-                            category="{{ category }}">{{ category }}</th>{% end %}
-                    </tr>
-                    <tr class="summary">
-                        <th colspan="4" class="corner"></th>
-                        {% for category in categories %}<th category="{{ category }}"
-                            class="amount"><b>{{ summary[category] }}</b></th>{% end %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
-                    <tr tid="{{ tid }}" category="{{ category }}">
-                        {{ date }}
-                        <td class="description">{{ desc }}</td>
-                        {% for _category in categories %}<td 
-                            class="amount{% if _category == category %} categorized{% end %}"
-                            category="{{ _category }}">
-                            <b>{% if _category == category %}{{ amount }}{% end %}</b></td>
-                        {% end %}
-                    </tr>
-                    {% end %}
-                </tbody>
+                <tr>
+                    {% for category in categories %}<th class="head"
+                        category="{{ category }}">{{ category }}</th>{% end %}
+                </tr>
+                <tr>
+                    {% for category in categories %}<td category="{{ category }}"
+                        class="amount summary"><b>{{ summary[category] }}</b></td>{% end %}
+                </tr>
             </table>
         </div>
-        <div id="splash-wrap">
-            <div id="splash">
-                <img src="/assets/{{ __version__ }}/ihasamoney.jpg" class="cat" />
-                <div id="feedback"></div>
-                <div id="eyes">
-                    <div class="eye left"></div>
-                    <div class="eye right"></div>
-                    <div class="pupil left"></div>
-                    <div class="pupil right"></div>
-                </div>
-                <div class="text"><div class="pad">
+        <div id="stubs">
+            <table>
+                {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
+                <tr tid="{{ tid }}" category="{{ category }}">
+                    {{ date }}
+                    <td class="description">{{ desc }}</td>
+                </tr>
+                {% end %}
+            </table>
+        </div>
+        <div id="data">
+            <table>
+                {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
+                <tr tid="{{ tid }}" category="{{ category }}">
+                    {% for _category in categories %}<td 
+                        class="amount{% if _category == category %} categorized{% end %}"
+                        category="{{ _category }}">
+                        <b>{% if _category == category %}{{ amount }}{% end %}</b></td>
+                    {% end %}
+                </tr>
+                {% end %}
+            </table>
+        </div>
+    </div>
+    <div id="modal-wrap">
+        <div id="modal">
+            <img src="/assets/{{ __version__ }}/ihasamoney.jpg" class="cat" />
+            <div id="feedback"></div>
+            <div id="eyes">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="pupil left"></div>
+                <div class="pupil right"></div>
+            </div>
+            <div class="text"><div class="pad">
 
-                        {% if request.user.ANON %}
-                        <h2>
-                            <span>IHasAMoney.com</span>
-                            <div class="line"></div>
-                        </h2>
-                        
-                        <div class="omgworstclassnameever">
-                            <p>This is a personal finance application with the
-                            following invariants:</p>
+                    {% if request.user.ANON %}
+                    <h2>
+                        <span>IHasAMoney.com</span>
+                        <div class="line"></div>
+                    </h2>
+                    
+                    <div class="omgworstclassnameever">
+                        <p>This is a personal finance application with the
+                        following invariants:</p>
 
-                            <ul>
-                                <li>You aren&rsquo;t the product.</li>
-                                <li>Never takes your bank creds.</li>
-                                <li>Shows data and comparisons.</li>
-                                <li>No pie charts.</li>
-                                <li>Nice API.</li>
-                                <li>Lolcat.</li>
-                            </ul>
+                        <ul>
+                            <li>You aren&rsquo;t the product.</li>
+                            <li>Never takes your bank creds.</li>
+                            <li>Shows data and comparisons.</li>
+                            <li>No pie charts.</li>
+                            <li>Nice API.</li>
+                            <li>Lolcat.</li>
+                        </ul>
 
-                            <p>It costs <b>$2.99/mo</b>.</p>
+                        <p>It costs <b>$2.99/mo</b>.</p>
+                    </div>
+
+                    
+                    <h2>
+                        <span>Sign In <i>or</i> Register</span>
+                        <div class="line"></div>
+                        <p>or play with <a href="" id="fake">fake
+                            data</a></p>
+                    </h2>
+                    
+                    <form action="" id="auth" class="omgworstclassnameever">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" 
+                            tabindex="1" /><br />
+
+                        <div class="left half password">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" 
+                                tabindex="2" />
                         </div>
 
-                        
+                        <div class="right half confirm">
+                            <label for="password">Confirm Password</label>
+                            <input type="password" name="confirm" 
+                                tabindex="3"/><br />
+                        </div>
+
+                        <div class="full">
+                            <a href="" id="other" tabindex="5">Register</a>
+                            <button tabindex="4">Sign In</button>
+                        </div>
+                    </form> 
+
+
+                    <h2>
+                        <span>Cheat Sheet</span>
+                        <div class="line"></div>
+                    </h2>
+
+                    <div id="cheat-sheet" class="omgworstclassnameever">
+
+                        <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
+                        <u>k</u> to select a transaction.<br />
+
+                        <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
+                        <u>l</u> to recategorize.<br />
+
+                        <u>shift</u>-<u>n</u> for new category<br />
+
+                        <u>esc</u> to open/close cat.
+                    
+                    </div>
+
+
+                    {% else %}
+
+                    <div id="acct">
+
                         <h2>
-                            <span>Sign In <i>or</i> Register</span>
+                            <span>IHAM.com</span>
+                            <div class="line"></div>
+                        </h2>
+
+                        <p>Signed in as
+                        <b>{{ request.user.session['email'] }}</b>.</p>
+
+                        <form action="/sign/out.html" method="GET">
+                            <button type="submit">Sign Out</button>
+                        </form>
+                        <div class="clear"></div>
+
+                    </div>
+
+
+                    {% if not request.user.PAID %}
+
+                    <div class="pane">
+                        <h2>
+                            <span>Payment Details</span>
                             <div class="line"></div>
                             <p>or play with <a href="" id="fake">fake
                                 data</a></p>
                         </h2>
-                        
-                        <form action="" id="auth" class="omgworstclassnameever">
-                            <label for="email">Email</label>
-                            <input id="email" name="email" 
-                                tabindex="1" /><br />
+                        <form id="payment">
+                            
+                            {% if pmt %}
+                            <input name="payment_method_token" type="hidden" 
+                                value="{{ pmt }}" />
+                            {% end %}
 
-                            <div class="left half password">
-                                <label for="password">Password</label>
-                                <input type="password" name="password" 
-                                    tabindex="2" />
+                            <div class="left half">
+                                <label for="first_name">First Name</label>
+                                <input id="first_name" name="first_name" 
+                                       value="{{ pm['first_name'] }}" />
                             </div>
 
-                            <div class="right half confirm">
-                                <label for="password">Confirm Password</label>
-                                <input type="password" name="confirm" 
-                                    tabindex="3"/><br />
+                            <div class="right half">
+                                <label for="last_name">Last Name</label>
+                                <input id="last_name" name="last_name" 
+                                       value="{{ pm['last_name'] }}" />
                             </div>
 
-                            <div class="full">
-                                <a href="" id="other" tabindex="5">Register</a>
-                                <button tabindex="4">Sign In</button>
-                            </div>
-                        </form> 
-
-
-                        <h2>
-                            <span>Cheat Sheet</span>
-                            <div class="line"></div>
-                        </h2>
-
-                        <div id="cheat-sheet" class="omgworstclassnameever">
-
-                            <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                            <u>k</u> to select a transaction.<br />
-
-                            <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                            <u>l</u> to recategorize.<br />
-
-                            <u>shift</u>-<u>n</u> for new category<br />
-
-                            <u>esc</u> to open/close cat.
-                        
-                        </div>
-
-
-                        {% else %}
-
-                        <div id="acct">
-
-                            <h2>
-                                <span>IHasAMoney.com</span>
-                                <div class="line"></div>
-                            </h2>
-
-                            <p>Signed in as
-                            <b>{{ request.user.session['email'] }}</b>.</p>
-
-                            <form action="/sign/out.html" method="GET">
-                                <button type="submit">Sign Out</button>
-                            </form>
                             <div class="clear"></div>
 
+                            <label for="address_1">Address 1</label>
+                            <input id="address_1" name="address_1" 
+                                   value="{{ pm['address_1'] }}" />
+
+                            <label for="address_2">Address 2</label>
+                            <input id="address_2" name="address_2" 
+                                   value="{{ pm['address_2'] }}" />
+
+
+                            <div class="float city">
+                                <label for="city">City</label>
+                                <input id="city" name="city" 
+                                       value="{{ pm['city'] }}" />
+                            </div>
+
+                            <div class="float state not-first">
+                                <label for="state">State</label>
+                                <input id="state" name="state" 
+                                       value="{{ pm['state'] }}" />
+                            </div>
+
+                            <div class="float zip not-first">
+                                <label for="zip">ZIP</label>
+                                <input id="zip" name="zip" 
+                                       value="{{ pm['zip'] }}" />
+                            </div>
+
+                            <div class="clear"></div>
+
+                            <div class="float card_number">
+                                <label for="card_number">Credit Card Number</label>
+                                <input id="card_number" name="card_number" 
+                                       value="{{ pm['last_four'] }}" />
+                            </div>
+
+                            <div class="float expiry not-first">
+                                <label for="expiry">Expiry</label>
+                                <input id="expiry" name="expiry" 
+                                       value="{{ pm['expiry'] }}" />
+                            </div>
+
+                            <div class="float cvv not-first">
+                                <label for="cvv">CVV</label>
+                                <input id="cvv" name="cvv" />
+                            </div>
+
+                            <div class="clear"></div>
+
+                            <div class="full">
+                                <img src="/assets/{{ __version__ }}/cards.png" />
+                                <button 
+                                type="submit">{{ subscribe_text }}</button>
+                            </div>
+
+                            <p>You&rsquo;ll be charged <b>$2.99</b> on the
+                            <b id="dayOfMonth"></b><span id="orLast">
+                            </span>day of each month.</p>
+
+                        </form>
+                    </div>
+
+
+                    {% else %}
+
+                    <div id="panes">
+
+                        <ul id="pane-nav"></ul>
+                        <div class="clear"></div>
+
+                        <div class="pane" pane="cheat-sheet">
+                            <h2>
+                                <span>Cheat Sheet</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div id="cheat-sheet">
+
+                                <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
+                                <u>k</u> to select a transaction.<br />
+
+                                <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
+                                <u>l</u> to recategorize.<br />
+                               
+                                <u>shift</u> <u>n</u> for new category<br />
+
+                                <u>esc</u> to close/open the cat.
+                            
+                            </div>
                         </div>
 
+                        <div class="pane" pane="upload-data">
+                            <h2>
+                                <span>Upload Data</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div>
+                                <form action="/transactions/" id="upload" 
+                                    method="POST"
+                                    enctype="multipart/form-data">
 
-                        {% if not request.user.PAID %}
+                                    <label for="csv">
+                                    format:&nbsp; CSV<br />
+                                    columns: id,YYYYMMDD,0.00,description<br />
+                                    headers: no 
+                                    </label>
+                                    <input type="file" id="csv" name="csv" />
 
-                        <div class="pane">
+                                    <div class="full">
+                                        <button type="submit">Upload</button>
+                                    </div>
+                                    <div class="clear"></div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="pane" pane="payment-details">
                             <h2>
                                 <span>Payment Details</span>
                                 <div class="line"></div>
-                                <p>or play with <a href="" id="fake">fake
-                                    data</a></p>
                             </h2>
-                            <form id="payment">
-                                
-                                {% if pmt %}
-                                <input name="payment_method_token" type="hidden" 
-                                    value="{{ pmt }}" />
-                                {% end %}
+                            <div>
+                                <form action="/pmt/pause.html" 
+                                    method="POST">
+                                    
+                                    <p>You are charged <b>$2.99</b> on the
+                                    <b id="dayOfMonth"></b><span
+                                        id="orLast"> </span>day of each
+                                    month.</p>
 
-                                <div class="left half">
-                                    <label for="first_name">First Name</label>
-                                    <input id="first_name" name="first_name" 
-                                           value="{{ pm['first_name'] }}" />
-                                </div>
+                                    <div class="full">
+                                        <button type="submit">Pause
+                                            Billing</button>
+                                    </div>
+                                    <div class="clear"></div>
 
-                                <div class="right half">
-                                    <label for="last_name">Last Name</label>
-                                    <input id="last_name" name="last_name" 
-                                           value="{{ pm['last_name'] }}" />
-                                </div>
-
-                                <div class="clear"></div>
-
-                                <label for="address_1">Address 1</label>
-                                <input id="address_1" name="address_1" 
-                                       value="{{ pm['address_1'] }}" />
-
-                                <label for="address_2">Address 2</label>
-                                <input id="address_2" name="address_2" 
-                                       value="{{ pm['address_2'] }}" />
-
-
-                                <div class="float city">
-                                    <label for="city">City</label>
-                                    <input id="city" name="city" 
-                                           value="{{ pm['city'] }}" />
-                                </div>
-
-                                <div class="float state not-first">
-                                    <label for="state">State</label>
-                                    <input id="state" name="state" 
-                                           value="{{ pm['state'] }}" />
-                                </div>
-
-                                <div class="float zip not-first">
-                                    <label for="zip">ZIP</label>
-                                    <input id="zip" name="zip" 
-                                           value="{{ pm['zip'] }}" />
-                                </div>
-
-                                <div class="clear"></div>
-
-                                <div class="float card_number">
-                                    <label for="card_number">Credit Card Number</label>
-                                    <input id="card_number" name="card_number" 
-                                           value="{{ pm['last_four'] }}" />
-                                </div>
-
-                                <div class="float expiry not-first">
-                                    <label for="expiry">Expiry</label>
-                                    <input id="expiry" name="expiry" 
-                                           value="{{ pm['expiry'] }}" />
-                                </div>
-
-                                <div class="float cvv not-first">
-                                    <label for="cvv">CVV</label>
-                                    <input id="cvv" name="cvv" />
-                                </div>
-
-                                <div class="clear"></div>
-
-                                <div class="full">
-                                    <img src="/assets/{{ __version__ }}/cards.png" />
-                                    <button 
-                                    type="submit">{{ subscribe_text }}</button>
-                                </div>
-
-                                <p>You&rsquo;ll be charged <b>$2.99</b> on the
-                                <b id="dayOfMonth"></b><span id="orLast">
-                                </span>day of each month.</p>
-
-                            </form>
+                                </form>
+                            </div>
                         </div>
 
-
-                        {% else %}
-
-                        <div id="panes">
-
-                            <ul id="pane-nav"></ul>
-                            <div class="clear"></div>
-
-                            <div class="pane" pane="cheat-sheet">
-                                <h2>
-                                    <span>Cheat Sheet</span>
-                                    <div class="line"></div>
-                                </h2>
-                                <div id="cheat-sheet">
-
-                                    <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                                    <u>k</u> to select a transaction.<br />
-
-                                    <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                                    <u>l</u> to recategorize.<br />
-                                   
-                                    <u>shift</u> <u>n</u> for new category<br />
-
-                                    <u>esc</u> to close/open the cat.
-                                
-                                </div>
+                        <div class="pane" pane="api">
+                            <h2>
+                                <span>API</span>
+                                <div class="line"></div>
+                            </h2>
+                            <div>
+                                <p>POST CSV (per <i>Upload Data</i>) to <a
+                                    href="/transactions/">/transactions/</a>.</p>
                             </div>
-
-                            <div class="pane" pane="upload-data">
-                                <h2>
-                                    <span>Upload Data</span>
-                                    <div class="line"></div>
-                                </h2>
-                                <div>
-                                    <form action="/transactions/" id="upload" 
-                                        method="POST"
-                                        enctype="multipart/form-data">
-
-                                        <label for="csv">
-                                        format:&nbsp; CSV<br />
-                                        columns: id,YYYYMMDD,0.00,description<br />
-                                        headers: no 
-                                        </label>
-                                        <input type="file" id="csv" name="csv" />
-
-                                        <div class="full">
-                                            <button type="submit">Upload</button>
-                                        </div>
-                                        <div class="clear"></div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="pane" pane="payment-details">
-                                <h2>
-                                    <span>Payment Details</span>
-                                    <div class="line"></div>
-                                </h2>
-                                <div>
-                                    <form action="/pmt/pause.html" 
-                                        method="POST">
-                                        
-                                        <p>You are charged <b>$2.99</b> on the
-                                        <b id="dayOfMonth"></b><span
-                                            id="orLast"> </span>day of each
-                                        month.</p>
-
-                                        <div class="full">
-                                            <button type="submit">Pause
-                                                Billing</button>
-                                        </div>
-                                        <div class="clear"></div>
-
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="pane" pane="api">
-                                <h2>
-                                    <span>API</span>
-                                    <div class="line"></div>
-                                </h2>
-                                <div>
-                                    <p>POST CSV (per <i>Upload Data</i>) to <a
-                                        href="/transactions/">/transactions/</a>.</p>
-                                </div>
-                            </div>
-
                         </div>
-                        {% end %}
-                        {% end %}
 
-                </div></div>
-            </div>
-            <div id="mask"></div>
-        </div>{% if website.gauges %}
+                    </div>
+                    {% end %}
+                    {% end %}
+
+            </div></div>
+        </div>
+        <div id="mask"></div>{% if website.gauges %}
         <script type="text/javascript">
           var _gauges = _gauges || [];
           (function() {
@@ -425,5 +419,5 @@ if pmt:
             s.parentNode.insertBefore(t, s);
           })();
         </script>{% end %}
-    </body>
+    </div></body>
 </html>

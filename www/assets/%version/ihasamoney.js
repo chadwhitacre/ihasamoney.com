@@ -80,53 +80,50 @@ if(!Array.prototype.remove)
 // Main namespace.
 // ===============
 
-IHasAMoney = {};
+IHAM = {};
 
-IHasAMoney.disabled = false;
+IHAM.disabled = false;
 
-IHasAMoney.wire = function(name, callback)
-{
-    $(IHasAMoney).bind(name, callback);
-};
-
-IHasAMoney.fire = function(name)
-{
-    $(IHasAMoney).trigger(name);
-};
-
-IHasAMoney.resize = function()
-{
+IHAM.resize = function()
+{   // The heads have a fixed height, the stubs a fixed width. Everything else
+    // is calculated based on that.
+    
     var WIN = $(window);
-    var BOD = $('BODY');
-    var bod = $('#body');
 
-    var headHeight = $('THEAD.unpegged').outerHeight();
-    var transactionHeight = WIN.height() - headHeight;
-    transactionHeight -= transactionHeight % 14;
-    var bodyHeight = headHeight + transactionHeight;
-    // fit for 14px-height rows
-    $('.corner').width( $('.year').eq(0).width()
-                      + $('.month').eq(0).width()
-                      + $('.day').eq(0).width()
-                      + $('.description').eq(0).width()
-                       );
+    var headsHeight = $('#heads').height();
+    var stubsWidth = 280; // XXX make this adjustable with mouse drag
 
-    $('THEAD.pegged').width($('THEAD.unpegged').width());
-    $('THEAD.unpegged TH').each(function(i)
-    {
-        $('THEAD.pegged TH').eq(i).width($(this).width());
-    });
-    $('#body').height(bodyHeight);
-    $('#accordion').height(402 - $('#acct').height());
+    var dataHeight = WIN.height() - headsHeight;
+    //dataHeight = dataHeight - (dataHeight % 14); // adjust for 14px-height rows
+    var dataWidth = WIN.width() - stubsWidth; 
+
+    $('#corner').height(headsHeight - 2) // border
+                .width(stubsWidth - 3); // border
+    $('#corner BUTTON').css( 'top'
+                           , Math.ceil(( $('#corner').height() 
+                                       - $('#corner BUTTON').outerHeight()
+                                        ) / 2)
+                            );
+
+    $('#heads').width(dataWidth - IHAM.scrollbarWidth)
+               .css({'left': stubsWidth});
+    $('#stubs').height(dataHeight - IHAM.scrollbarWidth)
+               .width(stubsWidth)
+               .css({'top': headsHeight});
+    $('#data').height(dataHeight)
+              .width(dataWidth)
+              .css({ 'top': headsHeight
+                   , 'left': stubsWidth
+                    });
 };
 
 
 /* Categories */
 /* ========== */
 
-IHasAMoney.createCategory = function(e)
+IHAM.createCategory = function(e)
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
     var category = prompt("Name your category!");
     if (category !== null)
         jQuery.ajax({ type: "POST"
@@ -136,9 +133,9 @@ IHasAMoney.createCategory = function(e)
                      })
 };
 
-IHasAMoney.toggleCategoryCreator = function()
+IHAM.toggleCategoryCreator = function()
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
     $('#top .widget').toggle()
     var cur = $('#top .knob').text();
     var next = 'create a category';
@@ -150,34 +147,36 @@ IHasAMoney.toggleCategoryCreator = function()
     $('#top .knob').text(next);
 };
 
-IHasAMoney.categoryCreatorKeyup = function(e)
+IHAM.categoryCreatorKeyup = function(e)
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
     switch (e.which)
     {
         case 27:
-            IHasAMoney.toggleCategoryCreator();
+            IHAM.toggleCategoryCreator();
             break;
         case 13:
-            IHasAMoney.createCategory({"target": $('#top BUTTON').get(0)});
+            IHAM.createCategory({"target": $('#top BUTTON').get(0)});
             break;
     }
 };
 
-IHasAMoney.scrollBy = function(num)
+IHAM.scrollBy = function(num)
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
     var container = $('#body');
 
-    var cur = $('TBODY TR.focus');
-    var rows = $('TBODY TR');
-    var from = rows.index(cur);
+    var cur = $('#stubs TR.focus');
+    var stubs = $('#stubs TR');
+    var data = $('#data TR');
+    var from = stubs.index(cur);
     var to = from + num;
 
-    if (0 <= to && to < rows.length)
+    if (0 <= to && to < stubs.length)
     { 
-        cur.removeClass('focus');
-        rows.eq(to).addClass('focus');
+        $('.focus').removeClass('focus');
+        stubs.eq(to).addClass('focus');
+        data.eq(to).addClass('focus');
         var curScroll = container.scrollTop();
         var scrollTop = container.scrollTop();
         var scrollBottom = ( scrollTop
@@ -200,12 +199,12 @@ IHasAMoney.scrollBy = function(num)
             container.scrollTop(to);
         } 
     }
-    IHasAMoney.highlightRowCol();
+    IHAM.highlightRowCol();
 };
 
-IHasAMoney.changeCategory = function(inc)
+IHAM.changeCategory = function(inc)
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
     var tid = $('TR.focus').attr('tid');
     var cols = $('TR.focus TD.amount');
     var cell = $('TR.focus TD.amount.categorized');
@@ -222,6 +221,7 @@ IHasAMoney.changeCategory = function(inc)
     from = cols.eq(from);
     to = cols.eq(to);
     category = to.attr('category');
+    console.log(from, to, category);
     if (category == "uncategorized")
         jQuery.getJSON('/uncategorize.json', {tid: tid});
     else
@@ -282,25 +282,25 @@ IHasAMoney.changeCategory = function(inc)
         return f;
     }
 
-    var entering = $('THEAD.pegged TH.amount[category="' + category + '"]');
+    var entering = $('#heads TD.amount[category="' + category + '"] B');
     entering.html(commaize(add(entering.text(), amount)));
 
-    var leaving = $('THEAD.pegged TH.amount.current');
+    var leaving = $('#heads TD.amount.current B');
     leaving.html(commaize(subtract(leaving.text(), amount)));
 
-    IHasAMoney.highlightRowCol();
+    IHAM.highlightRowCol();
 };
 
-IHasAMoney.highlightRowCol = function()
+IHAM.highlightRowCol = function()
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
 
     var i = 0;
     var category = $(".focus .categorized").attr('category');
 
     // Change the highlighted column head.
     $('.current').removeClass('current');
-    $('TH[category="' + category + '"]').addClass('current');
+    $('#heads [category="' + category + '"]').addClass('current');
    
     // Change the column highlight. 
     $('.highlighted').removeClass('highlighted');
@@ -316,7 +316,7 @@ IHasAMoney.highlightRowCol = function()
 /* Navigation */
 /* ========== */
 
-IHasAMoney.kill = function(e)
+IHAM.kill = function(e)
 {
     // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
     e.stopPropagation();
@@ -324,9 +324,9 @@ IHasAMoney.kill = function(e)
     return false;
 };
 
-IHasAMoney.navigate = function(e)
+IHAM.navigate = function(e)
 {
-    if (IHasAMoney.disabled) return false;
+    if (IHAM.disabled) return false;
 
     var nrows = 1, to = 1, hl = {37: -1, 39: 1, 72:-1, 76: 1};
     //console.log(e.which);
@@ -337,50 +337,50 @@ IHasAMoney.navigate = function(e)
             nrows = -1
         case 40:    // down arrow
         case 74:    // j
-            IHasAMoney.scrollBy(nrows);
+            IHAM.scrollBy(nrows);
             break;
         case 37:    // left arrow
         case 39:    // right arrow
         case 72:    // h
         case 76:    // l
             to *= hl[e.which];
-            IHasAMoney.changeCategory(to);
+            IHAM.changeCategory(to);
             break;
         case 27:    // ESC
-            IHasAMoney.openSplash();
+            IHAM.openModal();
             break;
         case 78:    // n
             if (e.shiftKey)
-                IHasAMoney.createCategory();
+                IHAM.createCategory();
             break;
     }
 };
 
 
-/* Splash Screen (Cat!) */
+/* Modal Screen (Cat!) */
 /* ==================== */
 
-IHasAMoney.openSplash = function()
+IHAM.openModal = function()
 {
-    IHasAMoney.disabled = true;
-    $('#splash INPUT').eq(0).focus();
-    $('#splash-wrap').show();
+    IHAM.disabled = true;
+    $('#modal INPUT').eq(0).focus();
+    $('#modal-wrap').show();
     $(document).unbind('keypress');
     $(document).unbind('keydown');
     $(document).keydown(function(e) 
     { 
         if (e.which === 27)
-            IHasAMoney.closeSplash();
+            IHAM.closeModal();
     });
 };
 
-IHasAMoney.closeSplash = function()
+IHAM.closeModal = function()
 {
-    IHasAMoney.disabled = false;
-    $('#splash-wrap').hide();
+    IHAM.disabled = false;
+    $('#modal-wrap').hide();
     $(document).unbind('keypress');
     $(document).unbind('keydown');
-    $(document).keydown(IHasAMoney.navigate);
+    $(document).keydown(IHAM.navigate);
     return false;
 };
 
@@ -388,10 +388,10 @@ IHasAMoney.closeSplash = function()
 /* Form Generics */
 /* ============= */
 
-IHasAMoney.feedbackOut = null; // {clear,set}Timout handler
-IHasAMoney.showFeedback = function(msg, details)
+IHAM.feedbackOut = null; // {clear,set}Timout handler
+IHAM.showFeedback = function(msg, details)
 {
-    window.clearTimeout(IHasAMoney.feedbackOut);
+    window.clearTimeout(IHAM.feedbackOut);
     $('#eyes').stop(true, true).show()
     
     msg += '<div class="details"></div>';
@@ -400,14 +400,14 @@ IHasAMoney.showFeedback = function(msg, details)
         for (var i=0; i < details.length; i++)
             $('#feedback .details').append('<p>' + details[i] + '</p>');
     
-    IHasAMoney.feedbackOut = window.setTimeout(function()
+    IHAM.feedbackOut = window.setTimeout(function()
     {
         $('#eyes').hide();
         $('#feedback').hide();
     }, 15000);
 }
 
-IHasAMoney.submitForm = function(url, data, success, error)
+IHAM.submitForm = function(url, data, success, error)
 {
     if (success === undefined)
     {
@@ -421,7 +421,7 @@ IHasAMoney.submitForm = function(url, data, success, error)
     {
         error = function(data)
         {
-            IHasAMoney.showFeedback(data.problem);
+            IHAM.showFeedback(data.problem);
         };
     }
     
@@ -435,7 +435,7 @@ IHasAMoney.submitForm = function(url, data, success, error)
 
     function _error(xhr, foo, bar)
     {
-        IHasAMoney.showFeedback("So sorry!!");
+        IHAM.showFeedback("So sorry!!");
         console.log("failed", xhr, foo, bar);
     }
 
@@ -452,25 +452,25 @@ IHasAMoney.submitForm = function(url, data, success, error)
 /* Auth Form */
 /* ========= */
 
-IHasAMoney.toggleAuthForm = function(e)
+IHAM.toggleAuthForm = function(e)
 {
     e.preventDefault();
     e.stopPropagation();
     if ($('FORM#auth #other').text() === 'Register')
-        IHasAMoney.switchToRegister();
+        IHAM.switchToRegister();
     else
-        IHasAMoney.switchToSignIn();
+        IHAM.switchToSignIn();
     return false;
 };
 
-IHasAMoney.playWithFakeData = function()
+IHAM.playWithFakeData = function()
 {
-    IHasAMoney.switchToRegister();
-    IHasAMoney.closeSplash();
+    IHAM.switchToRegister();
+    IHAM.closeModal();
     return false;
 };
 
-IHasAMoney.submitAuthForm = function(e)
+IHAM.submitAuthForm = function(e)
 {
     e.preventDefault();
     e.stopPropagation();
@@ -490,12 +490,12 @@ IHasAMoney.submitAuthForm = function(e)
         url = "/sign/in.json";
     }
 
-    IHasAMoney.submitForm(url, data);
+    IHAM.submitForm(url, data);
 
     return false;
 };
 
-IHasAMoney.switchToSignIn = function()
+IHAM.switchToSignIn = function()
 {
     $('FORM#auth .password').removeClass('half left');
     $('FORM#auth .confirm').hide();
@@ -504,7 +504,7 @@ IHasAMoney.switchToSignIn = function()
     $('FORM#auth INPUT').eq(0).focus();
 };
 
-IHasAMoney.switchToRegister = function()
+IHAM.switchToRegister = function()
 {
     $('FORM#auth .password').addClass('half left');
     $('FORM#auth .confirm').show();
@@ -517,7 +517,7 @@ IHasAMoney.switchToRegister = function()
 /* Upload Form */
 /* =========== */
 
-IHasAMoney.submitUploadForm = function(e)
+IHAM.submitUploadForm = function(e)
 {
     // TODO http://blueimp.github.com/jQuery-File-Upload/
 };
@@ -526,7 +526,7 @@ IHasAMoney.submitUploadForm = function(e)
 /* Payment Details Form */
 /* ==================== */
 
-IHasAMoney.submitPaymentForm = function(e)
+IHAM.submitPaymentForm = function(e)
 {
     e.stopPropagation();
     e.preventDefault();
@@ -558,12 +558,12 @@ IHasAMoney.submitPaymentForm = function(e)
     credit_card.expiry_year = expiry[1];
     
     data.credit_card = credit_card; 
-    Samurai.payment(data, IHasAMoney.savePaymentMethod);
+    Samurai.payment(data, IHAM.savePaymentMethod);
 
     return false;
 };
 
-IHasAMoney.savePaymentMethod = function(data)
+IHAM.savePaymentMethod = function(data)
 {
     // Afaict this is always present, no matter the garbage we gave to Samurai.
     var pmt = data.payment_method.payment_method_token;
@@ -581,17 +581,17 @@ IHasAMoney.savePaymentMethod = function(data)
                 details.push(errors[i]);
         }
 
-        IHasAMoney.showFeedback(data.problem, details);
+        IHAM.showFeedback(data.problem, details);
     }
 
-    IHasAMoney.submitForm( "/pmt/save.json"
+    IHAM.submitForm( "/pmt/save.json"
                          , {pmt: pmt, day_of_month: dayOfMonth, action: action}
                          , undefined
                          , detailedFeedback
                           );
 };
 
-IHasAMoney.setDayOfMonth = function(dayOfMonth)
+IHAM.setDayOfMonth = function(dayOfMonth)
 {
     var blah = [ '' 
                , 'first', 'second', 'third', 'fourth', 'fifth'
@@ -618,32 +618,66 @@ IHasAMoney.setDayOfMonth = function(dayOfMonth)
 // main 
 // ====
 
-IHasAMoney.init = function(session)
-{
-    $(window).resize(IHasAMoney.resize);
-    IHasAMoney.resize();
+IHAM.getScrollbarWidth = function()
+{   // https://github.com/brandonaaron/jquery-getscrollbarwidth
 
-    $(document).mousewheel(IHasAMoney.kill);
+    /*! Copyright (c) 2008 Brandon Aaron (brandon.aaron@gmail.com ||
+     * http://brandonaaron.net) Dual licensed under the MIT
+     * (http://www.opensource.org/licenses/mit-license.php) and GPL
+     * (http://www.opensource.org/licenses/gpl-license.php) licenses.
+     */
 
-    // Wire up auth form. No-op if already signed in.
-    $('#fake').click(IHasAMoney.playWithFakeData);
-    $('FORM#auth').submit(IHasAMoney.submitAuthForm);
-    $('FORM#auth #other').click(IHasAMoney.toggleAuthForm);
-
-    $('TBODY TR').eq(0).addClass('focus');
-    IHasAMoney.highlightRowCol();
-    IHasAMoney.setDayOfMonth(session.day_of_month_to_bill);
+    var scrollbarWidth;
+    if ( $.browser.msie ) {
+        var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
+                .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
+            $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
+                .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
+        scrollbarWidth = $textarea1.width() - $textarea2.width();
+        $textarea1.add($textarea2).remove();
+    } else {
+        var $div = $('<div />')
+            .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
+            .prependTo('body').append('<div />').find('div')
+                .css({ width: '100%', height: 200 });
+        scrollbarWidth = 100 - $div.width();
+        $div.parent().remove();
+    }
+    return scrollbarWidth;
 };
 
-IHasAMoney.initPayment = function(merchant_key)
+IHAM.init = function(session)
 {
-    $('#splash INPUT').eq(0).focus();
+    IHAM.scrollbarWidth = IHAM.getScrollbarWidth();
+    $(window).resize(IHAM.resize);
+    IHAM.resize();
+
+    // Wire up the corner.
+    $('#corner BUTTON').click(IHAM.openModal);
+    $('#mask').click(IHAM.closeModal);
+
+    //$(document).mousewheel(IHAM.kill);
+
+    // Wire up the auth form. No-op if already signed in.
+    $('#fake').click(IHAM.playWithFakeData);
+    $('FORM#auth').submit(IHAM.submitAuthForm);
+    $('FORM#auth #other').click(IHAM.toggleAuthForm);
+
+    $('#stubs TR').eq(0).addClass('focus');
+    $('#data TR').eq(0).addClass('focus');
+    IHAM.highlightRowCol();
+    IHAM.setDayOfMonth(session.day_of_month_to_bill);
+};
+
+IHAM.initPayment = function(merchant_key)
+{
+    $('#modal INPUT').eq(0).focus();
     Samurai.init({merchant_key: merchant_key});
-    $('FORM#payment').submit(IHasAMoney.submitPaymentForm);
+    $('FORM#payment').submit(IHAM.submitPaymentForm);
     $('INPUT[name=expiry]').mask('99/2099');
 };
 
-IHasAMoney.initSplashNav = function()
+IHAM.initModalNav = function()
 {
     function toggler(paneName)
     {

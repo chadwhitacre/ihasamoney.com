@@ -46,21 +46,21 @@ def gentxns(txns):
         d = row['date']
         year, month, day = d.year, d.month, d.day
         if (year, month, day) == curdate:
-            date = ('<td class="year"><span class="hide">%04d</span></td>'
-                    '<td class="month"><span class="hide">%s</span></td>'
-                    '<td class="day"><span class="hide">%02d</span></td>')
+            date = ('<td class="date year"><span class="hide">%04d</span></td>'
+                    '<td class="date month"><span class="hide">%s</span></td>'
+                    '<td class="date day"><span class="hide">%02d</span></td>')
         elif (year, month) == curdate[:2]:
-            date = ('<td class="year"><span class="hide">%04d</span></td>'
-                    '<td class="month"><span class="hide">%s</span></td>'
-                    '<td class="day">%02d</td>')
+            date = ('<td class="date year"><span class="hide">%04d</span></td>'
+                    '<td class="date month"><span class="hide">%s</span></td>'
+                    '<td class="date day">%02d</td>')
         elif (year,) == curdate[:1]:
-            date = ('<td class="year"><span class="hide">%04d</span></td>'
-                    '<td class="month">%s</td>'
-                    '<td class="day">%02d</td>')
+            date = ('<td class="date year"><span class="hide">%04d</span></td>'
+                    '<td class="date month">%s</td>'
+                    '<td class="date day">%02d</td>')
         else:
-            date = ('<td class="year">%04d</td>'
-                    '<td class="month">%s</td>'
-                    '<td class="day">%02d</td>')
+            date = ('<td class="date year">%04d</td>'
+                    '<td class="date month">%s</td>'
+                    '<td class="date day">%02d</td>')
         date %= (year, months[month], day)
         date = date.replace('>0', '>&nbsp;')
         date = date.replace(' 0', '&nbsp;&nbsp;')

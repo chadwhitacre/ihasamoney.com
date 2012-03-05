@@ -7,9 +7,12 @@ BODY {
     font: normal 12px/12px Arial, sans-serif;
     color: #301403;
     color: #614C3E;
-    background: white;
+    background: #F2EBE6;
+
+    /* This is important for predictable resizing in Chrome (at least) */
+    overflow: hidden; 
 }
-/*
+
 ::-webkit-scrollbar {
     height: 10px;
     width: 10px;
@@ -22,24 +25,43 @@ BODY {
 }
 ::-webkit-scrollbar-thumb {
     background: #CCBAAD;
+    background: #2A8F79;
 }
-*/
 
-#body {
-    position: relative;
-    margin: 0;
-    padding: 0;
-    overflow: auto;
+
+/* Main UI */
+/* ======= */
+
+/* Roughing In */
+/* ~~~~~~~~~~~ */
+
+#corner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-right: 3px solid #CCBAAD;
+    border-bottom: 2px solid #CCBAAD;
+}
+#corner BUTTON {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+}
+#heads {
+    position: absolute;
+    overflow: hidden;
+    border-right: 1px solid #CCBAAD;
+}
+#stubs {
+    position: absolute;
+    overflow: hidden;
     border-bottom: 1px solid #CCBAAD;
 }
-#top {
-    display: none;
-}
-#sign {
+#data {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    overflow: scroll;
 }
+
 TABLE {
     color: #614C3E;
     color: #301403;
@@ -47,110 +69,107 @@ TABLE {
     border-collapse: separate;
     background: white;
 }
-THEAD.pegged {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: white;
-    z-index: 2;
-}
-TD {
-    padding: 0 12px 0 0;
-}
 TD, TH {
-    olor: #CCAABD;
+    white-space: nowrap; /* Safari wraps -100.00 on the dash */
 }
-.amount {
+TD B {
+    /* We use B as our markup inside of TD. That's all it is. */
+    font-weight: normal;
+    display: block;
+    height: 12px;
+    border: 1px solid white;
+    width: 100px;
+}
+TD.amount {
+    /* This is used in both #heads and #data. */
     font: normal 10px/14px Monaco, "Lucida Console", monospace;
     text-align: center;
     padding: 0;
 }
-TH {
-    font: normal 12px/14px Arial, sans-serif;
-    padding: 5px 1em;
-    text-align: center;
-    border-bottom: 1px solid #CCAABD;
-    white-space: nowrap;
-}
-TBODY B {
-    font-weight: normal;
-    display: block;
-    idth: 100%;
-    height: 12px;
-    border: 1px solid white;
-}
-TBODY TR.focus TD.categorized B {
-    border: 1px solid #2A8F79;
-}
-TH.corner {
-    border-right: 1px #CCAABD solid;
-    padding: 0 5px;
-}
-TH.amount {
-    padding: 5px 6px 5px 0;
-}
-TH.amount B {
-    border: 1px solid white;
-    font-weight: normal;
-}
-TR.heads TH.current {
-    background: #E6F2F0;
-    border-bottom: 1px solid #2A8F79;
-}
-TBODY TD.highlighted B {
-    ackground: #E6F2F0;
-    order-color: #E6F2F0 ! important;
-}
-TR.focus TD.current B {
-    background: white;
-}
-TR.focus TD.description {
-    background: #E6F2F0;
-}
-TR.focus TD.categorized {
-    position: relative;
-}
-.hide {
-    display: none;
-}
-TR.focus TD {
-    color: #301403;
-}
-TR.focus .hide {
-    display: inline;
-}
-TR.focus TD.category {
-    background: #2A8F79;
-}
-TR.heads TH.corner {
-    border-bottom: 0;
-}
-.year,
-.month,
-.day {
+
+
+/* #stubs */
+/* ~~~~~~ */
+
+TD.date {
     padding-right: 5px;
-}
-.year {
-    padding-left: 5px;
-}
-.year,
-.month,
-.day {
     text-align: right;
     font: normal 12px/12px Arial, sans-serif;
+    width: 1px; /* make this as narrow as possible */
+    height: 14px;
 }
-.amount I {
-    font-style: normal;
+TD.date .hide {
+    display: none;
 }
-.description {
+TD.year {
+    padding-left: 5px;
+}
+TD.description {
     font: normal 12px/12px Arial, sans-serif;
     padding: 0 5px;
     white-space: nowrap;
-    border-right: 1px #CCAABD solid;
+    overflow: hidden;
+    border-right: 3px solid #CCBAAD;
+}
+
+TR.focus TD.date {
+    background: #E6F2F0;
+    background: #2A8F79;
+    color: white;
+}
+TR.focus TD.date .hide {
+    display: inline;
+}
+TR.focus TD.description {
+    background: #F2F7F7;
+    border-color: #2A8F79;
 }
 
 
-#splash {
+/* #heads */
+/* ~~~~~~ */
+
+TH {
+    font: normal 12px/14px Arial, sans-serif;
+    padding: 2px 0;
+    text-align: center;
+    white-space: nowrap;
+    border-bottom: 1px solid #CCAABD;
+}
+TH.current {
+    background: #E6F2F0;
+    border-bottom: 1px solid #2A8F79;
+    background: #2A8F79;
+    color: white;
+}
+TD.summary {
+    border-bottom: 2px solid #CCBAAD;
+}
+TD.summary B {
+    padding: 1px 0;
+}
+TD.summary.current {
+    border-color: #2A8F79;
+}
+TD.summary.current B {
+    background: #F2F7F7;
+    border-color: #F2F7F7;
+}
+
+
+/* #data */
+/* ~~~~~ */
+
+TR.focus TD.categorized B {
+    border: 1px solid #2A8F79;
+    background: #F2F7F7;
+}
+
+
+/* Modal Dialog */
+/* ============ */
+
+#modal {
     height: 589px
     width: 786px;
     position: fixed;
@@ -163,60 +182,60 @@ TR.heads TH.corner {
     box-shadow: 5px 5px 15px #333;
     font: normal 11pt/14pt Arial, sans-serif;
 } 
-#splash H2 {
+#modal H2 {
     font: bold 12pt/16pt Georgia, serif;
     margin: 1em 0 0.5em;
     text-align: center;
 }
-#splash H2 I {
+#modal H2 I {
     font-weight: normal;
 }
-#splash H2 SPAN {
+#modal H2 SPAN {
     background: white;
     position: relative;
     z-index: 10;
     padding: 0 5px;
 }
-#splash H2 P {
+#modal H2 P {
     text-align: center;
     font: italic 9pt/12pt Georgia, serif;
     margin: 0;
     padding: 0;
 }
-#splash .line {
+#modal .line {
     height: 1px;
     background: #614C3E;
     position: relative;
     top: -0.75em;
     z-index: 9;
 }
-#splash .gray {
+#modal .gray {
     color: #CCBAAD;
     text-decoration: line-through;
 }
-#splash UL {
+#modal UL {
     margin: 0.5em 0;
 }
-#splash LI {
+#modal LI {
     margin: 0 0 0 2em;
     padding: 0em;
     list-style: disc;
 }
-#splash OL LI {
+#modal OL LI {
     list-style: decimal;
 }
-#splash IMG.cat {
+#modal IMG.cat {
     display: block;
     float: left;
     width: 393px;
     border-right: 1px solid #614C3E;
     z-index: 0;
 }
-#splash DIV.text {
+#modal DIV.text {
     width: 393px;
     float: right;
 }
-#splash DIV.pad {
+#modal DIV.pad {
     padding: 10px 46px;
 }
 #mask {
@@ -231,92 +250,7 @@ TR.heads TH.corner {
 }
 
 
-BUTTON {
-    font: normal 10pt/12pt Arial, sans-serif;
-    text-shadow: #001b38 0px 1px 1px;
-    text-decoration: none;
-
-    background: #2A8F79 url("/assets/button-bg.png") repeat-x bottom left;
-    width: auto;
-    overflow: visible;
-    display: inline-block;
-    cursor: pointer;
-
-    border: 1px solid #0A382E;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -o-border-radius: 3px;
-    -ms-border-radius: 3px;
-    -khtml-border-radius: 3px;
-    border-radius: 3px;
-
-    padding: 1pt 4pt;
-    margin: 0;
-    vertical-align: middle;
-
-    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
-                                      , from(#2A8F79)
-                                      , to(#0D4035)
-                                       );
-    background-image: -moz-linear-gradient(top, #2A8F79, #0D4035);
-    background-image: linear-gradient(top, #2A8F79, #0D4035);
-
-    -moz-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
-    -webkit-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
-    -o-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
-    box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
-
-    -moz-background-clip: padding;
-    -webkit-background-clip: padding;
-    -o-background-clip: padding-box;
-    -ms-background-clip: padding-box;
-    -khtml-background-clip: padding-box;
-    background-clip: padding-box;
-}
-
-BUTTON::-moz-focus-inner {
-    border: none;
-    padding: 0;
-}
-
-BUTTON:focus {
-    outline: none;
-}
-
-BUTTON, BUTTON:visited,
-BUTTON:hover, BUTTON:hover:visited,
-BUTTON:focus, BUTTON:focus:visited,
-BUTTON:active, BUTTON:active:visited {
-    color: white;
-}
-
-BUTTON:hover, BUTTON:focus {
-    background-image: url("/assets/button-bg.over.png");
-    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
-                                      , from(#2A8F79)
-                                      , to(#04221B)
-                                       );
-    background-image: -moz-linear-gradient(top, #2A8F79, #04221B);
-    background-image: linear-gradient(top, #2A8F79, #04221B));
-}
-
-BUTTON:active {
-    /* http://somadesign.ca/demos/buttons-redux.html */
-    -moz-box-shadow
-        :0 .33em 1em rgba(0,0,0,.67) inset,
-        1px 1px 0 rgba(255,255,255,.25) inset, 
-        -1px -1px 0 rgba(255,255,255,.25) inset;
-    -webkit-box-shadow:
-        0 .33em 2em rgba(0,0,0,.67) inset,
-        1px 1px 0 rgba(255,255,255,.25) inset, 
-        -1px -1px 0 rgba(255,255,255,.25) inset;
-    box-shadow:
-        0 .33em 2em rgba(0,0,0,.67) inset,
-        1px 1px 0 rgba(255,255,255,.25) inset, 
-        -1px -1px 0 rgba(255,255,255,.25) inset;
-}
-
-#splash B {
+#modal B {
     color: #2A8F79;
 }
 FORM {
@@ -388,10 +322,10 @@ FORM INPUT:focus {
     overflow: hidden;
 }
 
-#splash #cheat-sheet {
+#modal #cheat-sheet {
     font: normal 10px/20px Monaco, "Lucida Console", monospace;
 }
-#splash U {
+#modal U {
     text-decoration: none;
     border: 1px solid #614C3E;
     border-radius: 2px;
@@ -488,7 +422,7 @@ FORM#payment .full {
     padding-left: 1em;
 }
 
-#splash #pane-nav {
+#modal #pane-nav {
     margin: 0;
     position: absolute;
     top: 120px;
@@ -522,4 +456,93 @@ FORM#payment .full {
 }
 .pane {
     padding-top: 1em;
+}
+
+
+/* Button */
+/* ====== */
+
+BUTTON {
+    font: normal 10pt/12pt Arial, sans-serif;
+    text-shadow: #001b38 0px 1px 1px;
+    text-decoration: none;
+
+    background: #2A8F79 url("/assets/button-bg.png") repeat-x bottom left;
+    width: auto;
+    overflow: visible;
+    display: inline-block;
+    cursor: pointer;
+
+    border: 1px solid #0A382E;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -o-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+
+    padding: 1pt 4pt;
+    margin: 0;
+    vertical-align: middle;
+
+    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
+                                      , from(#2A8F79)
+                                      , to(#0D4035)
+                                       );
+    background-image: -moz-linear-gradient(top, #2A8F79, #0D4035);
+    background-image: linear-gradient(top, #2A8F79, #0D4035);
+
+    -moz-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    -webkit-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    -o-box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+    box-shadow: rgba(255,255,255,0.359) 0 0 0.1em 1px inset;
+
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding;
+    -o-background-clip: padding-box;
+    -ms-background-clip: padding-box;
+    -khtml-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+BUTTON::-moz-focus-inner {
+    border: none;
+    padding: 0;
+}
+
+BUTTON:focus {
+    outline: none;
+}
+
+BUTTON, BUTTON:visited,
+BUTTON:hover, BUTTON:hover:visited,
+BUTTON:focus, BUTTON:focus:visited,
+BUTTON:active, BUTTON:active:visited {
+    color: white;
+}
+
+BUTTON:hover, BUTTON:focus {
+    background-image: url("/assets/button-bg.over.png");
+    background-image: -webkit-gradient( linear, 0% 0%, 0% 100%
+                                      , from(#2A8F79)
+                                      , to(#04221B)
+                                       );
+    background-image: -moz-linear-gradient(top, #2A8F79, #04221B);
+    background-image: linear-gradient(top, #2A8F79, #04221B));
+}
+
+BUTTON:active {
+    /* http://somadesign.ca/demos/buttons-redux.html */
+    -moz-box-shadow
+        :0 .33em 1em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+    -webkit-box-shadow:
+        0 .33em 2em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
+    box-shadow:
+        0 .33em 2em rgba(0,0,0,.67) inset,
+        1px 1px 0 rgba(255,255,255,.25) inset, 
+        -1px -1px 0 rgba(255,255,255,.25) inset;
 }
