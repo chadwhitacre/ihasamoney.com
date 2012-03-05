@@ -325,7 +325,6 @@ IHAM.highlightRowCol = function()
 
     var i = 0;
     var category_id = $(".focus .categorized").attr('category_id');
-    console.log('current is ', category_id);
 
     // Change the highlighted column head.
     $('.current').removeClass('current');
