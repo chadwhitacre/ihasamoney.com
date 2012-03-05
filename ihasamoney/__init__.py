@@ -9,7 +9,7 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.pool import ThreadedConnectionPool as ConnectionPool
 
 
-__version__ = "~~VERSION~~"
+__version__ = "0.1.1"
 log = logging.getLogger('ihasamoney')
 
 # Teach urlparse about postgres:// URLs.
@@ -27,6 +27,8 @@ canonical_host = None
 def canonize(request):
     """Enforce a certain scheme and hostname. Store these on request as well.
     """
+    #log.debug("canonizing request, queue size is %d" % request.website.engine.cp_server.requests.qsize)
+
     scheme = request.environ.get('HTTP_X_FORWARDED_PROTO', 'http') # per Heroku
     host = request.headers.one('Host')
     bad_scheme = scheme != canonical_scheme
@@ -107,9 +109,11 @@ class PostgresContextManager:
     def __enter__(self):
         """Get a connection from the pool.
         """
+        #log.debug("getting db connection")
         self.conn = self.pool.getconn()
         try:
             cursor = self.conn.cursor(cursor_factory=RealDictCursor)
+            #log.debug("executing some SQL: %s %s" % (self.a, self.kw))
             cursor.execute(*self.a, **self.kw)
         except:
             # If we get an exception here (like, the query fails: pretty
