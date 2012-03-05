@@ -86,7 +86,7 @@ def gentxns(txns):
 def get_categories(email):
     categories = """\
             
-        SELECT category
+        SELECT id, category
           FROM categories 
          WHERE email = %s 
       ORDER BY category ASC
@@ -97,8 +97,8 @@ def get_categories(email):
 def get(email):
     """Return data for the given user.
     """
-    categories = get_categories(email)
-    categories = ['uncategorized'] + [x['category'] for x in categories]
+    categories = [(-1, 'uncategorized')]
+    categories += [(x['id'], x['category']) for x in get_categories(email)]
 
     transactions = list(db.fetchall("""
 
@@ -133,7 +133,7 @@ def get(email):
       ORDER BY category
 
             """, (email,))
-    summary = dict([(category, commaize(0)) for category in categories])
+    summary = dict([(category, commaize(0)) for id, category in categories])
     for row in sums:
         summary[row['category']] = commaize(row['sum'])
 

@@ -5,8 +5,6 @@ import time
 import uuid
 from hashlib import sha1
 
-from aspen import Response
-
 
 log = logging.getLogger('ihasamoney.authentication')
 sessions = {}

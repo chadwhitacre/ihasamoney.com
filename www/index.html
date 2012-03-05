@@ -81,12 +81,16 @@ if pmt:
         <div id="heads">
             <table>
                 <tr>
-                    {% for category in categories %}<th class="head"
-                        category="{{ category }}"><div>{{ category }}</div></th>{% end %}
+                    {% for category_id, category in categories %}<th 
+                        class="head" 
+                        category_id="{{ category_id }}"
+                        ><div>{{ escape(category) }}</div></th>{% end %}
                 </tr>
                 <tr>
-                    {% for category in categories %}<td category="{{ category }}"
-                        class="amount summary"><b>{{ summary[category] }}</b></td>{% end %}
+                    {% for category_id, category in categories %}<td 
+                        category_id="{{ category_id }}"
+                        class="amount summary"
+                        ><b>{{ summary[category] }}</b></td>{% end %}
                 </tr>
             </table>
         </div>
@@ -95,7 +99,7 @@ if pmt:
                 {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
                 <tr tid="{{ tid }}" category="{{ category }}">
                     {{ date }}
-                    <td class="description"><div>{{ desc }}</div></td>
+                    <td class="description"><div>{{ escape(desc) }}</div></td>
                 </tr>
                 {% end %}
             </table>
@@ -103,10 +107,10 @@ if pmt:
         <div id="data">
             <table>
                 {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
-                <tr tid="{{ tid }}" category="{{ category }}">
-                    {% for _category in categories %}<td 
+                <tr tid="{{ tid }}" category_id="{{ category_id }}">
+                    {% for _category_id, _category in categories %}<td 
                         class="amount{% if _category == category %} categorized{% end %}"
-                        category="{{ _category }}">
+                        category_id="{{ _category_id }}">
                         <b>{% if _category == category %}{{ amount }}{% end %}</b></td>
                     {% end %}
                 </tr>
@@ -192,8 +196,6 @@ if pmt:
 
                         <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
                         <u>l</u> to recategorize.<br />
-
-                        <u>shift</u>-<u>n</u> for new category<br />
 
                         <u>esc</u> to open/close cat.
                     

@@ -1,4 +1,4 @@
-from ihasamoney import db
+from ihasamoney import db, log
 
 CATEGORIZE = """
 
@@ -11,8 +11,9 @@ INSERT INTO categorizations (transaction_id, category_id)
      VALUES (%s, (SELECT id 
                     FROM categories 
                    WHERE email = %s 
-                     AND category = %s))
-
+                     AND id = %s))
+            -- be sure to constrain by email! 
+            -- XXX what if the subselect returns NULL?
 """
 
 ^L
@@ -20,6 +21,6 @@ INSERT INTO categorizations (transaction_id, category_id)
 if request.user.PAID:
     email = request.user.session['email']
     tid = request.qs.one('tid')
-    category = request.qs.one('category')
-    db.execute(CATEGORIZE, (tid, tid, email, tid, email, category))
+    category_id = request.qs.one('category_id')
+    db.execute(CATEGORIZE, (tid, tid, email, tid, email, category_id))
 response.code = 204

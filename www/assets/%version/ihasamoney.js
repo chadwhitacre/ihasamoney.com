@@ -17,7 +17,6 @@ if (!window.console)
 // Make sure we have some things.
 // ==============================
 
-
 $.fn.serializeObject = function()
 {   // http://stackoverflow.com/questions/763345/jquery-how-to-store-form-values-in-data-object
     var o = {};
@@ -34,7 +33,6 @@ $.fn.serializeObject = function()
     });
     return o;
 };
-
 
 if (!Array.prototype.indexOf)
 {   // http://stackoverflow.com/questions/1744310/how-to-fix-array-indexof-in-javascript-for-ie-browsers
@@ -84,6 +82,34 @@ IHAM = {};
 
 IHAM.disabled = false;
 
+IHAM.getScrollbarWidth = function()
+{   // https://github.com/brandonaaron/jquery-getscrollbarwidth
+
+    /*! Copyright (c) 2008 Brandon Aaron (brandon.aaron@gmail.com ||
+     * http://brandonaaron.net) Dual licensed under the MIT
+     * (http://www.opensource.org/licenses/mit-license.php) and GPL
+     * (http://www.opensource.org/licenses/gpl-license.php) licenses.
+     */
+
+    var scrollbarWidth;
+    if ( $.browser.msie ) {
+        var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
+                .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
+            $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
+                .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
+        scrollbarWidth = $textarea1.width() - $textarea2.width();
+        $textarea1.add($textarea2).remove();
+    } else {
+        var $div = $('<div />')
+            .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
+            .prependTo('body').append('<div />').find('div')
+                .css({ width: '100%', height: 200 });
+        scrollbarWidth = 100 - $div.width();
+        $div.parent().remove();
+    }
+    return scrollbarWidth;
+};
+
 IHAM.resize = function()
 {   // The heads have a fixed height, the stubs a fixed width. Everything else
     // is calculated based on that.
@@ -94,7 +120,6 @@ IHAM.resize = function()
     var stubsWidth = 280; // XXX make this adjustable with mouse drag
 
     var dataHeight = WIN.height() - headsHeight;
-    //dataHeight = dataHeight - (dataHeight % 14); // adjust for 14px-height rows
     var dataWidth = WIN.width() - stubsWidth; 
 
     $('#corner').height(headsHeight - 2) // border
@@ -127,7 +152,7 @@ IHAM.createCategory = function(e)
     var category = prompt("Name your category!");
     if (category !== null)
         jQuery.ajax({ type: "POST"
-                    , url: "/categories/" + category + "/"
+                    , url: "/categories/" + encodeURIComponent(category) + "/"
                     , success: function() { window.location.reload() }
                     , dataType: 'json'
                      })
@@ -220,12 +245,13 @@ IHAM.changeCategory = function(inc)
 
     from = cols.eq(from);
     to = cols.eq(to);
-    category = to.attr('category');
-    console.log(from, to, category);
+    category_id = to.attr('category_id');
     if (category == "uncategorized")
         jQuery.getJSON('/uncategorize.json', {tid: tid});
     else
-        jQuery.getJSON('/categorize.json', {tid: tid, category: category});
+        jQuery.getJSON('/categorize.json', { tid: tid
+                                           , category_id: category_id
+                                            });
     from.removeClass('categorized');
     to.html(from.html()).addClass('categorized');
     from.html('<b></b>');
@@ -284,7 +310,7 @@ IHAM.changeCategory = function(inc)
         return f;
     }
 
-    var entering = $('#heads TD.amount[category="' + category + '"] B');
+    var entering = $('#heads TD.amount[category_id="' + category_id + '"] B');
     entering.html(commaize(add(entering.text(), amount)));
 
     var leaving = $('#heads TD.amount.current B');
@@ -298,19 +324,20 @@ IHAM.highlightRowCol = function()
     if (IHAM.disabled) return false;
 
     var i = 0;
-    var category = $(".focus .categorized").attr('category');
+    var category_id = $(".focus .categorized").attr('category_id');
+    console.log('current is ', category_id);
 
     // Change the highlighted column head.
     $('.current').removeClass('current');
-    $('#heads [category="' + category + '"]').addClass('current');
+    $('#heads [category_id="' + category_id + '"]').addClass('current');
    
     // Change the column highlight. 
     $('.highlighted').removeClass('highlighted');
     i = $('TBODY TR').index($('TR.focus'));
-    $('TD[category="' + category + '"]:lt(' + i + ')').addClass('highlighted');
+    $('TD[category_id="' + category_id + '"]:lt(' + i + ')').addClass('highlighted');
    
     // Change the row highlight. 
-    i = $('TBODY TR TD').index($('TD[category="' + category + '"]'));
+    i = $('TBODY TR TD').index($('TD[category_id="' + category_id + '"]'));
     $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
@@ -619,34 +646,6 @@ IHAM.setDayOfMonth = function(dayOfMonth)
 
 // main 
 // ====
-
-IHAM.getScrollbarWidth = function()
-{   // https://github.com/brandonaaron/jquery-getscrollbarwidth
-
-    /*! Copyright (c) 2008 Brandon Aaron (brandon.aaron@gmail.com ||
-     * http://brandonaaron.net) Dual licensed under the MIT
-     * (http://www.opensource.org/licenses/mit-license.php) and GPL
-     * (http://www.opensource.org/licenses/gpl-license.php) licenses.
-     */
-
-    var scrollbarWidth;
-    if ( $.browser.msie ) {
-        var $textarea1 = $('<textarea cols="10" rows="2"></textarea>')
-                .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body'),
-            $textarea2 = $('<textarea cols="10" rows="2" style="overflow: hidden;"></textarea>')
-                .css({ position: 'absolute', top: -1000, left: -1000 }).appendTo('body');
-        scrollbarWidth = $textarea1.width() - $textarea2.width();
-        $textarea1.add($textarea2).remove();
-    } else {
-        var $div = $('<div />')
-            .css({ width: 100, height: 100, overflow: 'auto', position: 'absolute', top: -1000, left: -1000 })
-            .prependTo('body').append('<div />').find('div')
-                .css({ width: '100%', height: 200 });
-        scrollbarWidth = 100 - $div.width();
-        $div.parent().remove();
-    }
-    return scrollbarWidth;
-};
 
 IHAM.init = function(session)
 {
