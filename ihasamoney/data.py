@@ -350,6 +350,7 @@ def fake():
     categories.remove("uncategorized")
     categories.remove("income")
     categories = ["uncategorized", "income"] + sorted(categories)
+    categories = zip(range(len(categories)), categories)
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
     balance = decimal.Decimal(balance) + total_spending
 
