@@ -78,7 +78,7 @@ TD B {
     display: block;
     height: 12px;
     border: 1px solid white;
-    width: 100px;
+    width: 100px; /* arbitrary width for now XXX make this adjustable */
 }
 TD.amount {
     /* This is used in both #heads and #data. */
@@ -111,6 +111,11 @@ TD.description {
     overflow: hidden;
     border-right: 3px solid #CCBAAD;
 }
+TD.description DIV {
+    width: 1px; /* This allows the overflow to be shown but doesn't overflow 
+                   the table cell. */
+}
+
 
 TR.focus TD.date {
     background: #E6F2F0;
@@ -135,6 +140,10 @@ TH {
     text-align: center;
     white-space: nowrap;
     border-bottom: 1px solid #CCAABD;
+}
+TH DIV {
+    width: 100px; /* Brittlely tied to above. */
+    overflow: hidden;
 }
 TH.current {
     background: #E6F2F0;

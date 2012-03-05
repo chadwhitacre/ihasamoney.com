@@ -82,7 +82,7 @@ if pmt:
             <table>
                 <tr>
                     {% for category in categories %}<th class="head"
-                        category="{{ category }}">{{ category }}</th>{% end %}
+                        category="{{ category }}"><div>{{ category }}</div></th>{% end %}
                 </tr>
                 <tr>
                     {% for category in categories %}<td category="{{ category }}"
@@ -95,7 +95,7 @@ if pmt:
                 {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
                 <tr tid="{{ tid }}" category="{{ category }}">
                     {{ date }}
-                    <td class="description">{{ desc }}</td>
+                    <td class="description"><div>{{ desc }}</div></td>
                 </tr>
                 {% end %}
             </table>
