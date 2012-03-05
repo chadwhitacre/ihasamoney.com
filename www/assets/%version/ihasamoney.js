@@ -257,9 +257,11 @@ IHAM.changeCategory = function(inc)
         return (d1 - d2) / 100;
     }
     function commaize(f)
-    {
+    {   // This is a port of a Python function used server-side. Brittle! 
         if (f === 0)
-            return "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;";
+            return ( "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "0"
+                   + "&nbsp;&nbsp;&nbsp;"
+                    );
         f = f.toFixed(2);
         var sign = '';
         if (f[0] === '-')
@@ -275,7 +277,7 @@ IHAM.changeCategory = function(inc)
                 f = f.slice(0,i) + "," + f.slice(i,f.length);
         }
         f = sign + f;
-        while (f.length < 10)
+        while (f.length < 11)
             f = " " + f;
         while (f.indexOf(" ") !== -1)
             f = f.replace(" ", "&nbsp;");

@@ -10,7 +10,7 @@ months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
         "Oct", "Nov", "Dec"]
 
 def commaize(amount):
-    """Given a 2-decimal number as a string, return it with commas.
+    """Given a 2-decimal number, return it with commas padded to 11.
     """
     if isinstance(amount, decimal.Decimal):
         amount = "%.02f" % amount
@@ -35,7 +35,7 @@ def commaize(amount):
         if negative:
             out = "-" + out
         out = out.lstrip(',')
-    out = ((10 - len(out)) * "&nbsp;") + out # this fits up to -99,999.99
+    out = ((11 - len(out)) * "&nbsp;") + out # this fits up to -999,999.99
     return out
 
 def gentxns(txns):
