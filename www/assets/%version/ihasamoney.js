@@ -157,7 +157,8 @@ IHAM.resize = function()
 
     $('#data-proxy').height(tableHeight)
                     .width(tableWidth);
-    $('#scroll').height(dataHeight + IHAM.scrollbarWidth)
+    $('#scroll').add('#scrollbar-protector')
+                .height(dataHeight + IHAM.scrollbarWidth)
                 .width(dataWidth + IHAM.scrollbarWidth)
                 .css({ 'top': headsHeight
                      , 'left': stubsWidth
@@ -387,7 +388,12 @@ IHAM.highlightColumn = function(category_id)
     if (category_id === undefined)
         category_id = $('#data TR.focus .categorized').attr('category_id');
     $('.current').removeClass('current');
-    $('#heads [category_id="' + category_id + '"]').addClass('current');
+    var col = $('#heads [category_id="' + category_id + '"]');
+    col.addClass('current');
+    if (col.position().left + col.width() > $('#scroll').scrollLeft())
+        $('#data').add('#scroll').add('#heads').scrollLeft(col.position().left);
+    if (col.position().left < $('#scroll').scrollLeft())
+        $('#data').add('#scroll').add('#heads').scrollLeft(col.position().left);
 };
 
 
@@ -727,8 +733,21 @@ IHAM.updateScrollBars = function(e, blah, xVelocity, yVelocity)
 
 IHAM.scrollFromBars = function()
 {
-    $('#data').add('#stubs').scrollTop($('#scroll').scrollTop());
-    $('#data').add('#heads').scrollLeft($('#scroll').scrollLeft());
+    // vertical scroll
+    var curTop = $('#scroll').scrollTop();
+    var maxTop = $('#scroll').height() - $('#data').height();
+    var newTop = curTop - (curTop % 14);
+    if (curTop > (maxTop / 2))
+        newTop = curTop + (14 - (curTop % 14));
+    $('#data').add('#stubs').scrollTop(newTop);
+
+    // horizontal scroll
+    var curLeft = $('#scroll').scrollLeft();
+    var maxLeft = $('#scroll').width() - $('#data').width();
+    var newLeft = curLeft - (curLeft % 96);
+    if (curLeft > (maxLeft / 2))
+        newLeft = curLeft + (96 - (curLeft % 96));
+    $('#data').add('#heads').scrollLeft(newLeft);
 };
 
 
@@ -744,9 +763,6 @@ IHAM.init = function(session)
     // Wire up the corner.
     $('#corner BUTTON').click(IHAM.openModal);
     $('#mask').click(IHAM.closeModal);
-
-    $('#data').mousewheel(IHAM.updateScrollBars);
-    $('#scroll').scroll(IHAM.scrollFromBars);
 
     // Wire up the auth form. No-op if already signed in.
     $('#fake').click(IHAM.playWithFakeData);

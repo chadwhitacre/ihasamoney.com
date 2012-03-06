@@ -29,9 +29,7 @@ BODY {
     background: #2A8F79;
 }
 ::-webkit-scrollbar-button {
-    height: 10px;
-    width: 10px;
-    background: #2A8F79;
+    display: none;
 }
 
 
@@ -71,6 +69,9 @@ BODY {
     position: absolute;
     overflow: scroll;
 }
+#scrollbar-protector {
+    position: absolute;
+}
 
 TABLE {
     color: #614C3E;
@@ -106,6 +107,7 @@ TD.padding {
 TH.padding B,
 TD.padding B {
     border-color: #F2EBE6;
+    border-style: solid none;
 }
 
 
