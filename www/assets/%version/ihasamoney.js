@@ -124,9 +124,18 @@ IHAM.resize = function()
     var dataWidth = 96;
     var detailsWidth = dataWidth + stubsWidth + 5;
 
-    $('#summary').css({ 'left': detailsWidth + 5 + 5
-                      , 'top': 5
-                       });
+    var halfish = Math.floor(WIN.width() / 2);
+    console.log(halfish, detailsWidth)
+    if (halfish > detailsWidth)
+    {
+        $('#details').css({'left': halfish - detailsWidth + 5, 'top': 5});
+        $('#summary').css({'left': halfish + IHAM.scrollbarWidth, 'top': 5});
+    }
+    else
+    {
+        $('#details').css({'left': 5, 'top': 5});
+        $('#summary').css({'left': detailsWidth + 5 + 5, 'top': 5});
+    }
 
     $('#details').width(detailsWidth);
 
