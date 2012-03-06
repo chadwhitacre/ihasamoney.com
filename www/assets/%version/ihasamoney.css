@@ -13,6 +13,7 @@ BODY {
     overflow: hidden; 
 }
 
+
 ::-webkit-scrollbar {
     height: 10px;
     width: 10px;
@@ -25,6 +26,11 @@ BODY {
 }
 ::-webkit-scrollbar-thumb {
     background: #CCBAAD;
+    background: #2A8F79;
+}
+::-webkit-scrollbar-button {
+    height: 10px;
+    width: 10px;
     background: #2A8F79;
 }
 
@@ -59,6 +65,10 @@ BODY {
 }
 #data {
     position: absolute;
+    overflow: hidden;
+}
+#scroll {
+    position: absolute;
     overflow: scroll;
 }
 
@@ -78,13 +88,24 @@ TD B {
     display: block;
     height: 12px;
     border: 1px solid white;
-    width: 100px; /* arbitrary width for now XXX make this adjustable */
+    width: 94px; /* arbitrary width for now XXX make this adjustable */
 }
 TD.amount {
     /* This is used in both #heads and #data. */
     font: normal 10px/14px Monaco, "Lucida Console", monospace;
     text-align: center;
     padding: 0;
+}
+TH.padding,
+TD.padding {
+    /* This is used in both #heads and #data. It makes scrolling fit. */
+    width: 0;
+    background: #F2EBE6;
+    border-color: #F2EBE6;
+}
+TH.padding B,
+TD.padding B {
+    border-color: #F2EBE6;
 }
 
 
@@ -120,7 +141,7 @@ TD.description DIV {
 TR.focus TD.date {
     background: #E6F2F0;
     background: #2A8F79;
-    color: white;
+    color: #F2F7F7;
 }
 TR.focus TD.date .hide {
     display: inline;
@@ -142,14 +163,14 @@ TH {
     border-bottom: 1px solid #CCAABD;
 }
 TH DIV {
-    width: 100px; /* Brittlely tied to above. */
+    width: 96px; /* Brittlely tied to above. */
     overflow: hidden;
 }
 TH.current {
     background: #E6F2F0;
     border-bottom: 1px solid #2A8F79;
     background: #2A8F79;
-    color: white;
+    color: #F2F7F7;
 }
 TD.summary {
     border-bottom: 2px solid #CCBAAD;

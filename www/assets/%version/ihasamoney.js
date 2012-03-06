@@ -119,8 +119,8 @@ IHAM.resize = function()
     var headsHeight = $('#heads').height();
     var stubsWidth = 280; // XXX make this adjustable with mouse drag
 
-    var dataHeight = WIN.height() - headsHeight;
-    var dataWidth = WIN.width() - stubsWidth; 
+    var dataHeight = WIN.height() - headsHeight - IHAM.scrollbarWidth;
+    var dataWidth = WIN.width() - stubsWidth - IHAM.scrollbarWidth; 
 
     $('#corner').height(headsHeight - 2) // border
                 .width(stubsWidth - 3); // border
@@ -130,9 +130,10 @@ IHAM.resize = function()
                                         ) / 2)
                             );
 
-    $('#heads').width(dataWidth - IHAM.scrollbarWidth)
-               .css({'left': stubsWidth});
-    $('#stubs').height(dataHeight - IHAM.scrollbarWidth)
+    $('#heads').width(dataWidth)
+               .css({ 'left': stubsWidth
+                       });
+    $('#stubs').height(dataHeight)
                .width(stubsWidth)
                .css({'top': headsHeight});
     $('#data').height(dataHeight)
@@ -140,6 +141,27 @@ IHAM.resize = function()
               .css({ 'top': headsHeight
                    , 'left': stubsWidth
                     });
+
+    // Scrolling 
+    // =========
+
+    var tableHeight = $('#data TABLE').height();
+    var tableWidth = $('#data TABLE').width();
+
+    $('#heads TH.padding B').css('width', dataWidth % 96);
+    $('#heads TD.padding B').css('width', dataWidth % 96);
+    $('#data TD.padding B').css('width', dataWidth % 96);
+
+    $('#data TABLE').css('margin-bottom', dataHeight % 14);
+    $('#stubs TABLE').css('margin-bottom', dataHeight % 14);
+
+    $('#data-proxy').height(tableHeight)
+                    .width(tableWidth);
+    $('#scroll').height(dataHeight + IHAM.scrollbarWidth)
+                .width(dataWidth + IHAM.scrollbarWidth)
+                .css({ 'top': headsHeight
+                     , 'left': stubsWidth
+                      });
 };
 
 
@@ -350,6 +372,7 @@ IHAM.kill = function(e)
     e.stopPropagation();
     e.preventDefault();
     return false;
+    $(this).blur();
 };
 
 IHAM.navigate = function(e)
@@ -642,6 +665,43 @@ IHAM.setDayOfMonth = function(dayOfMonth)
         $('#orLast').html(" (or last) ");
 };
 
+IHAM.updateScrollBars = function(e, blah, xVelocity, yVelocity)
+{
+    var o = $(this);
+   
+    
+    // Convert scroll delta to pixels.
+    // ===============================
+    // I'm seeing a delta of 0.0125 for each click of the scroll wheel in
+    // Chrome (XXX what is this value in other browsers?). The 112 and 768
+    // values are based on 14px rows and 96px columns.
+
+    var factor = 0.025; // Chrome, Safari
+    var xUnit = 96 / factor;
+    var yUnit = 14 / factor;
+
+    var xPixels = (xVelocity * xUnit);
+    var yPixels = (yVelocity * yUnit);
+
+
+    // Make some changes.
+    // ==================
+
+    var newScrollTop = o.scrollTop() - yPixels;
+    var newScrollLeft = o.scrollLeft() + xPixels;
+
+    $('#data').scrollTop(newScrollTop);
+    o.scrollLeft(newScrollLeft);
+
+    $('#stubs').add('#scroll').scrollTop(newScrollTop);
+    $('#heads').add('#scroll').scrollLeft(newScrollLeft);
+};
+
+IHAM.scrollFromBars = function()
+{
+    //console.log("scrolling from bars");
+};
+
 
 // main 
 // ====
@@ -656,13 +716,15 @@ IHAM.init = function(session)
     $('#corner BUTTON').click(IHAM.openModal);
     $('#mask').click(IHAM.closeModal);
 
-    //$(document).mousewheel(IHAM.kill);
+    $('#data').mousewheel(IHAM.updateScrollBars);
+    $('#scroll').scroll(IHAM.scrollFromBars);
 
     // Wire up the auth form. No-op if already signed in.
     $('#fake').click(IHAM.playWithFakeData);
     $('FORM#auth').submit(IHAM.submitAuthForm);
     $('FORM#auth #other').click(IHAM.toggleAuthForm);
 
+    // Set initial highlight state.
     $('#stubs TR').eq(0).addClass('focus');
     $('#data TR').eq(0).addClass('focus');
     IHAM.highlightRowCol();

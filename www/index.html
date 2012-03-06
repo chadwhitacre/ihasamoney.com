@@ -84,12 +84,14 @@ if pmt:
                         class="head" 
                         category_id="{{ category_id }}"
                         ><div>{{ escape(category) }}</div></th>{% end %}
+                    <th class="padding"><b></b></th>
                 </tr>
                 <tr>
                     {% for category_id, category in categories %}<td 
                         category_id="{{ category_id }}"
                         class="amount summary"
                         ><b>{{ summary[category] }}</b></td>{% end %}
+                    <td class="padding"><b></b></td>
                 </tr>
             </table>
         </div>
@@ -103,6 +105,7 @@ if pmt:
                 {% end %}
             </table>
         </div>
+        <div id="scroll"><div id="data-proxy"></div></div>
         <div id="data">
             <table>
                 {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
@@ -112,6 +115,7 @@ if pmt:
                         category_id="{{ _category_id }}">
                         <b>{% if _category == category %}{{ amount }}{% end %}</b></td>
                     {% end %}
+                    <td class="padding"><b></b></td>
                 </tr>
                 {% end %}
             </table>
@@ -406,19 +410,6 @@ if pmt:
 
             </div></div>
         </div>
-        <div id="mask"></div>{% if website.gauges %}
-        <script type="text/javascript">
-          var _gauges = _gauges || [];
-          (function() {
-            var t   = document.createElement('script');
-            t.type  = 'text/javascript';
-            t.async = true;
-            t.id    = 'gauges-tracker';
-            t.setAttribute('data-site-id', '4ee664fe613f5d7f24000001');
-            t.src = '//secure.gaug.es/track.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(t, s);
-          })();
-        </script>{% end %}
+        <div id="mask"></div>
     </div></body>
 </html>
