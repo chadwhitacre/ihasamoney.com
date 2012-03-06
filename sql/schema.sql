@@ -46,8 +46,16 @@ CREATE OR REPLACE FUNCTION initial_structure() RETURNS void AS $$
 $$ LANGUAGE SQL;
 
 
--- Now define a wrapper that runs all of the above DDL.
+-- Create a referers table.
 
-CREATE OR REPLACE FUNCTION build_from_scratch() RETURNS void AS $$
-    SELECT initial_structure();
+CREATE OR REPLACE FUNCTION referers() RETURNS void AS $$
+
+    CREATE TABLE referers
+    ( id                bigserial   PRIMARY KEY
+    , referer           text        NOT NULL
+    , date              date        NOT NULL DEFAULT CURRENT_DATE
+    , count             bigint      NOT NULL DEFAULT 1
+    , UNIQUE (referer, date)
+     );
+
 $$ LANGUAGE SQL;

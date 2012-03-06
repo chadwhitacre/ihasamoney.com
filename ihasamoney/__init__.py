@@ -1,6 +1,7 @@
 import decimal
 import logging
 import os
+import traceback
 import urlparse
 from contextlib import contextmanager
 
@@ -36,6 +37,35 @@ def canonize(request):
     request.x.scheme = scheme
     request.x.host = host
     request.x.base = scheme + "://" + host
+
+
+# refererer
+# =========
+# Here's another Aspen hook. This one stashes away HTTP referers for the root
+# page, so we can get an idea of where traffic is coming from.
+                    
+REFERER_INSERT = "INSERT INTO referers (referer) VALUES (%s)"
+REFERER_UPDATE = """\
+
+    UPDATE referers 
+       SET count = (SELECT count FROM referers WHERE referer = %s) + 1 
+     WHERE referer = %s
+       AND date = CURRENT_DATE
+ RETURNING 'updated' AS msg
+
+"""
+
+def refererer(request):
+    """For requests for /, record the users referer header.
+    """
+    try:
+        if request.path.raw == "/":
+            referer = request.headers.one("Referer", "")
+            exists = db.fetchone(REFERER_UPDATE, (referer, referer))
+            if exists is None: # race condition here
+                db.execute(REFERER_INSERT, (referer,))
+    except: # We never want this to hurt us.
+        log.warning(traceback.format_exc())
 
 
 # wireup
