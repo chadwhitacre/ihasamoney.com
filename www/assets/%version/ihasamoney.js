@@ -318,7 +318,9 @@ IHAM.changeCategory = function(inc)
     to.html(from.html()).addClass('categorized');
     from.html('<b></b>');
 
+
     // Update summary amount.
+    // ======================
 
     // Do some hackish decimal math, assuming two decimal places.
     function parseDecimal(s)
@@ -381,19 +383,21 @@ IHAM.changeCategory = function(inc)
     IHAM.highlightColumn(category_id);
 };
 
-
 IHAM.highlightColumn = function(category_id)
 {   // Change the highlighted column head.
     if (IHAM.disabled) return false;
     if (category_id === undefined)
         category_id = $('#data TR.focus .categorized').attr('category_id');
     $('.current').removeClass('current');
+    var cols = $('TH');
     var col = $('#heads [category_id="' + category_id + '"]');
     col.addClass('current');
-    if (col.position().left + col.width() > $('#scroll').scrollLeft())
-        $('#data').add('#scroll').add('#heads').scrollLeft(col.position().left);
-    if (col.position().left < $('#scroll').scrollLeft())
-        $('#data').add('#scroll').add('#heads').scrollLeft(col.position().left);
+
+    var newLeft = 0;
+    var scroll = $('#scroll');
+     
+    newLeft = cols.index(col) * 96; // XXX make this nicer!
+    $('#data').add('#scroll').add('#heads').scrollLeft(newLeft);
 };
 
 
@@ -690,57 +694,6 @@ IHAM.setDayOfMonth = function(dayOfMonth)
         $('#orLast').html(" (or last) ");
 };
 
-IHAM.updateScrollBars = function(e, blah, xVelocity, yVelocity)
-{
-    var o = $(this);
-   
-    
-    // Convert scroll delta to pixels.
-    // ===============================
-    // I'm seeing a delta of 0.0125 for each click of the scroll wheel in
-    // Chrome (XXX what is this value in other browsers?). The 112 and 768
-    // values are based on 14px rows and 96px columns.
-
-    var factor = 0.025; // Chrome, Safari
-    var xUnit = 96 / factor;
-    var yUnit = 14 / factor;
-
-    var xPixels = (xVelocity * xUnit);
-    var yPixels = (yVelocity * yUnit);
-
-
-    // Make some changes.
-    // ==================
-
-    var newScrollTop = o.scrollTop() - yPixels;
-    var newScrollLeft = o.scrollLeft() + xPixels;
-
-    $('#data').scrollTop(newScrollTop);
-    o.scrollLeft(newScrollLeft);
-
-    $('#stubs').add('#scroll').scrollTop(newScrollTop);
-    $('#heads').add('#scroll').scrollLeft(newScrollLeft);
-};
-
-IHAM.scrollFromBars = function()
-{
-    // vertical scroll
-    var curTop = $('#scroll').scrollTop();
-    var maxTop = $('#scroll').height() - $('#data').height();
-    var newTop = curTop - (curTop % 14);
-    if (curTop > (maxTop / 2))
-        newTop = curTop + (14 - (curTop % 14));
-    $('#data').add('#stubs').scrollTop(newTop);
-
-    // horizontal scroll
-    var curLeft = $('#scroll').scrollLeft();
-    var maxLeft = $('#scroll').width() - $('#data').width();
-    var newLeft = curLeft - (curLeft % 96);
-    if (curLeft > (maxLeft / 2))
-        newLeft = curLeft + (96 - (curLeft % 96));
-    $('#data').add('#heads').scrollLeft(newLeft);
-};
-
 
 // dead mouse
 // ==========
@@ -756,22 +709,8 @@ IHAM.hideDeadMouse = function()
 };
 
 IHAM.flashDeadMouseHandle = null;
-IHAM.flashMousePosition = null;
 IHAM.flashDeadMouse = function(e)
 {
-    // We get the mousemove event any time the mouse goes into a new element.
-    // So if we scroll using the keyboard such that the mouse cursor is now
-    // over a new element, we still get mousemove. To avoid flashing the dead
-    // mouse in this case, we keep track of the mouse's position relative to
-    // the page overall and watch whether it has in fact changed.
-
-    if (IHAM.flashX === e.pageX && IHAM.flashY === e.pageY)
-        // In the wisdom of JavaScript, [1,2] !== [1,2].
-        return
-
-    // We have a movement of the mouse relative to the viewport.
-    IHAM.flashX = e.pageX;
-    IHAM.flashY = e.pageY;
     IHAM.showDeadMouse();
     clearTimeout(IHAM.flashDeadMouseHandle)
     IHAM.flashDeadMouseHandle = setTimeout(IHAM.hideDeadMouse, 250);
@@ -794,7 +733,7 @@ IHAM.init = function(session)
     // The mouse, it is dead.
     $('#mouse-killer').mousedown(IHAM.showDeadMouse)
                       .mouseup(IHAM.hideDeadMouse)
-                      .mousemove(IHAM.flashDeadMouse);
+                      .mousewheel(IHAM.flashDeadMouse);
 
     // Wire up the auth form. No-op if already signed in.
     $('#fake').click(IHAM.playWithFakeData);
