@@ -208,10 +208,10 @@ IHAM.categoryCreatorKeyup = function(e)
     }
 };
 
-IHAM.scrollBy = function(num)
+IHAM.scrollVertically = function(num)
 {
     if (IHAM.disabled) return false;
-    var container = $('#body');
+    var container = $('#data').add('#stubs').add('#scroll');
 
     var cur = $('#stubs TR.focus');
     var stubs = $('#stubs TR');
@@ -246,7 +246,7 @@ IHAM.scrollBy = function(num)
             container.scrollTop(to);
         } 
     }
-    IHAM.highlightRowCol();
+    IHAM.highlightColumn();
 };
 
 IHAM.changeCategory = function(inc)
@@ -338,28 +338,17 @@ IHAM.changeCategory = function(inc)
     var leaving = $('#heads TD.amount.current B');
     leaving.html(commaize(subtract(leaving.text(), amount)));
 
-    IHAM.highlightRowCol();
+    IHAM.highlightColumn(category_id);
 };
 
-IHAM.highlightRowCol = function()
-{
+
+IHAM.highlightColumn = function(category_id)
+{   // Change the highlighted column head.
     if (IHAM.disabled) return false;
-
-    var i = 0;
-    var category_id = $(".focus .categorized").attr('category_id');
-
-    // Change the highlighted column head.
+    if (category_id === undefined)
+        category_id = $('#data TR.focus .categorized').attr('category_id');
     $('.current').removeClass('current');
     $('#heads [category_id="' + category_id + '"]').addClass('current');
-   
-    // Change the column highlight. 
-    $('.highlighted').removeClass('highlighted');
-    i = $('TBODY TR').index($('TR.focus'));
-    $('TD[category_id="' + category_id + '"]:lt(' + i + ')').addClass('highlighted');
-   
-    // Change the row highlight. 
-    i = $('TBODY TR TD').index($('TD[category_id="' + category_id + '"]'));
-    $('TR.focus TD:lt(' + i + ')').addClass('highlighted');
 };
 
 
@@ -388,7 +377,7 @@ IHAM.navigate = function(e)
             nrows = -1
         case 40:    // down arrow
         case 74:    // j
-            IHAM.scrollBy(nrows);
+            IHAM.scrollVertically(nrows);
             break;
         case 37:    // left arrow
         case 39:    // right arrow
@@ -727,7 +716,7 @@ IHAM.init = function(session)
     // Set initial highlight state.
     $('#stubs TR').eq(0).addClass('focus');
     $('#data TR').eq(0).addClass('focus');
-    IHAM.highlightRowCol();
+    IHAM.highlightColumn();
     IHAM.setDayOfMonth(session.day_of_month_to_bill);
 };
 
