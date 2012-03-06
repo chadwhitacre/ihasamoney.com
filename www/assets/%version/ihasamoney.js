@@ -124,13 +124,8 @@ IHAM.resize = function()
     var dataWidth = 96;
     var detailsWidth = dataWidth + stubsWidth + 5;
 
-    $('#summary').css({ 'left': Math.floor(( WIN.width() 
-                                           - (96 * 2)
-                                           - detailsWidth
-                                            ) / 2)
-                      , 'top': Math.floor(( WIN.height() 
-                                          - $('#summary').height()
-                                           ) / 2)
+    $('#summary').css({ 'left': detailsWidth + 5 + 5
+                      , 'top': 5
                        });
 
     $('#details').width(detailsWidth);
