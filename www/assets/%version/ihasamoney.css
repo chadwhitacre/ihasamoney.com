@@ -165,7 +165,6 @@ TD.description DIV {
                    the table cell. */
 }
 
-
 TR.focus TD.date {
     background: #E6F2F0;
     background: #2A8F79;
@@ -204,9 +203,16 @@ TH.current {
 /* #data */
 /* ~~~~~ */
 
-TR.focus TD.categorized B {
+#data B {
+    color: #CCBAAD;
+}
+#data B.catsync {
+    color: #614C3E;
+}
+#data TR.focus TD.categorized B {
     border-color: #2A8F79;
     background: #F2F7F7;
+    color: #614C3E;
 }
 
 

@@ -127,7 +127,7 @@ if pmt:
                         {% for _category_id, _category in categories %}<td 
                             class="amount{% if _category == category %} categorized{% end %}"
                             category_id="{{ _category_id }}">
-                            <b>{% if _category == category %}{{ amount }}{% end %}</b></td>
+                            <b{% if _category == category %} class="catsync" {% end %}>{{ amount }}</b></td>
                         {% end %}
                     </tr>
                     {% end %}

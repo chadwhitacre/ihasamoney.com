@@ -307,7 +307,7 @@ IHAM.changeCategory = function(inc)
                                             });
     from.removeClass('categorized');
     to.html(from.html()).addClass('categorized');
-    from.html('<b></b>');
+    from.html('<b>' + $('B', from).html() + '</b>');
 
 
     // Update summary amount.
@@ -394,13 +394,30 @@ IHAM.highlightColumn = function(category_id)
 /* Navigation */
 /* ========== */
 
-IHAM.nextUncategorized = function()
+IHAM.scrollByCategory = function(direction)
 {
-
+    var cur = $('#data TR.focus .categorized');
+    var category_id = cur.attr('category_id');
+    var all = $('#data TD[category_id="' + category_id + '"]');
+    var cat = all.filter('.categorized');
+    var i = cat.index(cur) + direction;
+    var next = cat.eq(i); // Warning: eq takes negative indices.
+    if (i !== -1 && next.length)
+    {
+        var from = all.index(cur);
+        var to = all.index(next)
+        IHAM.scrollVertically(to - from)
+    }
 };
 
-IHAM.previousUncategorized = function()
+IHAM.nextByCategory = function()
 {
+    IHAM.scrollByCategory(1);
+};
+
+IHAM.previousByCategory = function()
+{
+    IHAM.scrollByCategory(-1);
 };
 
 IHAM.navigate = function(e)
@@ -432,10 +449,10 @@ IHAM.navigate = function(e)
             if (e.shiftKey)
                 IHAM.createCategory();
             else
-                IHAM.nextUncategorized();
+                IHAM.nextByCategory();
             break;
-        case 78:    // p 
-            IHAM.previousUncategorized();
+        case 80:    // p 
+            IHAM.previousByCategory();
             break;
     }
 };
