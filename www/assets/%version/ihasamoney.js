@@ -117,30 +117,31 @@ IHAM.resize = function()
     var WIN = $(window);
 
     var headsHeight = $('#heads').height();
-    var stubsWidth = 280; // XXX make this adjustable with mouse drag
+    var stubsWidth = 360; // XXX make this adjustable with mouse drag
 
-    var dataHeight = WIN.height() - headsHeight - IHAM.scrollbarWidth;
-    var dataWidth = WIN.width() - stubsWidth - IHAM.scrollbarWidth; 
+    var dataHeight = WIN.height() - headsHeight - IHAM.scrollbarWidth - 10;
+        dataHeight = dataHeight - (dataHeight % 14);
+    var dataWidth = 96;
+    var detailsWidth = dataWidth + stubsWidth + 5;
 
-    $('#corner').height(headsHeight - 2) // border
-                .width(stubsWidth - 3); // border
-    $('#corner BUTTON').css( 'top'
-                           , Math.ceil(( $('#corner').height() 
-                                       - $('#corner BUTTON').outerHeight()
-                                        ) / 2)
-                            );
+    $('#summary').css({ 'left': Math.floor(( WIN.width() 
+                                           - (96 * 2)
+                                           - detailsWidth
+                                            ) / 2)
+                      , 'top': Math.floor(( WIN.height() 
+                                          - $('#summary').height()
+                                           ) / 2)
+                       });
+
+    $('#details').width(detailsWidth);
 
     $('#heads').width(dataWidth)
-               .css({ 'left': stubsWidth
-                       });
+               .css({'right': IHAM.scrollbarWidth});
     $('#stubs').height(dataHeight)
-               .width(stubsWidth)
-               .css({'top': headsHeight});
+               .width(stubsWidth);
     $('#data').height(dataHeight)
               .width(dataWidth)
-              .css({ 'top': headsHeight
-                   , 'left': stubsWidth
-                    });
+              .css({'right': IHAM.scrollbarWidth});
 
     // Scrolling 
     // =========
@@ -148,21 +149,11 @@ IHAM.resize = function()
     var tableHeight = $('#data TABLE').height();
     var tableWidth = $('#data TABLE').width();
 
-    $('#heads TH.padding B').css('width', dataWidth % 96);
-    $('#heads TD.padding B').css('width', dataWidth % 96);
-    $('#data TD.padding B').css('width', dataWidth % 96);
-
-    $('#data TABLE').css('margin-bottom', dataHeight % 14);
-    $('#stubs TABLE').css('margin-bottom', dataHeight % 14);
-
     $('#data-proxy').height(tableHeight)
                     .width(tableWidth);
     $('#scroll').add('#scrollbar-protector')
                 .height(dataHeight + IHAM.scrollbarWidth)
-                .width(dataWidth + IHAM.scrollbarWidth)
-                .css({ 'top': headsHeight
-                     , 'left': stubsWidth
-                      });
+                .width(dataWidth + IHAM.scrollbarWidth);
 };
 
 
@@ -374,10 +365,10 @@ IHAM.changeCategory = function(inc)
         return f;
     }
 
-    var entering = $('#heads TD.amount[category_id="' + category_id + '"] B');
+    var entering = $('#summary TR[category_id="' + category_id + '"] TD.amount B');
     entering.html(commaize(add(entering.text(), amount)));
 
-    var leaving = $('#heads TD.amount.current B');
+    var leaving = $('#summary TR.current TD.amount B');
     leaving.html(commaize(subtract(leaving.text(), amount)));
 
     IHAM.highlightColumn(category_id);
@@ -389,20 +380,28 @@ IHAM.highlightColumn = function(category_id)
     if (category_id === undefined)
         category_id = $('#data TR.focus .categorized').attr('category_id');
     $('.current').removeClass('current');
-    var cols = $('TH');
-    var col = $('#heads [category_id="' + category_id + '"]');
+    var cols = $('#heads TH');
+    var col = $('#heads TH[category_id="' + category_id + '"]');
     col.addClass('current');
 
-    var newLeft = 0;
-    var scroll = $('#scroll');
-     
-    newLeft = cols.index(col) * 96; // XXX make this nicer!
+    $('#summary TR[category_id="' + category_id + '"]').addClass('current');
+
+    var newLeft = cols.index(col) * 96;
     $('#data').add('#scroll').add('#heads').scrollLeft(newLeft);
 };
 
 
 /* Navigation */
 /* ========== */
+
+IHAM.nextUncategorized = function()
+{
+
+};
+
+IHAM.previousUncategorized = function()
+{
+};
 
 IHAM.navigate = function(e)
 {
@@ -432,6 +431,11 @@ IHAM.navigate = function(e)
         case 78:    // n
             if (e.shiftKey)
                 IHAM.createCategory();
+            else
+                IHAM.nextUncategorized();
+            break;
+        case 78:    // p 
+            IHAM.previousUncategorized();
             break;
     }
 };
@@ -727,7 +731,7 @@ IHAM.init = function(session)
     IHAM.resize();
 
     // Wire up the corner.
-    $('#corner BUTTON').click(IHAM.openModal);
+    $('#help-button BUTTON').click(IHAM.openModal);
     $('#mask').click(IHAM.closeModal);
 
     // The mouse, it is dead.

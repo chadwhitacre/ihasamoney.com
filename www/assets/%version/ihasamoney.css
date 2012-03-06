@@ -2,7 +2,7 @@
 
 
 BODY {
-    margin: 0;
+    margin: 5px;
     padding: 0;
     font: normal 12px/12px Arial, sans-serif;
     color: #301403;
@@ -39,35 +39,49 @@ BODY {
 /* Roughing In */
 /* ~~~~~~~~~~~ */
 
-#corner {
+#help-button {
     position: absolute;
-    top: 0;
-    left: 0;
-    border-right: 3px solid #CCBAAD;
-    border-bottom: 2px solid #CCBAAD;
-}
-#corner BUTTON {
-    position: absolute;
-    top: 2px;
+    top: 5px;
     left: 5px;
+    z-index: 5;
+}
+
+#summary {
+    width: 300px;
+    position: absolute;
+    top: 100px;
+    left: 0;
+}
+
+#details {
+    position: absolute;
+    top: 5px;
+    right: 5px;
 }
 #heads {
     position: absolute;
     overflow: hidden;
     border-right: 1px solid #CCBAAD;
+    top: 0;
+    right: 0;
 }
 #stubs {
     position: absolute;
     overflow: hidden;
-    border-bottom: 1px solid #CCBAAD;
+    top: 18px;
+    left: 0;
 }
 #data {
     position: absolute;
     overflow: hidden;
+    top: 18px;
+    right: 0;
 }
 #scroll {
     position: absolute;
     overflow: scroll;
+    top: 18px;
+    right: 0;
 }
 #scrollbar-protector {
     position: absolute;
@@ -89,7 +103,8 @@ TD B {
     display: block;
     height: 12px;
     border: 1px solid white;
-    width: 94px; /* arbitrary width for now XXX make this adjustable */
+    border-style: solid none;
+    width: 96px; /* arbitrary width for now XXX make this adjustable */
 }
 TD.amount {
     /* This is used in both #heads and #data. */
@@ -97,17 +112,27 @@ TD.amount {
     text-align: center;
     padding: 0;
 }
-TH.padding,
-TD.padding {
-    /* This is used in both #heads and #data. It makes scrolling fit. */
-    width: 0;
-    background: #F2EBE6;
-    border-color: #F2EBE6;
+
+
+/* #summary */
+/* ~~~~~~~~ */
+
+#summary {
+    width: 1px;
 }
-TH.padding B,
-TD.padding B {
-    border-color: #F2EBE6;
-    border-style: solid none;
+#summary TH {
+    padding: 2px 5px;
+    text-align: left;
+    border: 0;
+}
+#summary TD.amount {
+    width: 1px;
+    text-align: right;
+    padding-right: 5px;
+}
+#summary TR.current TH {
+    background: #2A8F79;
+    color: #F2F7F7;
 }
 
 
@@ -132,7 +157,8 @@ TD.description {
     padding: 0 5px;
     white-space: nowrap;
     overflow: hidden;
-    border-right: 3px solid #CCBAAD;
+    border: 1px solid white;
+    border-style: solid none;
 }
 TD.description DIV {
     width: 1px; /* This allows the overflow to be shown but doesn't overflow 
@@ -156,13 +182,13 @@ TR.focus TD.description {
 
 /* #heads */
 /* ~~~~~~ */
+/* These are also used in #summary. */
 
 TH {
     font: normal 12px/14px Arial, sans-serif;
     padding: 2px 0;
     text-align: center;
     white-space: nowrap;
-    border-bottom: 1px solid #CCAABD;
 }
 TH DIV {
     width: 96px; /* Brittlely tied to above. */
@@ -170,22 +196,8 @@ TH DIV {
 }
 TH.current {
     background: #E6F2F0;
-    border-bottom: 1px solid #2A8F79;
     background: #2A8F79;
     color: #F2F7F7;
-}
-TD.summary {
-    border-bottom: 2px solid #CCBAAD;
-}
-TD.summary B {
-    padding: 1px 0;
-}
-TD.summary.current {
-    border-color: #2A8F79;
-}
-TD.summary.current B {
-    background: #F2F7F7;
-    border-color: #F2F7F7;
 }
 
 
@@ -193,7 +205,7 @@ TD.summary.current B {
 /* ~~~~~ */
 
 TR.focus TD.categorized B {
-    border: 1px solid #2A8F79;
+    border-color: #2A8F79;
     background: #F2F7F7;
 }
 

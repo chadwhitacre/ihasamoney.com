@@ -15,7 +15,7 @@ def commaize(amount):
     if isinstance(amount, decimal.Decimal):
         amount = "%.02f" % amount
     if amount == 0:
-        out = ("&nbsp;" * 6) + "0" + ("&nbsp;" * 3)
+        out = ("&nbsp;" * 7) + "0" + ("&nbsp;" * 3)
     else:
         negative = amount.startswith('-')
         if negative:
