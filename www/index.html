@@ -51,7 +51,7 @@ if pmt:
         </script>
         {% elif not request.user.PAID %}
         <script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>
-        <script src="/assets/.maskedinput-1.3.min.js"></script>
+        <script src="/assets/jquery.maskedinput-1.3.min.js"></script>
         <script>
             $(document).ready(function()
             {
@@ -75,6 +75,10 @@ if pmt:
     <body><div id="body">
         <div id="corner">
             <button>Help Cat</button>
+        </div>
+        <div class="mask" id="mouse-killer"></div>
+        <div class="mask" id="dead-mouse">
+            <img src="/assets/{{ __version__ }}/dead-mouse.jpg" />
         </div>
 
         <div id="heads">
@@ -411,6 +415,6 @@ if pmt:
 
             </div></div>
         </div>
-        <div id="mask"></div>
+        <div class="mask" id="mask"></div>
     </div></body>
 </html>

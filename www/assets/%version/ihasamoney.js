@@ -400,15 +400,6 @@ IHAM.highlightColumn = function(category_id)
 /* Navigation */
 /* ========== */
 
-IHAM.kill = function(e)
-{
-    // NO MOUSE FOR YOU!!!!!!!!!!!!!!!
-    e.stopPropagation();
-    e.preventDefault();
-    return false;
-    $(this).blur();
-};
-
 IHAM.navigate = function(e)
 {
     if (IHAM.disabled) return false;
@@ -751,6 +742,42 @@ IHAM.scrollFromBars = function()
 };
 
 
+// dead mouse
+// ==========
+
+IHAM.showDeadMouse = function()
+{
+    $('#dead-mouse').show();
+};
+
+IHAM.hideDeadMouse = function()
+{
+    $('#dead-mouse').hide();
+};
+
+IHAM.flashDeadMouseHandle = null;
+IHAM.flashMousePosition = null;
+IHAM.flashDeadMouse = function(e)
+{
+    // We get the mousemove event any time the mouse goes into a new element.
+    // So if we scroll using the keyboard such that the mouse cursor is now
+    // over a new element, we still get mousemove. To avoid flashing the dead
+    // mouse in this case, we keep track of the mouse's position relative to
+    // the page overall and watch whether it has in fact changed.
+
+    if (IHAM.flashX === e.pageX && IHAM.flashY === e.pageY)
+        // In the wisdom of JavaScript, [1,2] !== [1,2].
+        return
+
+    // We have a movement of the mouse relative to the viewport.
+    IHAM.flashX = e.pageX;
+    IHAM.flashY = e.pageY;
+    IHAM.showDeadMouse();
+    clearTimeout(IHAM.flashDeadMouseHandle)
+    IHAM.flashDeadMouseHandle = setTimeout(IHAM.hideDeadMouse, 250);
+};
+
+
 // main 
 // ====
 
@@ -763,6 +790,11 @@ IHAM.init = function(session)
     // Wire up the corner.
     $('#corner BUTTON').click(IHAM.openModal);
     $('#mask').click(IHAM.closeModal);
+
+    // The mouse, it is dead.
+    $('#mouse-killer').mousedown(IHAM.showDeadMouse)
+                      .mouseup(IHAM.hideDeadMouse)
+                      .mousemove(IHAM.flashDeadMouse);
 
     // Wire up the auth form. No-op if already signed in.
     $('#fake').click(IHAM.playWithFakeData);

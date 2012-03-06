@@ -209,7 +209,7 @@ TR.focus TD.categorized B {
     margin-top: -294px;
     top: 50%; 
     left: 50%;
-    z-index: 4;
+    z-index: 6;
     background: white;
     box-shadow: 5px 5px 15px #333;
     font: normal 11pt/14pt Arial, sans-serif;
@@ -270,15 +270,39 @@ TR.focus TD.categorized B {
 #modal DIV.pad {
     padding: 10px 46px;
 }
-#mask {
+.mask {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+}
+#mask {
     background: black;
     opacity: 0.7;
-    z-index: 3;
+    z-index: 5;
+}
+#corner BUTTON {
+    /* Keep this visible during dead mouse so the customer knows how to find 
+       help. */
+    z-index: 4;
+}
+#mouse-killer {
+    /* This wants to be over dead-mouse so that we capture events 
+       consistently */
+    z-index: 2;
+}
+#dead-mouse {
+    display: none;
+    background: #F5F6F1;
+    opacity: 1;
+    z-index: 1;
+}
+#dead-mouse IMG {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
 }
 
 
