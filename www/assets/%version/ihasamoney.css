@@ -61,7 +61,6 @@ BODY {
 #heads {
     position: absolute;
     overflow: hidden;
-    border-right: 1px solid #CCBAAD;
     top: 0;
     right: 0;
 }
@@ -495,7 +494,10 @@ FORM#payment .full {
     text-indent: -1em;
     padding-left: 1em;
 }
-
+.pane P {
+    margin: 0;
+    padding: 0 0 1em;
+}
 #modal #pane-nav {
     margin: 0;
     position: absolute;

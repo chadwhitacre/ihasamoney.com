@@ -209,12 +209,12 @@ if pmt:
                         <div id="cheat-sheet" class="omgworstclassnameever">
 
                             <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                            <u>k</u> to select a transaction.<br />
+                            <u>k</u> to select a transaction<br />
 
                             <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                            <u>l</u> to recategorize.<br />
+                            <u>l</u> to recategorize<br />
 
-                            <u>esc</u> to open/close cat.
+                            <u>esc</u> to open/close this screen
                         
                         </div>
 
@@ -224,7 +224,7 @@ if pmt:
                         <div id="acct">
 
                             <h2>
-                                <span>IHAM.com</span>
+                                <span>IHasAMoney.com</span>
                                 <div class="line"></div>
                             </h2>
 
@@ -346,14 +346,17 @@ if pmt:
                                 <div id="cheat-sheet">
 
                                     <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                                    <u>k</u> to select a transaction.<br />
+                                    <u>k</u> to select a transaction<br />
 
                                     <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                                    <u>l</u> to recategorize.<br />
+                                    <u>l</u> to recategorize<br />
                                    
+                                    <u>n</u> / <u>p</u> to select transactions
+                                    by category<br />
+
                                     <u>shift</u> <u>n</u> for new category<br />
 
-                                    <u>esc</u> to close/open the cat.
+                                    <u>esc</u> to close/open this screen 
                                 
                                 </div>
                             </div>
@@ -364,6 +367,22 @@ if pmt:
                                     <div class="line"></div>
                                 </h2>
                                 <div>
+
+                                    <p>You get data into IHasAMoney by
+                                    uploading a CSV. You have to download
+                                    transactions from your bank&rsquo;s
+                                    website, convert them to a CSV in the right
+                                    format, and upload it here or POST it to
+                                    /transactions/.</p>
+
+                                    <p>The id field can be blank, but if you
+                                    include it then next time you upload
+                                    we&rsquo;ll use that field to do an UPDATE
+                                    instead of an INSERT.</p>
+
+                                    <p>Here&rsquo;s <a href="/mogrify.py">an
+                                        example conversion script</a>.</p>
+
                                     <form action="/transactions/" id="upload" 
                                         method="POST"
                                         enctype="multipart/form-data">
@@ -407,13 +426,43 @@ if pmt:
                                 </div>
                             </div>
 
+                            <div class="pane" pane="about">
+                                <h2>
+                                    <span>About / Contact</span>
+                                    <div class="line"></div>
+                                </h2>
+                                <div>
+
+                                    <p>IHasAMoney.com is a personal finance
+                                    application for geeks. You get data into it
+                                    by uploading a CSV in a certain format. You
+                                    get value out of it by categorizing your
+                                    transactions.</p>
+
+                                    <p>IHasAMoney.com is run by Chad Whitacre.
+                                    Please talk to me:</p>
+                                    
+                                    <ul>
+                                        <li>412-925-4220</li>
+                                        <li><a
+                                            href="mailto:chad@zetaweb.com">chad@zetaweb.com</a></li>
+                                        <li><a
+                                            href="https://twitter.com/#!/whit537">@whit537</a></li>
+                                        <li><a
+                                            href="https://ihasamoney.zendesk.com/">ZenDesk</a></li>
+                                    </ul>
+
+
+                                </div>
+                            </div>
+
                             <div class="pane" pane="api">
                                 <h2>
                                     <span>API</span>
                                     <div class="line"></div>
                                 </h2>
                                 <div>
-                                    <p>POST CSV (per <i>Upload Data</i>) to <a
+                                    <p>POST CSV (formatted per <i>Upload Data</i>) to <a
                                         href="/transactions/">/transactions/</a>.</p>
                                 </div>
                             </div>
