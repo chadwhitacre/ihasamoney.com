@@ -428,22 +428,22 @@ IHAM.navigate = function(e)
 {
     if (IHAM.disabled) return false;
 
-    var nrows = 1, to = 1, hl = {37: -1, 39: 1, 72:-1, 76: 1};
-    //console.log(e.which);
+    var nrows = 1, to = 1, jk = {37: -1, 39: 1, 75:-1, 74: 1};
+    console.log(e.which);
     switch (e.which)
     {
         case 38:    // up arrow
-        case 75:    // k
+        case 68:    // d 
             nrows = -1
         case 40:    // down arrow
-        case 74:    // j
+        case 70:    // f 
             IHAM.scrollVertically(nrows);
             break;
         case 37:    // left arrow
         case 39:    // right arrow
-        case 72:    // h
-        case 76:    // l
-            to *= hl[e.which];
+        case 75:    // j 
+        case 74:    // k
+            to *= jk[e.which];
             IHAM.changeCategory(to);
             break;
         case 27:    // ESC
