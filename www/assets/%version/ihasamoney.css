@@ -45,6 +45,15 @@ BODY {
     right: 5px;
     z-index: 5;
 }
+#help-button .cheat-sheet {
+    display: none;
+}
+#help-button.dead-mouse .cheat-sheet {
+    display: block;
+}
+#help-button BUTTON {
+    float: right;
+}
 
 #summary {
     position: absolute;
@@ -78,7 +87,7 @@ TD B {
     width: 96px; /* arbitrary width for now XXX make this adjustable */
 }
 TD.amount {
-    /* This is used in both #heads and #data. */
+    /* This is used in both #summary and #details . */
     font: normal 10px/14px Monaco, "Lucida Console", monospace;
     text-align: center;
     padding: 0;
@@ -348,10 +357,10 @@ FORM INPUT:focus {
     overflow: hidden;
 }
 
-#modal #cheat-sheet {
+.cheat-sheet {
     font: normal 10px/20px Monaco, "Lucida Console", monospace;
 }
-#modal U {
+.cheat-sheet U {
     text-decoration: none;
     border: 1px solid #614C3E;
     border-radius: 2px;

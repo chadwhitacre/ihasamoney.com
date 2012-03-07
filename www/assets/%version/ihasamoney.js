@@ -688,11 +688,13 @@ IHAM.setDayOfMonth = function(dayOfMonth)
 IHAM.showDeadMouse = function()
 {
     $('#dead-mouse').show();
+    $('#help-button').addClass('dead-mouse');
 };
 
 IHAM.hideDeadMouse = function()
 {
     $('#dead-mouse').hide();
+    $('#help-button').removeClass('dead-mouse');
 };
 
 IHAM.flashDeadMouseHandle = null;
