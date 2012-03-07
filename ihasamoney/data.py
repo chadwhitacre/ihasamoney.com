@@ -352,8 +352,7 @@ def fake():
     # Prep our return structure.
 
     categories.remove((-1, "uncategorized"))
-    categories.remove((10, "income"))
-    categories = [(-1, "uncategorized"), (10, "income")] + sorted(categories)
+    categories = [(-1, "uncategorized")] + sorted(categories, key=lambda c: c[1])
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
     balance = decimal.Decimal(balance) + total_spending
 
