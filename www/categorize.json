@@ -21,6 +21,8 @@ INSERT INTO categorizations (transaction_id, category_id)
 if request.user.PAID:
     email = request.user.session['email']
     tid = request.qs.one('tid')
-    category_id = request.qs.one('category_id')
-    db.execute(CATEGORIZE, (tid, tid, email, tid, email, category_id))
+    cid = request.qs.one('cid')
+    if None in (tid, cid):
+        raise Response(400)
+    db.execute(CATEGORIZE, (tid, tid, email, tid, email, cid))
 response.code = 204

@@ -116,16 +116,11 @@ IHAM.resize = function()
     
     var WIN = $(window);
 
-    var headsHeight = $('#heads').height();
-    var stubsWidth = 360; // XXX make this adjustable with mouse drag
-
-    var dataHeight = WIN.height() - headsHeight - IHAM.scrollbarWidth - 10;
-        dataHeight = dataHeight - (dataHeight % 14);
-    var dataWidth = 96;
-    var detailsWidth = dataWidth + stubsWidth + 5;
+    var detailsHeight = WIN.height() - 10;
+        detailsHeight = detailsHeight - (detailsHeight % 14);
+    var detailsWidth = 400;
 
     var halfish = Math.floor(WIN.width() / 2);
-    console.log(halfish, detailsWidth)
     if (halfish > detailsWidth)
     {
         $('#details').css({'left': halfish - detailsWidth + 5, 'top': 5});
@@ -137,27 +132,9 @@ IHAM.resize = function()
         $('#summary').css({'left': detailsWidth + 5 + 5, 'top': 5});
     }
 
-    $('#details').width(detailsWidth);
+    $('#details').width(detailsWidth)
+                 .height(detailsHeight);
 
-    $('#heads').width(dataWidth)
-               .css({'right': IHAM.scrollbarWidth});
-    $('#stubs').height(dataHeight)
-               .width(stubsWidth);
-    $('#data').height(dataHeight)
-              .width(dataWidth)
-              .css({'right': IHAM.scrollbarWidth});
-
-    // Scrolling 
-    // =========
-
-    var tableHeight = $('#data TABLE').height();
-    var tableWidth = $('#data TABLE').width();
-
-    $('#data-proxy').height(tableHeight)
-                    .width(tableWidth);
-    $('#scroll').add('#scrollbar-protector')
-                .height(dataHeight + IHAM.scrollbarWidth)
-                .width(dataWidth + IHAM.scrollbarWidth);
 };
 
 
@@ -207,19 +184,17 @@ IHAM.categoryCreatorKeyup = function(e)
 IHAM.scrollVertically = function(num)
 {
     if (IHAM.disabled) return false;
-    var container = $('#data').add('#stubs').add('#scroll');
+    var container = $('#details');
 
-    var cur = $('#stubs TR.focus');
-    var stubs = $('#stubs TR');
-    var data = $('#data TR');
-    var from = stubs.index(cur);
+    var cur = $('TR.focus');
+    var all = $('TABLE.shown TR');
+    var from = all.index(cur);
     var to = from + num;
 
-    if (0 <= to && to < stubs.length)
+    if (0 <= to && to < all.length)
     { 
         $('.focus').removeClass('focus');
-        stubs.eq(to).addClass('focus');
-        data.eq(to).addClass('focus');
+        all.eq(to).addClass('focus');
         var curScroll = container.scrollTop();
         var scrollTop = container.scrollTop();
         var scrollBottom = ( scrollTop
@@ -241,77 +216,89 @@ IHAM.scrollVertically = function(num)
             container.scrollTop(to);
         } 
     }
-    IHAM.highlightColumn();
 };
 
-IHAM.scrollHorizontally = function(num)
+IHAM.prepareToCategorize = function(inc)
 {
     if (IHAM.disabled) return false;
-    var container = $('#data').add('#heads').add('#scroll');
-
-    var cur = $('#heads TH.current');
-    var heads = $('#heads TH').add('#heads TD');
-    var data = $('#data TH');
-    var from = heads.index(cur);
-    var to = from + num;
-
-    if (0 <= to && to < heads.length)
-    { 
-        $('.current').removeClass('current');
-        heads.eq(to).addClass('current');
-        data.eq(to).addClass('current');
-        var curScroll = container.scrollTop();
-        var scrollLeft  = container.scrollTop();
-        var scrollRight = ( scrollTop
-                          + container.height() 
-                          - 14
-                           );
-        var scrollMiddle = ( scrollTop 
-                           + Math.floor((scrollBottom - scrollTop) / 3)
-                            );
-        scrollMiddle -= scrollMiddle % 14;
-
-        var at = to * 14;
-        var to = curScroll + (num * 14);
-        if (at < scrollTop) {
-            container.scrollTop(to);
-        } else if (at > scrollBottom) {
-            container.scrollTop(to);
-        } else if (at === scrollMiddle) {
-            container.scrollTop(to);
-        } 
-    }
-    IHAM.highlightColumn();
-};
-
-IHAM.changeCategory = function(inc)
-{
-    if (IHAM.disabled) return false;
-    var tid = $('TR.focus').attr('tid');
-    var cols = $('TR.focus TD.amount');
-    var cell = $('TR.focus TD.amount.categorized');
-    var amount = cell.text();
-    var from = cols.index(cell);
+    var cats = $('#summary TR');
+    var cur = $('#summary TR.prepared');
+    var from = cats.index(cur);
     var to = from + inc;
-    var category;
 
     if (to === -1)
-        to = cols.length - 1;
-    if (to === cols.length)
+        to = cats.length - 1;
+    if (to === cats.length)
         to = 0;
 
-    from = cols.eq(from);
-    to = cols.eq(to);
-    category_id = to.attr('category_id');
-    if (category == "uncategorized")
+    from = cats.eq(from);
+    from.removeClass('prepared');
+
+    to = cats.eq(to);
+    to.addClass('prepared');
+};
+
+IHAM.selectCategory = function(inc)
+{
+    if (IHAM.disabled) return false;
+    var cats = $('#summary TR');
+    var cur = $('#summary TR.current');
+    var from = cats.index(cur);
+    var to = from + inc;
+
+    if (to === -1)
+        to = cats.length - 1;
+    if (to === cats.length)
+        to = 0;
+
+    from = cats.eq(from);
+    $('#details TABLE[cid="' + from.attr('cid') + '"]').removeClass('shown');
+    from.removeClass('current prepared');
+
+    to = cats.eq(to);
+    $('#details TABLE[cid="' + to.attr('cid') + '"]').addClass('shown');
+    to.addClass('current prepared');
+    
+    $('TR.focus').removeClass('focus');
+    $('TABLE.shown TR').eq(0).addClass('focus');
+};
+
+IHAM.categorize = function()
+{
+    if (IHAM.disabled) return false;
+    var cats = $('#summary TR');
+    var from = $('#summary TR.current');
+    var to = $('#summary TR.prepared');
+   
+    if (from.attr('cid') === to.attr('cid'))
+        // The shift key was released, but not in the context of a 
+        // categorization.
+        return; 
+
+    var row = $('TR.focus');
+    var tid = row.attr('tid');
+    var cid = to.attr('cid');
+    var amount = $('TD.amount', row).text();
+    
+    if (cid === "-1") // XXX Borked in anonymous, where we use "uncategorized".
         jQuery.getJSON('/uncategorize.json', {tid: tid});
     else
-        jQuery.getJSON('/categorize.json', { tid: tid
-                                           , category_id: category_id
-                                            });
-    from.removeClass('categorized');
-    to.html(from.html()).addClass('categorized');
-    from.html('<b>' + $('B', from).html() + '</b>');
+        jQuery.getJSON('/categorize.json', {tid: tid, cid: cid});
+
+
+    // Move the row to a new table.
+    // ============================
+    
+    var rows = $('TABLE.shown TR');
+    var i = rows.index(row);
+    var refocus = rows.eq(i + 1);
+    if (!refocus.length) // We moved the last row. Select prior.
+        refocus = rows.eq(i - 1); // if i is 0, the addClass will be a noop
+    refocus.addClass('focus');
+
+    row.removeClass('focus').detach();
+
+    $('TABLE[cid="' + cid + '"]').append(row);
 
 
     // Update summary amount.
@@ -369,94 +356,65 @@ IHAM.changeCategory = function(inc)
         return f;
     }
 
-    var entering = $('#summary TR[category_id="' + category_id + '"] TD.amount B');
+    var entering = $('TD.amount B', to);
     entering.html(commaize(add(entering.text(), amount)));
 
-    var leaving = $('#summary TR.current TD.amount B');
+    var leaving = $('TD.amount B', from);
     leaving.html(commaize(subtract(leaving.text(), amount)));
 
-    IHAM.highlightColumn(category_id);
-};
 
-IHAM.highlightColumn = function(category_id)
-{   // Change the highlighted column head.
-    if (IHAM.disabled) return false;
-    if (category_id === undefined)
-        category_id = $('#data TR.focus .categorized').attr('category_id');
-    $('.current').removeClass('current');
-    var cols = $('#heads TH');
-    var col = $('#heads TH[category_id="' + category_id + '"]');
-    col.addClass('current');
+    // Switch state back.
+    // ==================
 
-    $('#summary TR[category_id="' + category_id + '"]').addClass('current');
-
-    var newLeft = cols.index(col) * 96;
-    $('#data').add('#scroll').add('#heads').scrollLeft(newLeft);
+    from.addClass('prepared');
+    to.removeClass('prepared');
 };
 
 
 /* Navigation */
 /* ========== */
 
-IHAM.scrollByCategory = function(direction)
-{
-    var cur = $('#data TR.focus .categorized');
-    var category_id = cur.attr('category_id');
-    var all = $('#data TD[category_id="' + category_id + '"]');
-    var cat = all.filter('.categorized');
-    var i = cat.index(cur) + direction;
-    var next = cat.eq(i); // Warning: eq takes negative indices.
-    if (i !== -1 && next.length)
-    {
-        var from = all.index(cur);
-        var to = all.index(next)
-        IHAM.scrollVertically(to - from)
-    }
-};
-
-IHAM.nextByCategory = function()
-{
-    IHAM.scrollByCategory(1);
-};
-
-IHAM.previousByCategory = function()
-{
-    IHAM.scrollByCategory(-1);
-};
-
-IHAM.navigate = function(e)
+IHAM.keydown = function(e)
 {
     if (IHAM.disabled) return false;
 
-    var nrows = 1, to = 1, jk = {37: -1, 39: 1, 75:-1, 74: 1};
-    console.log(e.which);
+    var nrows = 1, to = 1;
+    //console.log(e.which);
     switch (e.which)
     {
-        case 38:    // up arrow
-        case 68:    // d 
-            nrows = -1
-        case 40:    // down arrow
-        case 70:    // f 
+        case 68: nrows = -1 // d 
+        case 70:            // f 
             IHAM.scrollVertically(nrows);
             break;
-        case 37:    // left arrow
-        case 39:    // right arrow
-        case 75:    // j 
-        case 74:    // k
-            to *= jk[e.which];
-            IHAM.changeCategory(to);
+        case 75: to = -1;   // k
+        case 74:            // j
+            if (e.shiftKey)
+                IHAM.prepareToCategorize(to);
+            else
+                IHAM.selectCategory(to);
             break;
-        case 27:    // ESC
+        case 72:            // h
+            IHAM.categorize();
+            break;
+        case 27:            // ESC
             IHAM.openModal();
             break;
-        case 78:    // n
+        case 78:            // n
             if (e.shiftKey)
                 IHAM.createCategory();
-            else
-                IHAM.nextByCategory();
             break;
-        case 80:    // p 
-            IHAM.previousByCategory();
+    }
+};
+IHAM.keyup = function(e)
+{
+    if (IHAM.disabled) return false;
+
+    var to = 1;
+    //console.log(e.which);
+    switch (e.which)
+    {
+        case 16: // shift
+            IHAM.categorize();
             break;
     }
 };
@@ -465,18 +423,21 @@ IHAM.navigate = function(e)
 /* Modal Screen (Cat!) */
 /* ==================== */
 
-IHAM.openModal = function()
+IHAM.openModal = function(pane)
 {
     IHAM.disabled = true;
     $('#modal INPUT').eq(0).focus();
     $('#modal-wrap').show();
     $(document).unbind('keypress');
     $(document).unbind('keydown');
+    $(document).unbind('keyup');
     $(document).keydown(function(e) 
     { 
         if (e.which === 27)
             IHAM.closeModal();
     });
+    if (pane !== undefined)
+        $('LI[pane="' + pane + '"]').click();
 };
 
 IHAM.closeModal = function()
@@ -485,7 +446,8 @@ IHAM.closeModal = function()
     $('#modal-wrap').hide();
     $(document).unbind('keypress');
     $(document).unbind('keydown');
-    $(document).keydown(IHAM.navigate);
+    $(document).keydown(IHAM.keydown);
+    $(document).keyup(IHAM.keyup);
     return false;
 };
 
@@ -766,9 +728,12 @@ IHAM.init = function(session)
     $('FORM#auth #other').click(IHAM.toggleAuthForm);
 
     // Set initial highlight state.
-    $('#stubs TR').eq(0).addClass('focus');
-    $('#data TR').eq(0).addClass('focus');
-    IHAM.highlightColumn();
+    $('#details TABLE').each(function()
+    {
+        $('TR', this).eq(0).addClass('focus');
+    });
+    $('#summary TR').eq(0).addClass('current prepared');
+    $('#details TABLE').eq(0).addClass('shown');
     IHAM.setDayOfMonth(session.day_of_month_to_bill);
 };
 

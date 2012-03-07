@@ -52,33 +52,10 @@ BODY {
 
 #details {
     position: absolute;
+    overflow: auto;
 }
-#heads {
-    position: absolute;
-    overflow: hidden;
-    top: 0;
-    right: 0;
-}
-#stubs {
-    position: absolute;
-    overflow: hidden;
-    top: 18px;
-    left: 0;
-}
-#data {
-    position: absolute;
-    overflow: hidden;
-    top: 18px;
-    right: 0;
-}
-#scroll {
-    position: absolute;
-    overflow: scroll;
-    top: 18px;
-    right: 0;
-}
-#scrollbar-protector {
-    position: absolute;
+#details TABLE {
+    display: none;
 }
 
 TABLE {
@@ -115,23 +92,35 @@ TD.amount {
     width: 1px;
 }
 #summary TH {
-    padding: 2px 5px;
+    padding: 1px 5px;
     text-align: left;
-    border: 0;
+    border: 1px solid white;
+    border-style: solid none;
 }
 #summary TD.amount {
     width: 1px;
     text-align: right;
     padding-right: 5px;
 }
+#summary TR.prepared TH {
+    background: #F2F7F7;
+    border-color: #2A8F79;
+}
 #summary TR.current TH {
     background: #2A8F79;
     color: #F2F7F7;
+    border-color: #2A8F79;
 }
 
+/* #details */
+/* ~~~~~~~~ */
 
-/* #stubs */
-/* ~~~~~~ */
+#details TABLE {
+    display: none;
+}
+#details TABLE.shown {
+    display: block;
+}
 
 TD.date {
     padding-right: 5px;
@@ -153,6 +142,7 @@ TD.description {
     overflow: hidden;
     border: 1px solid white;
     border-style: solid none;
+    width: 100%;
 }
 TD.description DIV {
     width: 1px; /* This allows the overflow to be shown but doesn't overflow 
@@ -172,41 +162,9 @@ TR.focus TD.description {
     border-color: #2A8F79;
 }
 
-
-/* #heads */
-/* ~~~~~~ */
-/* These are also used in #summary. */
-
-TH {
-    font: normal 12px/14px Arial, sans-serif;
-    padding: 2px 0;
-    text-align: center;
-    white-space: nowrap;
-}
-TH DIV {
-    width: 96px; /* Brittlely tied to above. */
-    overflow: hidden;
-}
-TH.current {
-    background: #E6F2F0;
-    background: #2A8F79;
-    color: #F2F7F7;
-}
-
-
-/* #data */
-/* ~~~~~ */
-
-#data B {
-    color: #CCBAAD;
-}
-#data B.catsync {
-    color: #614C3E;
-}
-#data TR.focus TD.categorized B {
+TR.focus B {
     border-color: #2A8F79;
     background: #F2F7F7;
-    color: #614C3E;
 }
 
 

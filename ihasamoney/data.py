@@ -38,9 +38,18 @@ def commaize(amount):
     out = ((11 - len(out)) * "&nbsp;") + out # this fits up to -999,999.99
     return out
 
-def gentxns(txns):
+def gentxns(txns, cid=None):
     curdate = 0000, 00, 00
     for row in txns:
+        
+        if row['cid'] is None:
+            row['cid'] = -1 # uncategorized
+        # This comes out as a single int or None, not (e.g.) a list of ints, if
+        # there is only one category. And our UI assures that there is only one
+        # category.
+        if cid is not None and row['cid'] != cid:
+            continue
+
 
         # red hot, baby!
         d = row['date']
@@ -68,15 +77,10 @@ def gentxns(txns):
 
         amount = commaize(str(row['amount']))
 
-        category = row['category'] # This comes out as a single string or None,
-                                   # not (e.g.) a list of strings, if there is 
-                                   # only one category. And our UI assures that
-                                   # there is only one category.
-
-        if category is None:
-            category = "uncategorized"
-
-        yield row['id'], amount, row['description'], date, category
+        if cid is None:
+            yield row['id'], amount, row['description'], date, row['cid']
+        else:
+            yield row['id'], amount, row['description'], date
 
 
 # Real Data
@@ -107,12 +111,12 @@ def get(email):
              , date
              , amount
              , description
-             , (  SELECT categories.category
+             , (  SELECT categories.id
                     FROM categories
                     JOIN categorizations
                       ON categorizations.category_id = categories.id
                    WHERE categorizations.transaction_id = transactions.id
-                ) as category -- a single category, it turns out
+                ) as cid -- a single category, it turns out
           FROM transactions 
          WHERE email=%s 
       ORDER BY date DESC
@@ -170,7 +174,7 @@ class Transactions(list):
                     , "date": date
                     , "amount": decimal.Decimal(amount)
                     , "description": payee + " " + type
-                    , "category": category
+                    , "cid": category
                      })
         self.id += 1
 
@@ -311,19 +315,18 @@ def fake():
     # Then deal with housing
 
     housing_category = random.choice(["rent", "mortgage"])
-
     housing_days_ago = 0
-
+    housing_spending = decimal.Decimal(0)
     while housing_days_ago < days:
         housing_days_ago += 30
         last_housing = (end_date - timedelta(days=housing_days_ago))
         amount = generate_transaction(transactions, housing_category, "DEBIT")
         total_spending -= abs(amount)
+        housing_spending += amount
 
 
     # Now deal with the rest of the categories
    
-    housing_spending = total_spending
     for category in categories:
         if category in ["income"]:
             continue
@@ -336,12 +339,12 @@ def fake():
             total_spending -= abs(amount)
         summary[category] = commaize(decimal.Decimal("%.02f" % category_amount))
     categories.append(housing_category)
-    summary[housing_category] = commaize(decimal.Decimal("-%.02f" % housing_spending))
+    summary[housing_category] = commaize(housing_spending)
 
     
-    # And lastly, summarize transactions.
+    # And lastly, summarize uncategorized transactions.
 
-    uncat = [t['amount'] for t in transactions if t['category'] == "uncategorized"]
+    uncat = [t['amount'] for t in transactions if t['cid'] == "uncategorized"]
     summary["uncategorized"] = commaize(sum(uncat))
 
 
@@ -350,7 +353,7 @@ def fake():
     categories.remove("uncategorized")
     categories.remove("income")
     categories = ["uncategorized", "income"] + sorted(categories)
-    categories = zip(range(len(categories)), categories)
+    categories = zip(categories, categories)
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
     balance = decimal.Decimal(balance) + total_spending
 

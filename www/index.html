@@ -67,20 +67,41 @@ if pmt:
             {
                 IHAM.initPayment('{{ merchant_key }}');
                 IHAM.initModalNav();
-                IHAM.closeModal();
+                if (!$('#details TR').length)
+                    IHAM.openModal('upload-data');
+                else
+                    IHAM.closeModal();
             });
         </script>
         {% end %}
     </head>
     <body>
+        <div class="mask" id="mouse-killer"></div>
+        <div class="mask" id="dead-mouse">
+            <img src="/assets/{{ __version__ }}/dead-mouse.jpg" />
+        </div>
         <div id="help-button">
             <button>Help Cat</button>
         </div>
 
+        <div id="details">
+            {% for cid, category in categories %}
+            <table cid="{{ cid }}">
+                {% for tid, amount, desc, date in data.gentxns(transactions, cid) %}
+                <tr tid="{{ tid }}"> 
+                    {{ date }}
+                    <td class="description"><div>{{ escape(desc) }}</div></td>
+                    <td class="amount"><b>{{ amount }}</b></td>
+                </tr>
+                {% end %}
+            </table>
+            {% end %}
+        </div>
+
         <div id="summary">
             <table>
-                {% for category_id, category in categories %}
-                <tr category_id="{{ category_id }}">
+                {% for cid, category in categories %}
+                <tr cid="{{ cid }}">
                     <th class="head">
                         <div>{{ escape(category) }}</div>
                     </th>
@@ -92,48 +113,6 @@ if pmt:
             </table>
         </div>
 
-        <div id="details">
-            <div class="mask" id="mouse-killer"></div>
-            <div class="mask" id="dead-mouse">
-                <img src="/assets/{{ __version__ }}/dead-mouse.jpg" />
-            </div>
-
-            <div id="heads">
-                <table>
-                    <tr>
-                        {% for category_id, category in categories %}<th 
-                            class="head" 
-                            category_id="{{ category_id }}"
-                            ><div>{{ escape(category) }}</div></th>{% end %}
-                    </tr>
-                </table>
-            </div>
-            <div id="stubs">
-                <table>
-                    {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
-                    <tr tid="{{ tid }}">
-                        {{ date }}
-                        <td class="description"><div>{{ escape(desc) }}</div></td>
-                    </tr>
-                    {% end %}
-                </table>
-            </div>
-            <div id="scroll"><div id="data-proxy"></div></div>
-            <div id="scrollbar-protector"></div>
-            <div id="data">
-                <table>
-                    {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
-                    <tr tid="{{ tid }}">
-                        {% for _category_id, _category in categories %}<td 
-                            class="amount{% if _category == category %} categorized{% end %}"
-                            category_id="{{ _category_id }}">
-                            <b{% if _category == category %} class="catsync" {% end %}>{{ amount }}</b></td>
-                        {% end %}
-                    </tr>
-                    {% end %}
-                </table>
-            </div>
-        </div>
         <div id="modal-wrap">
             <div id="modal">
                 <img src="/assets/{{ __version__ }}/ihasamoney.jpg" class="cat" />
@@ -208,11 +187,12 @@ if pmt:
 
                         <div id="cheat-sheet" class="omgworstclassnameever">
 
-                            <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                            <u>k</u> to select a transaction<br />
+                            <u>f</u> / <u>d</u> to select a transaction<br />
 
-                            <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                            <u>l</u> to recategorize<br />
+                            <u>j</u> / <u>k</u> to select a category<br />
+
+                            <u>shift</u> + <u>j</u> / <u>k</u> to categorize<br
+                            />
 
                             <u>esc</u> to open/close this screen
                         
@@ -345,16 +325,17 @@ if pmt:
                                 </h2>
                                 <div id="cheat-sheet">
 
-                                    <u>&darr;</u> / <u>&uarr;</u> -or- <u>j</u> /
-                                    <u>k</u> to select a transaction<br />
+                                    <u>f</u> / <u>d</u> to select a
+                                    transaction<br />
 
-                                    <u>&larr;</u> / <u>&rarr;</u> -or- <u>h</u> /
-                                    <u>l</u> to recategorize<br />
-                                   
-                                    <u>n</u> / <u>p</u> to select transactions
-                                    by category<br />
+                                    <u>j</u> / <u>k</u> to select a category<br
+                                    />
 
-                                    <u>shift</u> <u>n</u> for new category<br />
+                                    <u>shift</u> + <u>j</u> / <u>k</u> to
+                                    categorize<br />
+
+                                    <u>shift</u> + <u>n</u> to make a new
+                                    category<br />
 
                                     <u>esc</u> to close/open this screen 
                                 
