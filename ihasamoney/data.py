@@ -101,7 +101,7 @@ def get_categories(email):
 def get(email):
     """Return data for the given user.
     """
-    categories = [(-1, 'uncategorized')]
+    categories = [(-1, 'Uncategorized')]
     categories += [(x['id'], x['category']) for x in get_categories(email)]
 
     transactions = list(db.fetchall("""
@@ -155,7 +155,7 @@ def get(email):
     uncategorized_sum = uncategorized['sum']
     if uncategorized_sum is None:
         uncategorized_sum = 0
-    summary['uncategorized'] = commaize(uncategorized_sum)
+    summary['Uncategorized'] = commaize(uncategorized_sum)
 
     return categories, transactions, summary
 
@@ -214,59 +214,59 @@ def fake():
     # The feess number is made up, but seemed appropriate.
 
     spending_pcts = \
-        { "food":          0.101,
-          "housing":       0.278,
-          "utilities":     0.056,
-          "clothing":      0.031,
-          "transportation":0.144,
-          "health":        0.047,
-          "entertainment": 0.044,
-          "gifts":         0.020,
-          "education":     0.016,
-          "fees":          0.026 }
+        { "Food":          0.101,
+          "Housing":       0.278,
+          "Utilities":     0.056,
+          "Clothing":      0.031,
+          "Transportation":0.144,
+          "Health":        0.047,
+          "Entertainment": 0.044,
+          "Gifts":         0.020,
+          "Education":     0.016,
+          "Fees":          0.026 }
 
 
     # How much do people spend per transaction?  This is taken from
     # the category_summaries table in the live database.
 
     avg_txn_amts = \
-        { "transportation":-70.77,
-          "clothing":      -58.31,
-          "education":     -62.64,
-          "entertainment": -30.10,
-          "fees":          -20.95,
-          "food":          -25.52,
-          "gifts":         -18.84,
-          "health":        -73.05,
-          "mortgage":      -1168.49,
-          "rent":          -643.30,
-          "utilities":     -90.81 }
+        { "Transportation":-70.77,
+          "Clothing":      -58.31,
+          "Education":     -62.64,
+          "Entertainment": -30.10,
+          "Fees":          -20.95,
+          "Food":          -25.52,
+          "Gifts":         -18.84,
+          "Health":        -73.05,
+          "Mortgage":      -1168.49,
+          "Rent":          -643.30,
+          "Utilities":     -90.81 }
 
 
     # For now, just throw in some merchant names for each category. Later
     # this should come from the merchant_summaries table.
 
     top_merchants = \
-        { "transportation":["Chevron", "Jiffy Lube", "Union 76", "Arco", 
+        { "Transportation":["Chevron", "Jiffy Lube", "Union 76", "Arco", 
                             "Shell", "Pep Boys"],
-          "clothing":      ["Nordstrom", "Banana Republic", "Macy's", 
+          "Clothing":      ["Nordstrom", "Banana Republic", "Macy's", 
                             "The Gap", "Kenneth Cole", "J. Crew"],
-          "education":     ["Tuition", "Amazon.com", "Registration", 
+          "Education":     ["Tuition", "Amazon.com", "Registration", 
                             "The Crucible", "Campus Books"],
-          "entertainment": ["AMC Theaters", "Amazon.com", "Netflix", 
+          "Entertainment": ["AMC Theaters", "Amazon.com", "Netflix", 
                             "iTunes Music Store", "Rhapsody", 
                             "Metreon Theaters"],
-          "fees":          ["Bank Fee", "Overlimit Fee", "Late Fee", 
+          "Fees":          ["Bank Fee", "Overlimit Fee", "Late Fee", 
                             "Interest Fee", "Monthly Fee", "Annual Fee"],
-          "food":          ["Safeway", "Starbucks", "In-N-Out Burger", 
+          "Food":          ["Safeway", "Starbucks", "In-N-Out Burger", 
                             "Trader Joe's", "Whole Foods", "Olive Garden"],
-          "gifts":         ["Amazon.com", "Nordstrom", "Neiman-Marcus", 
+          "Gifts":         ["Amazon.com", "Nordstrom", "Neiman-Marcus", 
                             "Apple Store", "K&L Wines"],
-          "health":        ["Dr. Phillips", "Dr. Jackson", "Walgreen's", 
+          "Health":        ["Dr. Phillips", "Dr. Jackson", "Walgreen's", 
                             "Wal-Mart", "Dr. Roberts", "Dr. Martins"],
-          "mortgage":      ["Mortgage Payment"],
-          "rent":          ["Rent Payment"],
-          "utilities":     ["AT&T", "Verizon", "PG&E", "Comcast", "Brinks", ""]
+          "Mortgage":      ["Mortgage Payment"],
+          "Rent":          ["Rent Payment"],
+          "Utilities":     ["AT&T", "Verizon", "PG&E", "Comcast", "Brinks", ""]
          }
 
 
@@ -289,9 +289,9 @@ def fake():
 
     categories = list(enumerate(spending_pcts.keys()))
 
-    categories.remove((6, "housing"))
-    categories.append((10, "income"))
-    categories.append((-1, "uncategorized"))
+    categories.remove((6, "Housing"))
+    categories.append((10, "Income"))
+    categories.append((-1, "Uncategorized"))
     summary = dict([(t[1], 0) for t in categories])
 
 
@@ -310,12 +310,12 @@ def fake():
                                     , type="DEP"
                                     , cid=10
                                      )
-    summary["income"] = commaize(income_amount)
+    summary["Income"] = commaize(income_amount)
 
 
     # Then deal with housing
 
-    housing_category = random.choice(["rent", "mortgage"])
+    housing_category = random.choice(["Rent", "Mortgage"])
     housing_days_ago = 0
     housing_spending = decimal.Decimal(0)
     while housing_days_ago < days:
@@ -329,7 +329,7 @@ def fake():
     # Now deal with the rest of the categories
    
     for cid, category in categories:
-        if category in ["income"]:
+        if category in ["Income"]:
             continue
         category_spending = total_spending * decimal.Decimal(spending_pcts.get(category, 0))
         category_amount = 0
@@ -346,13 +346,13 @@ def fake():
     # And lastly, summarize uncategorized transactions.
 
     uncat = [t['amount'] for t in transactions if t['cid'] == -1]
-    summary["uncategorized"] = commaize(sum(uncat))
+    summary["Uncategorized"] = commaize(sum(uncat))
 
 
     # Prep our return structure.
 
-    categories.remove((-1, "uncategorized"))
-    categories = [(-1, "uncategorized")] + sorted(categories, key=lambda c: c[1])
+    categories.remove((-1, "Uncategorized"))
+    categories = [(-1, "Uncategorized")] + sorted(categories, key=lambda c: c[1])
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
     balance = decimal.Decimal(balance) + total_spending
 

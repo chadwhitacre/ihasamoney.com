@@ -153,6 +153,28 @@ IHAM.createCategory = function(e)
                      })
 };
 
+IHAM.deleteCategory = function(e)
+{
+    if (IHAM.disabled) return false;
+    var cid = $('TR.current').attr('cid');
+    if (cid === "-1")
+        alert( "'Uncategorized' isn't technically a category, so you can't "
+             + "delete it."
+              );
+    else
+    {
+        var category = $('TR.current TH').text().trim();
+        if (confirm("Do you really want to delete '" + category + "'?"))
+            jQuery.ajax({ type: "POST"
+                        , url: "/categories/" 
+                               + encodeURIComponent(category) 
+                               + "/delete.json"
+                        , success: function() { window.location.reload() }
+                        , dataType: 'json'
+                         });
+    }
+};
+
 IHAM.toggleCategoryCreator = function()
 {
     if (IHAM.disabled) return false;
@@ -379,26 +401,30 @@ IHAM.keydown = function(e)
 {
     if (IHAM.disabled) return false;
 
-    var nrows = 1, to = 1;
-    console.log(IHAM.preparing, e.which);
+    var dir = 1;
+    //console.log(e.which);
     switch (e.which)
     {
-        case 68: nrows = -1 // d 
-        case 70:            // f 
-            IHAM.scrollVertically(nrows);
-            break;
-        case 75: to = -1;   // k
+        case 75: dir = -1;  // k
         case 74:            // j
             if (IHAM.preparing)
-                IHAM.prepareToCategorize(to);
+                IHAM.prepareToCategorize(dir);
             else
-                IHAM.selectCategory(to);
+                IHAM.scrollVertically(dir);
+            break;
+        case 68: dir = -1   // d 
+        case 70:            // f 
+            IHAM.selectCategory(dir);
             break;
         case 76:            // l
             IHAM.preparing = true;
             break;
         case 27:            // esc 
             IHAM.openModal();
+            break;
+        case 51:            // 3
+            if (e.shiftKey)
+                IHAM.deleteCategory();
             break;
         case 78:            // n
             if (e.shiftKey)

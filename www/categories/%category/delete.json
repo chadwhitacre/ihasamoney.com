@@ -1,0 +1,9 @@
+from ihasamoney import db
+^L
+if not request.user.ANON:
+    email = request.user.session['email']
+    category = request.path['category']
+    db.execute( "DELETE FROM categories WHERE email=%s AND category=%s"
+              , (email, category)
+               )
+    response.code = 204

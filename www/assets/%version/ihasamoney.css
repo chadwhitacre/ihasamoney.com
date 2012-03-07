@@ -366,6 +366,14 @@ FORM INPUT:focus {
     border-radius: 2px;
     padding: 1px 5px;
 }
+.cheat-sheet SPAN {
+    display: inline-block;
+    width: 70px;
+    text-align: right;
+}
+.cheat-sheet SPAN.hidden {
+    visibility: hidden;
+}
 
 
 #eyes {
