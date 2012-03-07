@@ -48,7 +48,11 @@ REFERER_INSERT = "INSERT INTO referers (referer) VALUES (%s)"
 REFERER_UPDATE = """\
 
     UPDATE referers 
-       SET count = (SELECT count FROM referers WHERE referer = %s) + 1 
+       SET count = ( SELECT count 
+                       FROM referers 
+                      WHERE referer = %s 
+                        AND date = CURRENT_DATE
+                    ) + 1 
      WHERE referer = %s
        AND date = CURRENT_DATE
  RETURNING 'updated' AS msg
