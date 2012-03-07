@@ -374,12 +374,13 @@ IHAM.categorize = function()
 /* Navigation */
 /* ========== */
 
+IHAM.preparing = false;
 IHAM.keydown = function(e)
 {
     if (IHAM.disabled) return false;
 
     var nrows = 1, to = 1;
-    //console.log(e.which);
+    console.log(IHAM.preparing, e.which);
     switch (e.which)
     {
         case 68: nrows = -1 // d 
@@ -388,15 +389,15 @@ IHAM.keydown = function(e)
             break;
         case 75: to = -1;   // k
         case 74:            // j
-            if (e.shiftKey)
+            if (IHAM.preparing)
                 IHAM.prepareToCategorize(to);
             else
                 IHAM.selectCategory(to);
             break;
-        case 72:            // h
-            IHAM.categorize();
+        case 76:            // l
+            IHAM.preparing = true;
             break;
-        case 27:            // ESC
+        case 27:            // esc 
             IHAM.openModal();
             break;
         case 78:            // n
@@ -413,7 +414,8 @@ IHAM.keyup = function(e)
     //console.log(e.which);
     switch (e.which)
     {
-        case 16: // shift
+        case 76: // l
+            IHAM.preparing = false;
             IHAM.categorize();
             break;
     }
@@ -426,6 +428,12 @@ IHAM.keyup = function(e)
 IHAM.openModal = function(pane)
 {
     IHAM.disabled = true;
+   
+    // Clean up any prepared state.
+    IHAM.preparing = false;
+    $('#summary .prepared').removeClass('prepared');
+    $('#summary .current').addClass('prepared');
+
     $('#modal INPUT').eq(0).focus();
     $('#modal-wrap').show();
     $(document).unbind('keypress');
