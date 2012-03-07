@@ -168,13 +168,13 @@ class Transactions(list):
 
     id = 0
     this_month = date.today().month
-    def add_transaction(self, date, amount, payee, type, category):
-        category = "uncategorized" if date.month == self.this_month else category
+    def add_transaction(self, date, amount, payee, type, cid):
+        cid = -1 if date.month == self.this_month else cid
         self.append({ "id": self.id
                     , "date": date
                     , "amount": decimal.Decimal(amount)
                     , "description": payee + " " + type
-                    , "cid": category
+                    , "cid": cid 
                      })
         self.id += 1
 
@@ -274,7 +274,7 @@ def fake():
 
     balance = "%.02f" % generate_amt(1000)
 
-    def generate_transaction(transactions, category, type, date=None):
+    def generate_transaction(transactions, cid, category, type, date=None):
         if date is None:
             days_ago = timedelta(days=random.randint(0, days))
             date = (end_date - days_ago)
@@ -284,14 +284,15 @@ def fake():
         
         merchant = random.choice(top_merchants[category])
         
-        transactions.add_transaction(date, txn_amt, merchant, type, category)
+        transactions.add_transaction(date, txn_amt, merchant, type, cid)
         return txn_amt
 
-    categories = spending_pcts.keys()
-    categories.remove("housing")
-    categories.append("income")
-    categories.append("uncategorized")
-    summary = dict([(t, 0) for t in categories])
+    categories = list(enumerate(spending_pcts.keys()))
+
+    categories.remove((6, "housing"))
+    categories.append((10, "income"))
+    categories.append((-1, "uncategorized"))
+    summary = dict([(t[1], 0) for t in categories])
 
 
     # First deal with income
@@ -307,7 +308,7 @@ def fake():
                                     , amount=paycheck_amt
                                     , payee="Payroll"
                                     , type="DEP"
-                                    , category="income"
+                                    , cid=10
                                      )
     summary["income"] = commaize(income_amount)
 
@@ -320,40 +321,39 @@ def fake():
     while housing_days_ago < days:
         housing_days_ago += 30
         last_housing = (end_date - timedelta(days=housing_days_ago))
-        amount = generate_transaction(transactions, housing_category, "DEBIT")
+        amount = generate_transaction(transactions, 6, housing_category, "DEBIT")
         total_spending -= abs(amount)
         housing_spending += amount
 
 
     # Now deal with the rest of the categories
    
-    for category in categories:
+    for cid, category in categories:
         if category in ["income"]:
             continue
         category_spending = total_spending * decimal.Decimal(spending_pcts.get(category, 0))
         category_amount = 0
         while category_spending > 0 and total_spending > 0:
-            amount = generate_transaction(transactions, category, "DEBIT")
+            amount = generate_transaction(transactions, cid, category, "DEBIT")
             category_amount += amount
-            category_spending   -= abs(amount)
+            category_spending -= abs(amount)
             total_spending -= abs(amount)
         summary[category] = commaize(decimal.Decimal("%.02f" % category_amount))
-    categories.append(housing_category)
+    categories.append((6, housing_category))
     summary[housing_category] = commaize(housing_spending)
 
     
     # And lastly, summarize uncategorized transactions.
 
-    uncat = [t['amount'] for t in transactions if t['cid'] == "uncategorized"]
+    uncat = [t['amount'] for t in transactions if t['cid'] == -1]
     summary["uncategorized"] = commaize(sum(uncat))
 
 
     # Prep our return structure.
 
-    categories.remove("uncategorized")
-    categories.remove("income")
-    categories = ["uncategorized", "income"] + sorted(categories)
-    categories = zip(categories, categories)
+    categories.remove((-1, "uncategorized"))
+    categories.remove((10, "income"))
+    categories = [(-1, "uncategorized"), (10, "income")] + sorted(categories)
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
     balance = decimal.Decimal(balance) + total_spending
 
