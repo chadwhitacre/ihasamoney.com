@@ -441,7 +441,7 @@ FORM INPUT:focus {
 }
 #acct P {
     float: left;
-    margin: 0;
+    margin: 0 0 5px;
 }
 #acct BUTTON {
     float: right;
