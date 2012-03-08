@@ -416,7 +416,7 @@ IHAM.keydown = function(e)
         case 70:            // f 
             IHAM.selectCategory(dir);
             break;
-        case 76:            // l
+        case 83:            // s
             IHAM.preparing = true;
             break;
         case 27:            // esc 
@@ -440,7 +440,7 @@ IHAM.keyup = function(e)
     //console.log(e.which);
     switch (e.which)
     {
-        case 76: // l
+        case 83: // s 
             IHAM.preparing = false;
             IHAM.categorize();
             break;
