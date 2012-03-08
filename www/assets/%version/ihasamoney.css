@@ -185,7 +185,7 @@ TR.focus B {
 /* ============ */
 
 #modal {
-    height: 589px
+    height: 589px;
     width: 786px;
     position: fixed;
     margin-left: -393px;
@@ -248,7 +248,9 @@ TR.focus B {
 }
 #modal DIV.text {
     width: 393px;
-    float: right;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 #modal DIV.pad {
     padding: 10px 46px;
