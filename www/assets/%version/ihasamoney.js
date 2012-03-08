@@ -180,6 +180,12 @@ IHAM.updateBalance = function(e)
 /* Categories */
 /* ========== */
 
+IHAM.reload = function()
+{
+    IHAM.spin();
+    window.location.reload();
+};
+
 IHAM.createCategory = function(e)
 {
     if (IHAM.disabled) return false;
@@ -187,7 +193,7 @@ IHAM.createCategory = function(e)
     if (category !== null)
         jQuery.ajax({ type: "POST"
                     , url: "/categories/" + encodeURIComponent(category) + "/"
-                    , success: function() { window.location.reload() }
+                    , success: IHAM.reload
                     , dataType: 'json'
                      })
 };
@@ -208,7 +214,7 @@ IHAM.deleteCategory = function(e)
                         , url: "/categories/" 
                                + encodeURIComponent(category) 
                                + "/delete.json"
-                        , success: function() { window.location.reload() }
+                        , success: IHAM.reload
                         , dataType: 'json'
                          });
     }
