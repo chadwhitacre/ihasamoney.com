@@ -173,9 +173,10 @@ def get(email):
 class Transactions(list):
 
     id = 0
-    this_month = date.today().month
     def add_transaction(self, date, amount, payee, type, cid, category):
-        cid = -1 if date.month == self.this_month else cid
+        if (date.today() - date).days < 15:
+            cid = -1 
+            category = None
         self.append({ "id": self.id
                     , "date": date
                     , "amount": Decimal(amount)
