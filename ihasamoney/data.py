@@ -78,7 +78,7 @@ def gentxns(txns, cid=None):
         amount = commaize(str(row['amount']))
 
         if cid is None:
-            yield row['id'], amount, row['description'], date, row['cid']
+            yield row['id'], amount, row['description'], date, row['category']
         else:
             yield row['id'], amount, row['description'], date
 
@@ -111,12 +111,18 @@ def get(email):
              , date
              , amount
              , description
+             , (  SELECT categories.category
+                    FROM categories
+                    JOIN categorizations
+                      ON categorizations.category_id = categories.id
+                   WHERE categorizations.transaction_id = transactions.id
+                ) as category -- a single category, it turns out
              , (  SELECT categories.id
                     FROM categories
                     JOIN categorizations
                       ON categorizations.category_id = categories.id
                    WHERE categorizations.transaction_id = transactions.id
-                ) as cid -- a single category, it turns out
+                ) as cid -- blech
           FROM transactions 
          WHERE email=%s 
       ORDER BY date DESC
@@ -168,13 +174,14 @@ class Transactions(list):
 
     id = 0
     this_month = date.today().month
-    def add_transaction(self, date, amount, payee, type, cid):
+    def add_transaction(self, date, amount, payee, type, cid, category):
         cid = -1 if date.month == self.this_month else cid
         self.append({ "id": self.id
                     , "date": date
                     , "amount": decimal.Decimal(amount)
                     , "description": payee + " " + type
                     , "cid": cid 
+                    , "category": category
                      })
         self.id += 1
 
@@ -284,7 +291,7 @@ def fake():
         
         merchant = random.choice(top_merchants[category])
         
-        transactions.add_transaction(date, txn_amt, merchant, type, cid)
+        transactions.add_transaction(date, txn_amt, merchant, type, cid, category)
         return txn_amt
 
     categories = list(enumerate(spending_pcts.keys()))
@@ -309,6 +316,7 @@ def fake():
                                     , payee="Payroll"
                                     , type="DEP"
                                     , cid=10
+                                    , category="Income"
                                      )
     summary["Income"] = commaize(income_amount)
 

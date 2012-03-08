@@ -130,6 +130,10 @@ TD.amount {
 #details TABLE.shown {
     display: block;
 }
+#details B {
+    width: auto;
+    padding: 0 5px
+}
 
 TD.date {
     padding-right: 5px;
