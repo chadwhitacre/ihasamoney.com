@@ -41,7 +41,7 @@ def commaize(amount):
 def gentxns(txns, cid=None):
     curdate = 0000, 00, 00
     for row in txns:
-        
+       
         if row['cid'] is None:
             row['cid'] = -1 # uncategorized
         # This comes out as a single int or None, not (e.g.) a list of ints, if
@@ -49,7 +49,6 @@ def gentxns(txns, cid=None):
         # category.
         if cid is not None and row['cid'] != cid:
             continue
-
 
         # red hot, baby!
         d = row['date']
@@ -77,10 +76,13 @@ def gentxns(txns, cid=None):
 
         amount = commaize(str(row['amount']))
 
+        sort_key = "%d%02d%02d %s" % (year, month, day, row['description'])
+
         if cid is None:
-            yield row['id'], amount, row['description'], date, row['category'], row['cid']
+            yield (row['id'], sort_key, amount, row['description'], date, 
+                   row['category'], row['cid'])
         else:
-            yield row['id'], amount, row['description'], date
+            yield row['id'], sort_key, amount, row['description'], date
 
 
 # Real Data
@@ -125,7 +127,7 @@ def get(email):
                 ) as cid -- blech
           FROM transactions 
          WHERE email=%s 
-      ORDER BY date DESC
+      ORDER BY date DESC, description ASC
       
         """, (email,)))
 

@@ -409,21 +409,32 @@ IHAM.categorize = function()
     // Update the BALANCE table.
     // =========================
 
-    var newCat;
+    var balanceRow = $('TABLE[cid="-2"] TR[tid="' + tid + '"]');
+    balanceRow.attr('cid', to_cid);
+
+    var newCat = $('TH', to).html();
     if (to_cid === "-1")
         newCat = "<div>-</div>"; // XXX This is brittle.
-    else
-        newCat = $('TH', to).html();
-    var balanceRow = $('TABLE[cid="-2"] TR[tid="' + tid + '"]');
     $('TD.category B', balanceRow).html(newCat);
-    balanceRow.attr('cid', to_cid);
 
 
     // Insert into new table.
     // ======================
     // XXX Need to do this in sort order and clean up date.
 
-    $('TABLE[cid="' + to_cid + '"]').append(row); 
+    var newTable = $('TABLE[cid="' + to_cid + '"]');
+    var newTableRows = $('TR', newTable);
+    var target = row.attr('sort_key');
+    var i;
+    for (i=0; i < newTableRows.length; i++)
+        if (newTableRows.eq(i).attr('sort_key') < target)
+            break;
+    if (i === 0)
+        newTable.prepend(row);
+    if (i === cats.length)
+        newTable.append(row);
+    else
+        row.insertBefore(newTableRows.eq(i));
 
 
     // Update summary amounts.

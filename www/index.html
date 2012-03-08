@@ -82,8 +82,8 @@ for key in WANT:
         <div id="details">
             {% for cid, category in categories %}
             <table cid="{{ cid }}">
-                {% for tid, amount, desc, date in data.gentxns(transactions, cid) %}
-                <tr tid="{{ tid }}"> 
+                {% for tid, sort_key, amount, desc, date in data.gentxns(transactions, cid) %}
+                <tr tid="{{ tid }}" sort_key="{{ escape(sort_key) }}"> 
                     {{ date }}
                     <td class="description"><div>{{ escape(desc) }}</div></td>
                     <td class="amount"><b>{{ amount }}</b></td>
@@ -92,7 +92,7 @@ for key in WANT:
             </table>
             {% end %}
             <table cid="-2">
-                {% for tid, amount, desc, date, category, cid in data.gentxns(transactions) %}
+                {% for tid, sort_key, amount, desc, date, category, cid in data.gentxns(transactions) %}
                 <tr tid="{{ tid }}" cid="{{ cid }}"> 
                     {{ date }}
                     <td class="description"><div>{{ escape(desc) }}</div></td>
