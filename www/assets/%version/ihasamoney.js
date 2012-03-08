@@ -618,6 +618,7 @@ IHAM.openModal = function(pane)
     $(document).unbind('keyup');
     $(document).keydown(function(e) 
     { 
+        if (IHAM.disabled) return false;
         if (e.which === 27)
             IHAM.closeModal();
     });
@@ -782,12 +783,14 @@ IHAM.submitUploadForm = function(e)
 
 IHAM.spin = function()
 {
+    IHAM.disabled = true;
     $('#spinner').show();
 };
 
 IHAM.stopSpinning = function()
 {
     $('#spinner').hide();
+    IHAM.disabled = false;
 };
 
 
