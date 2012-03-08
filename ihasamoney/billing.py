@@ -302,6 +302,12 @@ def resume(session, pmt, amount):
 # Payment Method
 # ==============
 
+class DummyPaymentMethod(dict):
+    """Define a dict that can be used when Samurai is unavailable.
+    """
+    def __getitem__(self, name):
+        return ''
+
 class PaymentMethod(object):
     """This is a dict-like wrapper around a Samurai PaymentMethod.
     """

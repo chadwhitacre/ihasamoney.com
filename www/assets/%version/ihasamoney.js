@@ -451,9 +451,35 @@ IHAM.keyup = function(e)
 /* Modal Screen (Cat!) */
 /* ==================== */
 
+IHAM.modalLoaded = false;
+IHAM.loadModal = function()
+{
+    jQuery.get('/modal.html', function(html) 
+    {
+        $('#modal-wrap').html(html) 
+
+        // Wire up the auth form. No-op if already signed in.
+        $('#fake').click(IHAM.playWithFakeData);
+        $('FORM#auth').submit(IHAM.submitAuthForm);
+        $('FORM#auth #other').click(IHAM.toggleAuthForm);
+        IHAM.switchToSignIn();
+
+        // Wire up the payment form. No-op if ANON.
+        IHAM.initPayment();
+
+        // Wire up the modal tabs. No-op if not PAID.
+        IHAM.initModalTabs();
+
+        IHAM.modalLoaded = true;
+    });
+};
+
 IHAM.openModal = function(pane)
 {
     IHAM.disabled = true;
+
+    if (!IHAM.modalLoaded)
+        return setTimeout(function() { IHAM.openModal(pane) }, 20);
    
     // Clean up any prepared state.
     IHAM.preparing = false;
@@ -631,6 +657,10 @@ IHAM.submitPaymentForm = function(e)
 {
     e.stopPropagation();
     e.preventDefault();
+   
+    // Lazily depend on Samurai. 
+    document.write('<script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>');
+    Samurai.init({merchant_key: IHAM.session.merchant_key});
 
     function val(field)
     {
@@ -751,17 +781,11 @@ IHAM.init = function(session)
 
     // Wire up the corner.
     $('#help-button BUTTON').click(IHAM.openModal);
-    $('#mask').click(IHAM.closeModal);
 
     // The mouse, it is dead.
     $('#mouse-killer').mousedown(IHAM.showDeadMouse)
                       .mouseup(IHAM.hideDeadMouse)
                       .mousewheel(IHAM.flashDeadMouse);
-
-    // Wire up the auth form. No-op if already signed in.
-    $('#fake').click(IHAM.playWithFakeData);
-    $('FORM#auth').submit(IHAM.submitAuthForm);
-    $('FORM#auth #other').click(IHAM.toggleAuthForm);
 
     // Set initial highlight state.
     $('#details TABLE').each(function()
@@ -770,19 +794,23 @@ IHAM.init = function(session)
     });
     $('#summary TR').eq(0).addClass('current prepared');
     $('#details TABLE').eq(0).addClass('shown');
-    IHAM.setDayOfMonth(session.day_of_month_to_bill);
+
+    IHAM.session = session;
+    IHAM.loadModal();
 };
 
-IHAM.initPayment = function(merchant_key)
+IHAM.initPayment = function()
 {
     $('#modal INPUT').eq(0).focus();
-    Samurai.init({merchant_key: merchant_key});
     $('FORM#payment').submit(IHAM.submitPaymentForm);
     $('INPUT[name=expiry]').mask('99/2099');
 };
 
-IHAM.initModalNav = function()
+IHAM.initModalTabs = function()
 {
+    IHAM.setDayOfMonth(IHAM.session.day_of_month_to_bill);
+    $('#modal-mask').click(IHAM.closeModal);
+
     function toggler(paneName)
     {
         return function() 
