@@ -138,6 +138,43 @@ IHAM.resize = function()
 };
 
 
+// Balance
+// =======
+
+IHAM.setBalance = function(balance)
+{
+    $('#summary TD.amount B').eq(-1).html(IHAM.commaize(balance))
+};
+
+IHAM.updateBalance = function(e)
+{
+    if (IHAM.disabled) return false;
+    var balance = prompt("What is your balance?");
+    balance = parseFloat(balance, 10);
+    if (isNaN(balance))
+    {
+        alert("Bad balance!")
+        return;
+    }
+    balance = parseFloat(balance.toFixed(2), 10); // round to 2 decimals
+    IHAM.setBalance(balance); // Let's be optimistic ... and snappy!
+    if (balance !== null)
+        jQuery.ajax({ type: "POST"
+                    , url: "/set-balance.json"
+                    , data: {'balance': balance}
+                    , success: function(d) { 
+                        if (balance != d.balance) 
+                            alert( "Weird balance discrepancy: " 
+                                 + balance.toString() + " vs. "
+                                 + d.balance.toString() + "."
+                                  );
+                      }
+                    , error: function(a,b,c) { alert('Bad balance!') }
+                    , dataType: 'json'
+                     })
+};
+
+
 /* Categories */
 /* ========== */
 
@@ -350,39 +387,12 @@ IHAM.categorize = function()
         d2 = parseDecimal(d2);
         return (d1 - d2) / 100;
     }
-    function commaize(f)
-    {   // This is a port of a Python function used server-side. Brittle! 
-        if (f === 0)
-            return ( "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "0"
-                   + "&nbsp;&nbsp;&nbsp;"
-                    );
-        f = f.toFixed(2);
-        var sign = '';
-        if (f[0] === '-')
-        {
-            sign = '-';
-            f = f.slice(1);
-        }
-        var len = f.length;
-        for (var i=len, j; i > 0; i--)
-        {
-            j = len - i;
-            if (j > 3 && j % 3 === 0)
-                f = f.slice(0,i) + "," + f.slice(i,f.length);
-        }
-        f = sign + f;
-        while (f.length < 11)
-            f = " " + f;
-        while (f.indexOf(" ") !== -1)
-            f = f.replace(" ", "&nbsp;");
-        return f;
-    }
 
     var entering = $('TD.amount B', to);
-    entering.html(commaize(add(entering.text(), amount)));
+    entering.html(IHAM.commaize(add(entering.text(), amount)));
 
     var leaving = $('TD.amount B', from);
-    leaving.html(commaize(subtract(leaving.text(), amount)));
+    leaving.html(IHAM.commaize(subtract(leaving.text(), amount)));
 
 
     // Switch state back.
@@ -390,6 +400,34 @@ IHAM.categorize = function()
 
     from.addClass('prepared');
     to.removeClass('prepared');
+};
+
+IHAM.commaize = function(f)
+{   // This is a port of a Python function used server-side. Brittle! 
+    if (f === 0)
+        return ( "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "0"
+               + "&nbsp;&nbsp;&nbsp;"
+                );
+    f = f.toFixed(2);
+    var sign = '';
+    if (f[0] === '-')
+    {
+        sign = '-';
+        f = f.slice(1);
+    }
+    var len = f.length;
+    for (var i=len, j; i > 0; i--)
+    {
+        j = len - i;
+        if (j > 3 && j % 3 === 0)
+            f = f.slice(0,i) + "," + f.slice(i,f.length);
+    }
+    f = sign + f;
+    while (f.length < 11)
+        f = " " + f;
+    while (f.indexOf(" ") !== -1)
+        f = f.replace(" ", "&nbsp;");
+    return f;
 };
 
 
@@ -429,6 +467,10 @@ IHAM.keydown = function(e)
         case 78:            // n
             if (e.shiftKey)
                 IHAM.createCategory();
+            break;
+        case 66:            // b
+            if (e.shiftKey)
+                IHAM.updateBalance();
             break;
     }
 };

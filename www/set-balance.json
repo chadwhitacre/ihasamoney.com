@@ -1,0 +1,22 @@
+import traceback
+from decimal import Decimal
+
+from aspen import Response
+from ihasamoney import db, log
+
+# ========================================================================== ^L
+
+if request.user.ANON:
+    raise Response(404)
+request.allow('POST')
+
+email = request.user.session['email']
+try:
+    balance = Decimal(request.body.one('balance'))
+    db.execute( "UPDATE customers SET balance=%s WHERE email=%s"
+              , (balance, email)
+               )
+except:
+    log.warning(traceback.format_exc())
+    raise Response(400)
+response.body = {"balance": balance}
