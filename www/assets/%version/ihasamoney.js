@@ -150,6 +150,8 @@ IHAM.updateBalance = function(e)
 {
     if (IHAM.disabled) return false;
     var balance = prompt("What is your balance?");
+    if (!balance)
+        return;
     balance = parseFloat(balance, 10);
     if (isNaN(balance))
     {
@@ -599,7 +601,10 @@ IHAM.openModal = function(pane)
     IHAM.disabled = true;
 
     if (!IHAM.modalLoaded)
-        return setTimeout(function() { IHAM.openModal(pane) }, 20);
+    {
+        IHAM.spin()
+        return setTimeout(function() { IHAM.openModal(pane) }, 200);
+    }
    
     // Clean up any prepared state.
     IHAM.preparing = false;
@@ -618,6 +623,7 @@ IHAM.openModal = function(pane)
     });
     if (pane !== undefined)
         $('LI[pane="' + pane + '"]').click();
+    IHAM.stopSpinning()
 };
 
 IHAM.closeModal = function()
@@ -647,7 +653,7 @@ IHAM.showFeedback = function(msg, details)
         for (var i=0; i < details.length; i++)
             $('#feedback .details').append('<p>' + details[i] + '</p>');
     
-    IHAM.feedbackOut = window.setTimeout(function()
+    IHAM.feedbackOut = setTimeout(function()
     {
         $('#eyes').hide();
         $('#feedback').hide();
@@ -770,18 +776,44 @@ IHAM.submitUploadForm = function(e)
 };
 
 
+
+/* Spinner */
+/* ======= */
+
+IHAM.spin = function()
+{
+    $('#spinner').show();
+};
+
+IHAM.stopSpinning = function()
+{
+    $('#spinner').hide();
+};
+
+
 /* Payment Details Form */
 /* ==================== */
 
+IHAM.haveSamurai = false;
+IHAM.samuraiAttempts = 0;
 IHAM.submitPaymentForm = function(e)
 {
     e.stopPropagation();
     e.preventDefault();
-   
-    // Lazily depend on Samurai. 
-    document.write('<script src="https://samurai.feefighters.com/assets/api/samurai.js"></script>');
-    Samurai.init({merchant_key: IHAM.session.merchant_key});
+    IHAM.spin()
 
+    if (!IHAM.haveSamurai)
+    {
+        if (IHAM.samuraiAttempts++ === 50)
+            alert( "Gah! Apparently I don't want your money after all. If "
+                 + "you're really motivated, call me (Chad) at 412-925-4220 "
+                 + "and we'll figure this out. Sorry. :-("
+                  );
+        else
+            setTimeout(IHAM.submitPaymentForm, 200);
+        return false;
+    }
+    
     function val(field)
     {
         return $('FORM#payment INPUT[name="' + field + '"]').val();
@@ -833,6 +865,7 @@ IHAM.savePaymentMethod = function(data)
         }
 
         IHAM.showFeedback(data.problem, details);
+        IHAM.stopSpinning();
     }
 
     IHAM.submitForm( "/pmt/save.json"
@@ -922,6 +955,14 @@ IHAM.initPayment = function()
     $('#modal INPUT').eq(0).focus();
     $('FORM#payment').submit(IHAM.submitPaymentForm);
     $('INPUT[name=expiry]').mask('99/2099');
+
+    // Lazily depend on Samurai. 
+    var samurai_js = "https://samurai.feefighters.com/assets/api/samurai.js";
+    jQuery.getScript(samurai_js, function()
+    {
+        Samurai.init({merchant_key: IHAM.session.merchant_key});
+        IHAM.haveSamurai = true;
+    });
 };
 
 IHAM.initModalTabs = function()

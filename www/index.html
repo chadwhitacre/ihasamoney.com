@@ -57,6 +57,9 @@ for key in WANT:
         {% end %}
     </head>
     <body>
+        <div class="mask" id="spinner">
+            <img src="/assets/{{ __version__ }}/spinner.gif" /> 
+        </div>
         <div class="mask" id="mouse-killer"></div>
         <div class="mask" id="dead-mouse">
             <img src="/assets/{{ __version__ }}/dead-mouse.jpg" />
