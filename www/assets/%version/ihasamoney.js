@@ -297,7 +297,7 @@ IHAM.prepareToCategorize = function(inc)
     to.addClass('prepared');
 };
 
-IHAM.selectCategory = function(inc)
+IHAM.viewCategory = function(inc)
 {
     if (IHAM.disabled) return false;
     var cats = $('#summary TR');
@@ -320,6 +320,7 @@ IHAM.selectCategory = function(inc)
     
     $('TR.focus').removeClass('focus');
     $('TABLE.shown TR').eq(0).addClass('focus');
+    $('#details').scrollTop(0);
 };
 
 IHAM.categorize = function()
@@ -452,7 +453,7 @@ IHAM.keydown = function(e)
             break;
         case 68: dir = -1   // d 
         case 70:            // f 
-            IHAM.selectCategory(dir);
+            IHAM.viewCategory(dir);
             break;
         case 83:            // s
             IHAM.preparing = true;
