@@ -92,8 +92,8 @@ for key in WANT:
             </table>
             {% end %}
             <table cid="-2">
-                {% for tid, amount, desc, date, category in data.gentxns(transactions) %}
-                <tr tid="{{ tid }}"> 
+                {% for tid, amount, desc, date, category, cid in data.gentxns(transactions) %}
+                <tr tid="{{ tid }}" cid="{{ cid }}"> 
                     {{ date }}
                     <td class="description"><div>{{ escape(desc) }}</div></td>
                     <td class="category"><b>{{ escape(category) if category is not None else '-' }}</b></td>

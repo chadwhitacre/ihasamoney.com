@@ -285,14 +285,26 @@ IHAM.prepareToCategorize = function(inc)
 {
     if (IHAM.disabled) return false;
     var cats = $('#summary TR');
-    var cur = $('#summary TR.prepared');
-    var from = cats.index(cur);
+    var prep = $('#summary TR.prepared');
+    var cur = $('#summary TR.current');
+    var base = cats.index(cur);
+    var from = cats.index(prep);
     var to = from + inc;
 
-    if (to === -1)
-        to = cats.length - 1;
-    if (to === cats.length)
-        to = 0;
+    if (base === cats.length - 1)
+    {   // starting from BALANCE, allow to resettle there
+        if (to === -1)
+            to = cats.length - 1;
+        if (to === cats.length)
+            to = 0;
+    }
+    else
+    {   // not starting from BALANCE, don't allow to categorize to BALANCE
+        if (to === -1)
+            to = cats.length - 2;
+        if (to === cats.length - 1)
+            to = 0;
+    }
 
     from = cats.eq(from);
     from.removeClass('prepared');
@@ -328,31 +340,45 @@ IHAM.viewCategory = function(inc)
 };
 
 IHAM.categorize = function()
-{
+{   // This is a heinous function. Sweet mercy.
+
     if (IHAM.disabled) return false;
+
+    // Start grabbing stuff and try to bail early.
+    // ===========================================
+
     var cats = $('#summary TR');
     var from = $('#summary TR.current');
+    var from_cid = from.attr('cid');
     var to = $('#summary TR.prepared');
+    var to_cid = to.attr('cid');
    
-    if (from.attr('cid') === to.attr('cid'))
-        // The shift key was released, but not in the context of a 
-        // categorization.
+    if (from_cid === to_cid)
+        // The quasi-mode key was released, but not in the context of an 
+        // actual categorization request.
         return; 
+
+
+    // Notify the server of the customer's intention.
+    // ==============================================
+    // As usual, we proceed optimistically to update our UI without waiting to
+    // hear back from the server. This results in a much snappier user
+    // interface.
 
     var row = $('TR.focus');
     var tid = row.attr('tid');
-    var cid = to.attr('cid');
     var amount = $('TD.amount', row).text();
     
-    if (cid === "-1") // XXX Borked in anonymous, where we use "uncategorized".
+    if (to_cid === "-1") // XXX Borked in anonymous, where we use "uncategorized".
         jQuery.getJSON('/uncategorize.json', {tid: tid});
     else
-        jQuery.getJSON('/categorize.json', {tid: tid, cid: cid});
+        jQuery.getJSON('/categorize.json', {tid: tid, cid: to_cid});
 
 
-    // Move the row to a new table.
-    // ============================
-    
+    // Update the focus.
+    // =================
+    // We want to advance the transaction focus to the next row.
+
     var rows = $('TABLE.shown TR');
     var i = rows.index(row);
     var refocus = rows.eq(i + 1);
@@ -360,60 +386,87 @@ IHAM.categorize = function()
         refocus = rows.eq(i - 1); // if i is 0, the addClass will be a noop
     refocus.addClass('focus');
 
-    if (from.attr('cid') === '-2')  // BALANCE
+
+    // Shuffle rows between tables.
+    // ============================
+    // "from" and "to" are summary rows. "row" is a detail row from a category 
+    // detail (not the BALANCE detail).
+    
+    _from = from; // preserve original for resetting "prepared" state
+    if (from_cid === '-2')  // from BALANCE table
     {
-        row.removeClass('focus');
-        row = row.clone();
-        $('TD.category', row).remove();
+        from_cid = row.attr('cid');
+        from = $('#summary TR[cid="' + from_cid + '"]');
+        row.removeClass('focus')
+
+        // Set "row" to a category detail row, not a BALANCE detail row.
+        row = $('TABLE[cid="' + from_cid + '"] TR[tid="' + tid + '"]');
     }
-    else                            // category
-    {
-        row.detach();
-        row.removeClass('focus');
-    }
-
-    $('TABLE[cid="' + cid + '"]').append(row);
+    row.detach();
+    row.removeClass('focus');
 
 
-    // Update summary amount.
+    // Update the BALANCE table.
+    // =========================
+
+    var newCat;
+    if (to_cid === "-1")
+        newCat = "<div>-</div>"; // XXX This is brittle.
+    else
+        newCat = $('TH', to).html();
+    var balanceRow = $('TABLE[cid="-2"] TR[tid="' + tid + '"]');
+    $('TD.category B', balanceRow).html(newCat);
+    balanceRow.attr('cid', to_cid);
+
+
+    // Insert into new table.
     // ======================
+    // XXX Need to do this in sort order and clean up date.
 
-    function parseDecimal(s)
-    {   // Do some hackish decimal math, assuming two decimal places.
-        var foo = s.replace(',', '');
-        var parts = foo.split('.');
-        var whole = parseInt(parts[0], 10) * 100;
-        var sign = whole < 0 ? -1 : 1;
-        whole = Math.abs(whole);
-        var part = parts[1] === undefined ? 0 : parseInt(parts[1], 10);
-        var combined = whole + part;
-        return (combined * sign);
-    }
-    function add(d1, d2)
-    {
-        d1 = parseDecimal(d1);
-        d2 = parseDecimal(d2);
-        return (d1 + d2) / 100;
-    }
-    function subtract(d1, d2)
-    {
-        d1 = parseDecimal(d1);
-        d2 = parseDecimal(d2);
-        return (d1 - d2) / 100;
-    }
+    $('TABLE[cid="' + to_cid + '"]').append(row); 
 
-    var entering = $('TD.amount B', to);
-    entering.html(IHAM.commaize(add(entering.text(), amount)));
 
-    var leaving = $('TD.amount B', from);
-    leaving.html(IHAM.commaize(subtract(leaving.text(), amount)));
+    // Update summary amounts.
+    // =======================
+
+    entering = $('TD.amount B', to);
+    entering.html(IHAM.commaize(IHAM.add(entering.text(), amount)));
+
+    leaving = $('TD.amount B', from);
+    leaving.html(IHAM.commaize(IHAM.subtract(leaving.text(), amount)));
 
 
     // Switch state back.
     // ==================
 
-    from.addClass('prepared');
+    _from.addClass('prepared');
     to.removeClass('prepared');
+};
+
+IHAM.parseDecimal = function(s)
+{   // Do some hackish decimal math, assuming two decimal places.
+    var foo = s.replace(',', '');
+    var parts = foo.split('.');
+    var whole = parseInt(parts[0], 10) * 100;
+    var sign = whole < 0 ? -1 : 1;
+    whole = Math.abs(whole);
+    var part = parts[1] === undefined ? 0 : parseInt(parts[1], 10);
+    var combined = whole + part;
+    return (combined * sign);
+};
+
+IHAM.add = function(d1, d2)
+{
+    d1 = IHAM.parseDecimal(d1);
+    d2 = IHAM.parseDecimal(d2);
+    return (d1 + d2) / 100;
+};
+
+IHAM.subtract = function(d1, d2)
+{
+    d1 = IHAM.parseDecimal(d1);
+    d2 = IHAM.parseDecimal(d2);
+    return (d1 - d2) / 100;
 };
 
 IHAM.commaize = function(f)

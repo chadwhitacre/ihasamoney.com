@@ -78,7 +78,7 @@ def gentxns(txns, cid=None):
         amount = commaize(str(row['amount']))
 
         if cid is None:
-            yield row['id'], amount, row['description'], date, row['category']
+            yield row['id'], amount, row['description'], date, row['category'], row['cid']
         else:
             yield row['id'], amount, row['description'], date
 
