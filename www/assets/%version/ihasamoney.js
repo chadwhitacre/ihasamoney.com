@@ -788,12 +788,10 @@ IHAM.init = function(session)
                       .mousewheel(IHAM.flashDeadMouse);
 
     // Set initial highlight state.
-    $('#details TABLE').each(function()
-    {
-        $('TR', this).eq(0).addClass('focus');
-    });
-    $('#summary TR').eq(0).addClass('current prepared');
-    $('#details TABLE').eq(0).addClass('shown');
+    $('#summary TR').eq(-1).addClass('current prepared');
+    var table = $('#details TABLE').eq(-1);
+    table.addClass('shown');
+    $('TR', table).eq(0).addClass('focus');
 
     IHAM.session = session;
     IHAM.loadModal();

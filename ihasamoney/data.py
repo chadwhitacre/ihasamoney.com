@@ -1,8 +1,8 @@
-import decimal 
 import random
 
 from datetime import date
 from datetime import timedelta
+from decimal import Decimal
 from ihasamoney import db
 
 
@@ -12,7 +12,7 @@ months = ["", "Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
 def commaize(amount):
     """Given a 2-decimal number, return it with commas padded to 11.
     """
-    if isinstance(amount, decimal.Decimal):
+    if isinstance(amount, Decimal):
         amount = "%.02f" % amount
     if amount == 0:
         out = ("&nbsp;" * 7) + "0" + ("&nbsp;" * 3)
@@ -101,8 +101,8 @@ def get_categories(email):
 def get(email):
     """Return data for the given user.
     """
-    categories = [(-1, 'Uncategorized')]
-    categories += [(x['id'], x['category']) for x in get_categories(email)]
+    categories = [(x['id'], x['category']) for x in get_categories(email)]
+    categories += [(-1, 'Uncategorized')]
 
     transactions = list(db.fetchall("""
 
@@ -178,20 +178,25 @@ class Transactions(list):
         cid = -1 if date.month == self.this_month else cid
         self.append({ "id": self.id
                     , "date": date
-                    , "amount": decimal.Decimal(amount)
+                    , "amount": Decimal(amount)
                     , "description": payee + " " + type
                     , "cid": cid 
                     , "category": category
                      })
         self.id += 1
 
+class Summary(dict):
+    total = 0
+    def __setitem__(self, name, value):
+        self.total += value
+        dict.__setitem__(self, name, commaize(value))
 
 def fake():
     """Return sum dayz of fake data.
     """
     categories = []
     transactions = Transactions()
-    summary = []
+    summary = None # instantiated further down
 
     def generate_amt(base_amt):
         return random.uniform((base_amt * 0.6), (base_amt * 1.4))
@@ -213,7 +218,7 @@ def fake():
 
     # Assume that people spend their whole income.  At least.
 
-    total_spending = decimal.Decimal(daily_income * days)
+    total_spending = Decimal(daily_income * days)
 
 
     # How do people usually spend their money?  Taken from
@@ -287,7 +292,7 @@ def fake():
             date = (end_date - days_ago)
         
         amount = generate_amt(avg_txn_amts[category])
-        txn_amt = decimal.Decimal("%.02f" % amount)
+        txn_amt = Decimal("%.02f" % amount)
         
         merchant = random.choice(top_merchants[category])
         
@@ -299,7 +304,7 @@ def fake():
     categories.remove((6, "Housing"))
     categories.append((10, "Income"))
     categories.append((-1, "Uncategorized"))
-    summary = dict([(t[1], 0) for t in categories])
+    summary = Summary([(t[1], 0) for t in categories])
 
 
     # First deal with income
@@ -310,7 +315,7 @@ def fake():
     while pay_days_ago < days:
         pay_days_ago += 15
         payday = (end_date - timedelta(days=pay_days_ago))
-        income_amount += decimal.Decimal(paycheck_amt)
+        income_amount += Decimal(paycheck_amt)
         transactions.add_transaction( date=payday
                                     , amount=paycheck_amt
                                     , payee="Payroll"
@@ -318,14 +323,14 @@ def fake():
                                     , cid=10
                                     , category="Income"
                                      )
-    summary["Income"] = commaize(income_amount)
+    summary["Income"] = income_amount
 
 
     # Then deal with housing
 
     housing_category = random.choice(["Rent", "Mortgage"])
     housing_days_ago = 0
-    housing_spending = decimal.Decimal(0)
+    housing_spending = Decimal(0)
     while housing_days_ago < days:
         housing_days_ago += 30
         last_housing = (end_date - timedelta(days=housing_days_ago))
@@ -339,29 +344,30 @@ def fake():
     for cid, category in categories:
         if category in ["Income"]:
             continue
-        category_spending = total_spending * decimal.Decimal(spending_pcts.get(category, 0))
+        category_spending = Decimal(total_spending * Decimal(spending_pcts.get(category, 0)), 2)
         category_amount = 0
         while category_spending > 0 and total_spending > 0:
             amount = generate_transaction(transactions, cid, category, "DEBIT")
             category_amount += amount
             category_spending -= abs(amount)
             total_spending -= abs(amount)
-        summary[category] = commaize(decimal.Decimal("%.02f" % category_amount))
+        summary[category] = Decimal("%.02f" % category_amount)
     categories.append((6, housing_category))
-    summary[housing_category] = commaize(housing_spending)
+    summary[housing_category] = housing_spending
 
     
     # And lastly, summarize uncategorized transactions.
 
     uncat = [t['amount'] for t in transactions if t['cid'] == -1]
-    summary["Uncategorized"] = commaize(sum(uncat))
+    summary["Uncategorized"] = sum(uncat)
 
 
     # Prep our return structure.
 
     categories.remove((-1, "Uncategorized"))
-    categories = [(-1, "Uncategorized")] + sorted(categories, key=lambda c: c[1])
+    categories = sorted(categories, key=lambda c: c[1]) 
+    categories += [(-1, "Uncategorized")]
     transactions = sorted(transactions, key=lambda t: t["date"], reverse=True)
-    balance = decimal.Decimal(balance) + total_spending
+    balance = Decimal(balance) + summary.total
 
     return (categories, transactions, summary, balance)
