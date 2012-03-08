@@ -240,41 +240,45 @@ IHAM.categoryCreatorKeyup = function(e)
     }
 };
 
-IHAM.scrollVertically = function(num)
+IHAM.scrollVertically = function(num, fast)
 {
     if (IHAM.disabled) return false;
     var container = $('#details');
+    if (fast)
+        num *= 16;
 
     var cur = $('TR.focus');
     var all = $('TABLE.shown TR');
     var from = all.index(cur);
     var to = from + num;
 
-    if (0 <= to && to < all.length)
-    { 
-        $('.focus').removeClass('focus');
-        all.eq(to).addClass('focus');
-        var curScroll = container.scrollTop();
-        var scrollTop = container.scrollTop();
-        var scrollBottom = ( scrollTop
-                           + container.height() 
-                           - 14
-                            );
-        var scrollMiddle = ( scrollTop 
-                           + Math.floor((scrollBottom - scrollTop) / 3)
-                            );
-        scrollMiddle -= scrollMiddle % 14;
+    if (to < 0)
+        to = 0;
+    if (to >= all.length)
+        to = all.length - 1;
 
-        var at = to * 14;
-        var to = curScroll + (num * 14);
-        if (at < scrollTop) {
-            container.scrollTop(to);
-        } else if (at > scrollBottom) {
-            container.scrollTop(to);
-        } else if (at === scrollMiddle) {
-            container.scrollTop(to);
-        } 
-    }
+    $('.focus').removeClass('focus');
+    all.eq(to).addClass('focus');
+    var curScroll = container.scrollTop();
+    var scrollTop = container.scrollTop();
+    var scrollBottom = ( scrollTop
+                       + container.height() 
+                       - 14
+                        );
+    var scrollMiddle = ( scrollTop 
+                       + Math.floor((scrollBottom - scrollTop) / 3)
+                        );
+    scrollMiddle -= scrollMiddle % 14;
+
+    var at = to * 14;
+    var to = curScroll + (num * 14);
+    if (at < scrollTop) {
+        container.scrollTop(to);
+    } else if (at > scrollBottom) {
+        container.scrollTop(to);
+    } else if (at === scrollMiddle) {
+        container.scrollTop(to);
+    } 
 };
 
 IHAM.prepareToCategorize = function(inc)
@@ -449,7 +453,7 @@ IHAM.keydown = function(e)
             if (IHAM.preparing)
                 IHAM.prepareToCategorize(dir);
             else
-                IHAM.scrollVertically(dir);
+                IHAM.scrollVertically(dir, e.ctrlKey);
             break;
         case 68: dir = -1   // d 
         case 70:            // f 
