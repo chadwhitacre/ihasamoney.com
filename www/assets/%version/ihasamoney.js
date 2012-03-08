@@ -360,7 +360,17 @@ IHAM.categorize = function()
         refocus = rows.eq(i - 1); // if i is 0, the addClass will be a noop
     refocus.addClass('focus');
 
-    row.removeClass('focus').detach();
+    if (from.attr('cid') === '-2')  // BALANCE
+    {
+        row.removeClass('focus');
+        row = row.clone();
+        $('TD.category', row).remove();
+    }
+    else                            // category
+    {
+        row.detach();
+        row.removeClass('focus');
+    }
 
     $('TABLE[cid="' + cid + '"]').append(row);
 
@@ -368,9 +378,8 @@ IHAM.categorize = function()
     // Update summary amount.
     // ======================
 
-    // Do some hackish decimal math, assuming two decimal places.
     function parseDecimal(s)
-    {
+    {   // Do some hackish decimal math, assuming two decimal places.
         var foo = s.replace(',', '');
         var parts = foo.split('.');
         var whole = parseInt(parts[0], 10) * 100;
