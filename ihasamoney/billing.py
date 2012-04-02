@@ -261,8 +261,6 @@ def do_daily_billing_run(amount):
     for customer in ihasamoney.db.fetchall(TO_BILL):
         pmt = customer['payment_method_token']
         print " ", customer['email'].ljust(36), pmt, amount
-        continue
-
         try:
             errors = bill(customer, pmt, amount)
             if errors:
