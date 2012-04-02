@@ -105,9 +105,16 @@ Here are events affecting the system:
 import datetime
 import traceback
 
+
+# *sigh* Don't use globals, kids!
+# ===============================
+# If I import db from ihasamoney under the iham-bill cli then db is None. I'm
+# working around it by importing ihasamoney and calling ihasamoney.db.*.
+
 import ihasamoney
+
 from aspen import json
-from ihasamoney import db, log
+from ihasamoney import log
 from samurai.payment_method import PaymentMethod as SamuraiPaymentMethod
 from samurai.processor import Processor
 
@@ -118,6 +125,7 @@ PAUSED = """\
       FROM customers 
      WHERE last_bill_result = NULL
        AND next_bill_date <= CURRENT_DATE 
+  ORDER BY next_bill_date ASC
 
 """
 
@@ -246,11 +254,6 @@ def do_daily_billing_run(amount):
     don't bill people with paused billing. That's kind of scary, actually.
 
     """
-    print ("The following customers have paused their billing:")
-    for customer in ihasamoney.db.fetchall(PAUSED):
-        print " ", customer['email'], customer['next_bill_date']
-
-    print
     print ("The following customers had paused their billing and it's now "
            "turned off:")
     for customer in ihasamoney.db.fetchall(TURN_OFF_PAUSED):
@@ -264,7 +267,7 @@ def do_daily_billing_run(amount):
         try:
             errors = bill(customer, pmt, amount)
             if errors:
-                print "billing failed: ", str(errors)
+                print "    billing failed: ", str(errors)
         except:
             print traceback.format_exc()
     
@@ -297,7 +300,7 @@ def bill(session, pmt, amount, day_of_month=None, redact=False):
     # that, a sentinal value in a column like 'started_billing' in Postgres?
     if transaction.errors:
         errors_json = json.dumps(transaction.errors)
-        db.execute(FAILURE, (pmt, errors_json, email))
+        ihasamoney.db.execute(FAILURE, (pmt, errors_json, email))
 
         # Keep the payment_method_token, don't reset it to None/NULL: It's
         # useful for loading the previous (bad) credit card info from Samurai
@@ -318,7 +321,7 @@ def bill(session, pmt, amount, day_of_month=None, redact=False):
             next_bill_date = get_next_bill_date(day_of_month)
             SQL = SUCCESS_WITH_DAY_OF_MONTH
             args = (pmt, day_of_month, next_bill_date, email)
-        db.execute(SQL, args)
+        ihasamoney.db.execute(SQL, args)
 
         session['payment_method_token'] = pmt
         session['day_of_month_to_bill'] = day_of_month
@@ -332,7 +335,7 @@ def pause(session):
     """Given a session dict, return None.
     """
     email = session['email']
-    db.execute(PAUSE, (email,))
+    ihasamoney.db.execute(PAUSE, (email,))
     session['last_bill_result'] = None
 
 def resume(session, pmt, amount):
@@ -354,13 +357,13 @@ def resume(session, pmt, amount):
     transaction = Processor.authorize(pmt, amount, custom=email)
     if transaction.errors:
         errors_json = json.dumps(transaction.errors)
-        db.execute(FAILURE, (pmt, errors_json, email))
+        ihasamoney.db.execute(FAILURE, (pmt, errors_json, email))
         session['payment_method_token'] = pmt
         session['last_bill_result'] = errors_json
         out = dict(transaction.errors)
     else:
         transaction.reverse()
-        db.execute(RESUME, (pmt, email,))
+        ihasamoney.db.execute(RESUME, (pmt, email,))
         session['payment_method_token'] = pmt
         session['last_bill_result'] = ''
         out = {}

@@ -8,9 +8,13 @@ if not request.user.ADMIN:
     # 404, indicating that Something is Up.
     raise Response(404)
 
-customers = db.fetchall("SELECT email, created, next_bill_date, is_admin "
-                        "FROM customers "
-                        "ORDER BY next_bill_date, created")
+customers = db.fetchall("""\
+    
+    SELECT email, created, next_bill_date, is_admin, last_bill_result
+      FROM customers
+  ORDER BY next_bill_date, created
+
+""")
 
 ^L
 <title>Admin</title>
@@ -40,12 +44,14 @@ customers = db.fetchall("SELECT email, created, next_bill_date, is_admin "
         <th>email</th>
         <th>created</th>
         <th>next bill date</th>
+        <th>last bill result</th>
     </tr>
 {% for customer in customers %}
 <tr>
 <td>{% if customer['is_admin'] %}<b>{{ customer['email'] }}</b>{% else %}{{ customer['email'] }}{% end %}</td>
 <td>{{ customer['created'] }}</td>
 <td>{{ customer['next_bill_date'] }}</td>
+<td>{{ customer['last_bill_result'] }}</td>
 </tr>
 {% end %}
 </table>
