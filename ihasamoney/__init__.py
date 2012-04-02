@@ -73,7 +73,6 @@ def startup(website):
     """Wire up some globals and store amount on website.
     """
     wire_amount()
-    print "wired amount as", amount
     wire_canonical()
     wire_db()
     wire_samurai()

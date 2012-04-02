@@ -245,14 +245,16 @@ def do_daily_billing_run(amount):
         print " ", customer['email']
 
     print
-    print ("The following customers were each billed %s:" % str(amount))
+    print ("The following customers would be billed %s if we were billing them yet:" % str(amount))
     for customer in db.fetchall(TO_BILL):
         pmt = customer['payment_method_token']
-        print " ", customer['email']
+        print " ", customer['email'].ljust(36), pmt, amount
+        continue
+
         try:
-            bill(customer, pmt, amount)
-            get_next_bill_date(customer['day_of_month_to_bill'])
-            db.execute()
+            errors = bill(customer, pmt, amount)
+            if errors:
+                print "billing failed: ", str(errors)
         except:
             print traceback.format_exc()
     
@@ -260,10 +262,10 @@ def do_daily_billing_run(amount):
 def bill(session, pmt, amount, day_of_month=None, redact=False):
     """Given a session, a payment method token, and an amount, return a dict.
 
-    If day_of_month is None, then we expect 'day_of_month_to_bill' in . If
-    day_of_month is not None, then that will be set as the canonical day of the
-    month on which this customer is to be billed. We check that it is an
-    integer between 1 and 31, inclusive.
+    If day_of_month is None, then we expect 'day_of_month_to_bill' in session.
+    Otherwise, day_of_month will be set as the canonical day of the month on
+    which this customer is to be billed. We check that it is an integer between
+    1 and 31, inclusive.
 
     This function mutates session, in order to keep it in sync with the
     database. In reality I don't expect to use this session downstream in the
@@ -299,12 +301,11 @@ def bill(session, pmt, amount, day_of_month=None, redact=False):
     else:
         if day_of_month is None:
             day_of_month = session['day_of_month_to_bill'] # KeyError is a bug
-        next_bill_date = get_next_bill_date(day_of_month)
-
-        if day_of_month is None: # again
+            next_bill_date = get_next_bill_date(day_of_month)
             SQL = SUCCESS
             args = (pmt, next_bill_date, email)
         else:
+            next_bill_date = get_next_bill_date(day_of_month)
             SQL = SUCCESS_WITH_DAY_OF_MONTH
             args = (pmt, day_of_month, next_bill_date, email)
         db.execute(SQL, args)

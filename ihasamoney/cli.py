@@ -10,3 +10,4 @@ def iham_bill():
     ihasamoney.wire_samurai()
 
     print "Greetings, program! We're charging people $%s." % ihasamoney.amount
+    ihasamoney.billing.do_daily_billing_run(ihasamoney.amount)
