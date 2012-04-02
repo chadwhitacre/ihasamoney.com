@@ -1,5 +1,5 @@
 from aspen import Response
-from ihasamoney import db
+from ihasamoney import db, __version__
 
 ^L
 
@@ -19,7 +19,7 @@ customers = db.fetchall("""\
 ^L
 <title>Admin</title>
 <style>
-    TABLE {
+    BODY, TABLE {
         font: normal 10px/14px Monaco, "Lucida Console", monospace;
         border-collapse: collapse;
     }
@@ -30,15 +30,20 @@ customers = db.fetchall("""\
         border-bottom: 1px solid black;
         text-align: left;
         font-weight: normal;
+        white-space: nowrap;
+        padding: 0 10px 0 0;
     }
-    B {
+    TD B {
         font-weight: normal;
         background: #FFFE26;
     }
     TD { 
         padding: 0 10px 0 0;
+        white-space: nowrap;
     }
 </style>
+{{ __version__}}<br />
+<br />
 <table>
     <tr>
         <th>email</th>
@@ -49,8 +54,8 @@ customers = db.fetchall("""\
 {% for customer in customers %}
 <tr>
 <td>{% if customer['is_admin'] %}<b>{{ customer['email'] }}</b>{% else %}{{ customer['email'] }}{% end %}</td>
-<td>{{ customer['created'] }}</td>
-<td>{{ customer['next_bill_date'] }}</td>
+<td>{{ customer['created'].strftime('%Y-%m-%d') }}</td>
+<td style="text-align: right;">{{ customer['next_bill_date'] }}</td>
 <td>{{ customer['last_bill_result'] }}</td>
 </tr>
 {% end %}
