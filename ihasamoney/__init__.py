@@ -50,6 +50,7 @@ def wire_amount():
     # some control over it in development.
     global amount
     amount = os.environ['SUBSCRIPTION_AMOUNT']
+    print "wiring amount as", amount
 
 def wire_canonical():
     global canonical_scheme, canonical_host
@@ -72,7 +73,8 @@ def startup(website):
     """Wire up some globals and store amount on website.
     """
     wire_amount()
-    wire_canonical();
+    print "wired amount as", amount
+    wire_canonical()
     wire_db()
     wire_samurai()
 
