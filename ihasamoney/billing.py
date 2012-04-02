@@ -105,6 +105,7 @@ Here are events affecting the system:
 import datetime
 import traceback
 
+import ihasamoney
 from aspen import json
 from ihasamoney import db, log
 from samurai.payment_method import PaymentMethod as SamuraiPaymentMethod

@@ -61,6 +61,7 @@ def wire_db():
     global db
     from ihasamoney.postgres import PostgresManager
     dburl = os.environ['DATABASE_URL']
+    print "wiring postgres"
     db = PostgresManager(dburl)
 
 def wire_samurai():
