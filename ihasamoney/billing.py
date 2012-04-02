@@ -238,12 +238,12 @@ def do_daily_billing_run(amount):
     """
     print ("The following customers had paused their billing and it's now "
            "turned off:")
-    for customer in db.fetchall(TURN_OFF_PAUSED):
+    for customer in ihasamoney.db.fetchall(TURN_OFF_PAUSED):
         print " ", customer['email']
 
     print
     print ("The following customers would be billed %s if we were billing them yet:" % str(amount))
-    for customer in db.fetchall(TO_BILL):
+    for customer in ihasamoney.db.fetchall(TO_BILL):
         pmt = customer['payment_method_token']
         print " ", customer['email'].ljust(36), pmt, amount
         continue
