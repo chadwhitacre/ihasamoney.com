@@ -47,6 +47,7 @@ else:
                          , pmt
                          , website.subscription_amount
                          , day_of_month
+                         , redact=True # overwrite any existing pmt
                           )
 
 email = request.user.session['email']

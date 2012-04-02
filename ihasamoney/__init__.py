@@ -10,6 +10,7 @@ from ihasamoney.version import __version__
 
 db = None # This global is wired below. It's an instance of 
           # ihasamoney.postgres.PostgresManager.
+amount = None # wired below; amount to bill per month
 log = logging.getLogger('ihasamoney')
 
 
@@ -44,7 +45,19 @@ def canonize(request):
 # Define some methods to be run via the Aspen startup hook. BTW, Aspen hooks
 # are configured in www/.aspen/hooks.conf.
 
+def wire_amount():
+    # Samurai uses the penny code to trigger certain responses, so we want
+    # some control over it in development.
+    global amount
+    amount = os.environ['SUBSCRIPTION_AMOUNT']
+
+def wire_canonical():
+    global canonical_scheme, canonical_host
+    canonical_scheme = os.environ['CANONICAL_SCHEME']
+    canonical_host = os.environ['CANONICAL_HOST']
+
 def wire_db():
+    global db
     from ihasamoney.postgres import PostgresManager
     dburl = os.environ['DATABASE_URL']
     return PostgresManager(dburl)
@@ -56,16 +69,11 @@ def wire_samurai():
     samurai.config.processor_token = os.environ['SAMURAI_PROCESSOR_TOKEN']
 
 def startup(website):
-    """Set up db and gauges.
+    """Wire up some globals and store amount on website.
     """
-    global db, canonical_scheme, canonical_host
-    db = wire_db()
-
-    canonical_scheme = os.environ['CANONICAL_SCHEME']
-    canonical_host = os.environ['CANONICAL_HOST']
-
+    wire_amount()
+    wire_canonical();
+    wire_db()
     wire_samurai()
-    # Samurai uses the penny code to trigger certain responses, so we want
-    # some control over it in development.
-    amount = os.environ['SUBSCRIPTION_AMOUNT']
+
     website.subscription_amount = decimal.Decimal(amount)

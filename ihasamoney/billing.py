@@ -103,6 +103,7 @@ Here are events affecting the system:
 
 """
 import datetime
+import traceback
 
 from aspen import json
 from ihasamoney import db, log
@@ -110,12 +111,31 @@ from samurai.payment_method import PaymentMethod as SamuraiPaymentMethod
 from samurai.processor import Processor
 
 
+TURN_OFF_PAUSED = """\
+
+    UPDATE customers 
+       SET next_bill_date=NULL
+     WHERE last_bill_result = NULL
+       AND next_bill_date <= CURRENT_DATE 
+ RETURNING email
+
+"""
+
+TO_BILL = """\
+
+    SELECT email, payment_method_token, day_of_month_to_bill
+      FROM customers
+     WHERE last_bill_result = '' 
+       AND NOT (next_bill_date = NULL)
+
+"""
+
 FAILURE = """\
 
     UPDATE customers
        SET payment_method_token=%s
          , last_bill_result=%s 
-     WHERE session_token=%s;
+     WHERE email=%s
 
 """
 
@@ -125,7 +145,7 @@ SUCCESS = """\
        SET payment_method_token=%s 
          , last_bill_result=''
          , next_bill_date=%s
-     WHERE session_token=%s;
+     WHERE email=%s
 
 """
 
@@ -136,7 +156,7 @@ SUCCESS_WITH_DAY_OF_MONTH = """\
          , day_of_month_to_bill=%s
          , last_bill_result=''
          , next_bill_date=%s
-     WHERE session_token=%s;
+     WHERE email=%s
 
 """
 
@@ -166,7 +186,7 @@ def redact_pmt(session):
         if pm['payment_method_token']:
             pm._payment_method.redact()
 
-def get_next_bill_date(session, day_of_month):
+def get_next_bill_date(day_of_month):
     """Given a session dict, return a datetime.date.
 
     If day_of_month is None, we will use session['day_of_month_to_bill']. In
@@ -177,8 +197,6 @@ def get_next_bill_date(session, day_of_month):
     leap years correctly. As I write this, tomorrow is February 29, 2012! :D
 
     """
-    if day_of_month is None:
-        day_of_month = session['day_of_month_to_bill'] # KeyError is a bug
     assert 1 <= day_of_month <= 31, day_of_month 
 
     # compute year and month
@@ -205,12 +223,47 @@ def get_next_bill_date(session, day_of_month):
 
     return out
 
-def bill(session, pmt, amount, day_of_month=None):
+
+def do_daily_billing_run(amount):
+    """Do a daily billing run. This is run with heroku scheduler.
+
+    Customers to bill are those with a next_bill_date <= today and
+    last_bill_result = '' (i.e., they've been billed at least once without
+    errors and are scheduled to be billed again).
+
+    If next_bill_date is <= today and last_bill_result is NULL, then that means
+    the customer paused their billing, and we should set next_bill_date to NULL
+    so that they are no longer billed nor seen as a potential to be billed (we
+    kept next_bill_date intact until now in case they wanted to resume billing
+    before the month was up). Do that before billing people, obviously, so we
+    don't bill people with paused billing. That's kind of scary, actually.
+
+    """
+    print ("The following customers had paused their billing and it's now "
+           "turned off:")
+    for customer in db.fetchall(TURN_OFF_PAUSED):
+        print " ", customer['email']
+
+    print
+    print ("The following customers were each billed %s:" % str(amount))
+    for customer in db.fetchall(TO_BILL):
+        pmt = customer['payment_method_token']
+        print " ", customer['email']
+        try:
+            bill(customer, pmt, amount)
+            get_next_bill_date(customer['day_of_month_to_bill'])
+            db.execute()
+        except:
+            print traceback.format_exc()
+    
+
+def bill(session, pmt, amount, day_of_month=None, redact=False):
     """Given a session, a payment method token, and an amount, return a dict.
 
-    If day_of_month is not None, then that will be set as the canonical day of
-    the month on which this customer is to be billed. It is assumed to be an
-    integer between 1 and 31 inclusive.
+    If day_of_month is None, then we expect 'day_of_month_to_bill' in . If
+    day_of_month is not None, then that will be set as the canonical day of the
+    month on which this customer is to be billed. We check that it is an
+    integer between 1 and 31, inclusive.
 
     This function mutates session, in order to keep it in sync with the
     database. In reality I don't expect to use this session downstream in the
@@ -218,15 +271,21 @@ def bill(session, pmt, amount, day_of_month=None):
 
     """
     assert day_of_month is None or (1 <= day_of_month <= 31), day_of_month 
-    session_token = session['session_token']
     email = session['email']
 
-    redact_pmt(session)
+    if redact:
+        redact_pmt(session)
 
+    # Here's where we actually depend on a third party, samurai.
     transaction = Processor.purchase(pmt, amount, custom=email)
+
+    # XXX Race condition: If samurai fails us *and* postgres fails us, then
+    # we'll have a bad record of the customer's billing attempt. We're
+    # depending on Heroku Postgres' good graces here. How do we get around
+    # that, a sentinal value in a column like 'started_billing' in Postgres?
     if transaction.errors:
         errors_json = json.dumps(transaction.errors)
-        db.execute(FAILURE, (pmt, errors_json, session_token))
+        db.execute(FAILURE, (pmt, errors_json, email))
 
         # Keep the payment_method_token, don't reset it to None/NULL: It's
         # useful for loading the previous (bad) credit card info from Samurai
@@ -238,13 +297,16 @@ def bill(session, pmt, amount, day_of_month=None):
 
         out = dict(transaction.errors)
     else:
-        next_bill_date = get_next_bill_date(session, day_of_month)
         if day_of_month is None:
+            day_of_month = session['day_of_month_to_bill'] # KeyError is a bug
+        next_bill_date = get_next_bill_date(day_of_month)
+
+        if day_of_month is None: # again
             SQL = SUCCESS
-            args = (pmt, next_bill_date, session_token)
+            args = (pmt, next_bill_date, email)
         else:
             SQL = SUCCESS_WITH_DAY_OF_MONTH
-            args = (pmt, day_of_month, next_bill_date, session_token)
+            args = (pmt, day_of_month, next_bill_date, email)
         db.execute(SQL, args)
 
         session['payment_method_token'] = pmt
@@ -269,10 +331,6 @@ def resume(session, pmt, amount):
     left on their existing billing cycle. We don't want to re-bill them at this
     time, but we want to set last_bill_result from NULL to either '' or <json>.
 
-    Our cron billing script should look for cases where next_bill_date is today
-    and last_bill_result is NULL, and set next_bill_date to NULL for those
-    cases.
-
     """
     # XXX What happens if a user in the wrong state crafts an HTTP request to 
     # trigger this?
@@ -285,8 +343,7 @@ def resume(session, pmt, amount):
     transaction = Processor.authorize(pmt, amount, custom=email)
     if transaction.errors:
         errors_json = json.dumps(transaction.errors)
-        session_token = session['session_token']
-        db.execute(FAILURE, (pmt, errors_json, session_token))
+        db.execute(FAILURE, (pmt, errors_json, email))
         session['payment_method_token'] = pmt
         session['last_bill_result'] = errors_json
         out = dict(transaction.errors)
