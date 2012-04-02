@@ -60,7 +60,7 @@ if [ $1 ]; then
         exit 
     fi
 
-    if [ -f "" ]; then
+    if [ "`git tag | grep $1`" ]; then
         echo "Version $1 is already git tagged."
     else
         confirm "Tag and push version $1?"
