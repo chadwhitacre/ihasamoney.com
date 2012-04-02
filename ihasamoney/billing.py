@@ -257,7 +257,7 @@ def do_daily_billing_run(amount):
         print " ", customer['email']
 
     print
-    print ("The following customers would be billed %s if we were billing them yet:" % str(amount))
+    print ("The following customers are being billed %s:" % str(amount))
     for customer in ihasamoney.db.fetchall(TO_BILL):
         pmt = customer['payment_method_token']
         print " ", customer['email'].ljust(36), pmt, amount
