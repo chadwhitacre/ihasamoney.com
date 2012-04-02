@@ -187,10 +187,7 @@ def redact_pmt(session):
             pm._payment_method.redact()
 
 def get_next_bill_date(day_of_month):
-    """Given a session dict, return a datetime.date.
-
-    If day_of_month is None, we will use session['day_of_month_to_bill']. In
-    either case, we expect it to be an integer between 1 and 31, inclusive.
+    """Given an int between 1 and 31, inclusive, return a datetime.date.
 
     This returns a date next month. If the desired day of the month doesn't
     exist for next month, return the last day of that month. Python handles
