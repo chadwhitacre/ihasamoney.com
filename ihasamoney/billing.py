@@ -112,6 +112,15 @@ from samurai.payment_method import PaymentMethod as SamuraiPaymentMethod
 from samurai.processor import Processor
 
 
+PAUSED = """\
+
+    SELECT email, next_bill_date
+      FROM customers 
+     WHERE last_bill_result = NULL
+       AND next_bill_date <= CURRENT_DATE 
+
+"""
+
 TURN_OFF_PAUSED = """\
 
     UPDATE customers 
@@ -127,7 +136,7 @@ TO_BILL = """\
     SELECT email, payment_method_token, day_of_month_to_bill
       FROM customers
      WHERE last_bill_result = '' 
-       AND NOT (next_bill_date = NULL)
+       AND next_bill_date <= CURRENT_DATE
 
 """
 
@@ -237,6 +246,11 @@ def do_daily_billing_run(amount):
     don't bill people with paused billing. That's kind of scary, actually.
 
     """
+    print ("The following customers have paused their billing:")
+    for customer in ihasamoney.db.fetchall(PAUSED):
+        print " ", customer['email'], customer['next_bill_date']
+
+    print
     print ("The following customers had paused their billing and it's now "
            "turned off:")
     for customer in ihasamoney.db.fetchall(TURN_OFF_PAUSED):
